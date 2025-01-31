@@ -4,7 +4,7 @@ User interface template for Screening services.
 
 Built with [Next.js](https://nextjs.org/).
 
-### Prerequisites
+## Prerequisites
 
 - [npm](https://nodejs.org/en) package manager
 
