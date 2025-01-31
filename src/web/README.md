@@ -4,30 +4,9 @@ User interface template for Screening services.
 
 Built with [Next.js](https://nextjs.org/).
 
-## Running locally
-
-Install the required dependencies using
-
-```bash
-pnpm install
-# or
-npm install
-```
-
-Then, run the development server:
-
-```bash
-pnpm dev:secure
-# or
-npm dev:secure
-```
-
-Open [https://localhost:3000](https://localhost:3000).
-
 ### Prerequisites
 
-- [pnpm](https://pnpm.io/) package manager
-- or [npm](https://nodejs.org/en) package manager
+- [npm](https://nodejs.org/en) package manager
 
 ## Environment variables
 
@@ -36,18 +15,39 @@ Create a `.env` file which should override environment variables required to run
 ```text
 # Default
 NEXT_PUBLIC_BASE_URL=https://localhost:3000
+NEXT_PUBLIC_API_URL=https://localhost:3001
 NODE_ENV=development
-SERVICE_NAME="UI template"
+SERVICE_NAME="Manage Your Screening (MAYS)"
 
 # Auth
 NEXTAUTH_URL=https://localhost:3000/api/auth
 NEXTAUTH_SECRET={RANDOM_SECRET_STRING}
+
+# NHS login
 AUTH_NHSLOGIN_ISSUER_URL=https://auth.sandpit.signin.nhs.uk
 AUTH_NHSLOGIN_CLIENT_ID={CLIENT_ID}
-AUTH_NHSLOGIN_CLIENT_SECRET={CLIENT_SECRET}
+
+# Required for hosted environments
+AUTH_TRUST_HOST=true
 ```
 
 For `NEXTAUTH_SECRET` you can use `openssl rand -base64 32` or [https://generate-secret.vercel.app/32](https://generate-secret.vercel.app/32) to generate a random value.
+
+## Running locally
+
+Install the required dependencies using
+
+```bash
+npm install
+```
+
+Then, run the development server:
+
+```bash
+npm dev:secure
+```
+
+Open [https://localhost:3000](https://localhost:3000).
 
 ## Testing
 
@@ -60,7 +60,7 @@ Unit tests are written using [Jest](https://jestjs.io/) and [React Testing Libra
 To run unit tests, use the following command:
 
 ```bash
-pnpm run test:unit
+npm run test:unit
 ```
 
 This will execute all unit tests and provide a summary of the tests results.
@@ -70,7 +70,7 @@ This will execute all unit tests and provide a summary of the tests results.
 To run the unit tests in watch mode, use the following command:
 
 ```bash
-pnpm run test:unit:watch
+npm run test:unit:watch
 ```
 
 This will run the tests and re-run them whenever a file changes.
@@ -80,7 +80,7 @@ This will run the tests and re-run them whenever a file changes.
 To generate a code coverage report, use the following command:
 
 ```bash
-pnpm run test:unit:coverage
+npm run test:unit:coverage
 ```
 
 This will generate a coverage report in the `coverage` directory.
@@ -96,7 +96,7 @@ Before running end-to-end tests make sure your development server is running loc
 To run the end-to-end tests, use the following command:
 
 ```bash
-pnpm run test:e2e:ui
+npm run test:e2e:ui
 ```
 
 This will open the Playwright test runner, where you can run the tests interactively.
@@ -106,7 +106,7 @@ This will open the Playwright test runner, where you can run the tests interacti
 To run the end-to-end tests in headless mode, use the following command:
 
 ```bash
-pnpm run test:e2e
+npm run test:e2e
 ```
 
 This will run the tests in headless mode and output the results to the terminal.
