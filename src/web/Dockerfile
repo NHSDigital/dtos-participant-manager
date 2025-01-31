@@ -23,26 +23,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Environment variables
-
-# Default
-ENV NEXT_PUBLIC_BASE_URL=""
-ENV SERVICE_NAME=""
-
-# Auth
-ENV NEXTAUTH_URL=""
-ENV NEXTAUTH_SECRET=""
-
-# Required for hosted environments
-ENV AUTH_TRUST_HOST=""
-
-# NHS Login
-ENV AUTH_NHSLOGIN_ISSUER_URL=""
-ENV AUTH_NHSLOGIN_CLIENT_ID=""
-
-# API
-ENV NEXT_PUBLIC_API_URL=""
-
 RUN npm run build
 
 # 3. Production image, copy all the files and run next
