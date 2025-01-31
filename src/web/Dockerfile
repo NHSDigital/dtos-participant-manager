@@ -27,7 +27,6 @@ COPY . .
 
 # Default
 ENV NEXT_PUBLIC_BASE_URL=""
-ENV NODE_ENV=""
 ENV SERVICE_NAME=""
 
 # Auth
