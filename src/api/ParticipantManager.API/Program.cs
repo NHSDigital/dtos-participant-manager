@@ -11,7 +11,7 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
 {
-  var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabase");
+  var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:ParticipantManagerDatabase");
   if (string.IsNullOrEmpty(connectionString))
   {
     throw new InvalidOperationException("The connection string has not been initialized.");

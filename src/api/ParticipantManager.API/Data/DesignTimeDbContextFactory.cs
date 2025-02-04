@@ -17,7 +17,7 @@ using System.IO;
         .AddEnvironmentVariables()
         .Build();
 
-      var connectionString = configuration["Values:ParticipantManagerDatabase"];
+      var connectionString = configuration["ConnectionStrings:ParticipantManagerDatabase"];
       if (string.IsNullOrEmpty(connectionString))
       {
         throw new InvalidOperationException("Connection string 'ParticipantManagerDatabase' is not configured.");
