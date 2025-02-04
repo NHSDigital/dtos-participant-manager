@@ -26,7 +26,7 @@ public class ParticipantFunctions
 
   [Function("CreateParticipant")]
   public async Task<IActionResult> CreateParticipant(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "participants")] HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")] HttpRequestData req)
   {
     _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -72,7 +72,7 @@ public class ParticipantFunctions
 
   [Function("GetParticipantById")]
   public async Task<IActionResult> GetParticipantById(
-    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "participants/{participantId:guid}")]
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId:guid}")]
     HttpRequestData req, Guid participantId)
   {
     _logger.LogInformation("Fetching participant with ID: {ParticipantId}", participantId);
@@ -89,7 +89,7 @@ public class ParticipantFunctions
 
   [Function("GetParticipantByNhsNumber")]
   public async Task<IActionResult> GetParticipantByNhsNumber(
-    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "participants")]
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants")]
     HttpRequestData req)
   {
     _logger.LogInformation("Processing participant search request.");

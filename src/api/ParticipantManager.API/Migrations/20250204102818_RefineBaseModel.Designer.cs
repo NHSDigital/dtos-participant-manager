@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParticipantManager.API.Data;
 
@@ -11,9 +12,11 @@ using ParticipantManager.API.Data;
 namespace ParticipantManager.API.Migrations
 {
     [DbContext(typeof(ParticipantManagerDbContext))]
-    partial class ParticipantManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250204102818_RefineBaseModel")]
+    partial class RefineBaseModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
