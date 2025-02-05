@@ -39,7 +39,7 @@ services:
   api:
     container_name: "api-backend"
     build:
-      context: ./src/api/ParticipantManager.API  # Path to the API Dockerfile
+      context: ./src/api/ParticipantManager.API # Path to the API Dockerfile
       dockerfile: Dockerfile
       args:
         FUNCTION_KEY_API: "${FUNCTION_KEY_API}"
@@ -48,7 +48,7 @@ services:
     environment:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
-      AzureWebJobsSecretStorageType: "files"  # looks for secrets under /azure-functions-host/Secrets/
+      AzureWebJobsSecretStorageType: "files" # looks for secrets under /azure-functions-host/Secrets/
       ConnectionStrings:ParticipantManagerDatabase: "Server=${DATABASE_HOST};Database=${DATABASE_NAME};User Id=${DATABASE_USER};Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
     depends_on:
       sqlserver:
@@ -62,12 +62,19 @@ services:
   frontend:
     container_name: "nextjs-frontend"
     build:
-      context: ./src/web  # Path to the Next.js project Dockerfile
+      context: ./src/web # Path to the Next.js project Dockerfile
       dockerfile: Dockerfile
+      target: builder # Use builder stage for development
     restart: always
     platform: linux/amd64
-    #environment:
-    #  NEXT_PUBLIC_API_URL: "http://api:3000"
+    volumes:
+      - ./src/web:/app # Mount source code
+      - /app/node_modules # Preserve node_modules
+      - /app/.next # Preserve Next.js build
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true # Enable polling for hot reload
+    command: npm run dev:secure # Run in development mode
     depends_on:
       - api
     ports:
