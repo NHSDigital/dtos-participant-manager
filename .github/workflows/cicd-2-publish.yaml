@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: "Set CI/CD variables"
         id: variables
         run: |
@@ -89,7 +91,7 @@ jobs:
         run: echo "secret_exist=${{ secrets.TEAMS_NOTIFICATION_WEBHOOK_URL != '' }}" >> $GITHUB_OUTPUT
       - name: "Notify on publishing packages"
         if: steps.check.outputs.secret_exist == 'true'
-        uses: nhs-england-tools/notify-msteams-action@v1.0.0
+        uses: nhs-england-tools/notify-msteams-action@v0.0.4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           teams-webhook-url: ${{ secrets.TEAMS_NOTIFICATION_WEBHOOK_URL }}
