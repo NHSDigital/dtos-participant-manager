@@ -1,12 +1,13 @@
-import fs from "fs";
-import path from "path";
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
 
 // Function to convert PEM to CryptoKey
-async function pemToPrivateKey(pemPath: string): Promise<CryptoKey> {
-  // Read PEM file
-  const pem = fs.readFileSync(pemPath, "utf8");
+async function pemToPrivateKey(): Promise<CryptoKey> {
+  const pem = process.env.AUTH_NHSLOGIN_PRIVATE_KEY;
+
+  if (!pem) {
+    throw new Error("AUTH_NHSLOGIN_PRIVATE_KEY env variable is not defined");
+  }
 
   // Remove headers and convert to binary
   const pemContents = pem
@@ -33,11 +34,8 @@ async function pemToPrivateKey(pemPath: string): Promise<CryptoKey> {
   return privateKey;
 }
 
-// Get private key path
-const privateKeyPath = path.join(process.cwd(), "keys", "private_key.pem");
-
 // Convert PEM to CryptoKey
-const clientPrivateKey = await pemToPrivateKey(privateKeyPath);
+const clientPrivateKey = await pemToPrivateKey();
 
 const NHS_LOGIN: OAuthConfig<Profile> = {
   id: "nhs-login",
