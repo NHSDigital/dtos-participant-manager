@@ -29,6 +29,12 @@ AUTH_NHSLOGIN_CLIENT_ID={CLIENT_ID}
 
 # Required for hosted environments
 AUTH_TRUST_HOST=true
+
+# API
+API_URL=https://localhost:5001
+
+# NHS Login
+AUTH_NHSLOGIN_PRIVATE_KEY={NHS_LOGIN_PEM_KEY}
 ```
 
 For `NEXTAUTH_SECRET` you can use `openssl rand -base64 32` or [https://generate-secret.vercel.app/32](https://generate-secret.vercel.app/32) to generate a random value.
