@@ -14,9 +14,6 @@ Create a `.env` file which should override environment variables required to run
 
 ```text
 # Default
-NEXT_PUBLIC_BASE_URL=https://localhost:3000
-NEXT_PUBLIC_API_URL=https://localhost:3001
-NODE_ENV=development
 SERVICE_NAME="Manage Your Screening (MAYS)"
 
 # Auth
@@ -26,15 +23,13 @@ NEXTAUTH_SECRET={RANDOM_SECRET_STRING}
 # NHS login
 AUTH_NHSLOGIN_ISSUER_URL=https://auth.sandpit.signin.nhs.uk
 AUTH_NHSLOGIN_CLIENT_ID={CLIENT_ID}
-
-# Required for hosted environments
-AUTH_TRUST_HOST=true
+AUTH_NHSLOGIN_PRIVATE_KEY={SECRET_KEY}
 
 # API
 API_URL=https://localhost:5001
 
-# NHS Login
-AUTH_NHSLOGIN_PRIVATE_KEY={NHS_LOGIN_PEM_KEY}
+# Required for hosted environments
+AUTH_TRUST_HOST=true
 ```
 
 For `NEXTAUTH_SECRET` you can use `openssl rand -base64 32` or [https://generate-secret.vercel.app/32](https://generate-secret.vercel.app/32) to generate a random value.
