@@ -3,6 +3,7 @@ import { auth } from "@/app/lib/auth";
 import SignInButton from "@/app/components/signInButton";
 import SignOutButton from "./components/signOutButton";
 import { formatNhsNumber, formatDate } from "@/app/lib/utils";
+import { fetchPatientData } from "@/app/lib/fetchPatientData";
 
 export const metadata: Metadata = {
   title: `${process.env.SERVICE_NAME}`,
@@ -10,6 +11,22 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const session = await auth();
+
+  let participantId, name, dob, nhsNumber, pathwayTypeAssignments;
+
+  if (session?.user) {
+    try {
+      if (session.user.nhsNumber) {
+        const patient = await fetchPatientData(session.user.nhsNumber);
+        ({ participantId, name, dob, nhsNumber, pathwayTypeAssignments } =
+          patient);
+      } else {
+        console.log("No NHS number found");
+      }
+    } catch {
+      console.error("Failed to fetch data");
+    }
+  }
 
   return (
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">
@@ -42,6 +59,10 @@ export default async function Home() {
           <h1>
             Welcome {session.user.firstName} {session.user.lastName}
           </h1>
+          <h2>Data from NHS login</h2>
+          <p>
+            Name: {session.user.firstName} {session.user.lastName}
+          </p>
           <p>
             NHS number:{" "}
             {session.user.nhsNumber
@@ -50,6 +71,14 @@ export default async function Home() {
           </p>
           <p>Date of birth: {formatDate(session.user.dob ?? "")}</p>
           <p>Identity level: {session.user.identityLevel}</p>
+          <hr />
+          <h2>Data from API</h2>
+          <p>Participant ID: {participantId}</p>
+          <p>Name: {name}</p>
+          <p>Date of birth: {formatDate(dob)}</p>
+          <p>NHS number: {formatNhsNumber(nhsNumber)}</p>
+          <p>Pathway type assignments: {pathwayTypeAssignments}</p>
+          <hr />
           <SignOutButton />
         </>
       )}

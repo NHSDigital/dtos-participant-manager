@@ -98,7 +98,7 @@ declare module "next-auth" {
     firstName?: string;
     lastName?: string;
     dob?: string;
-    nhsNumber?: number;
+    nhsNumber?: string;
     identityLevel?: string;
   }
 }
