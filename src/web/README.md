@@ -10,11 +10,11 @@ Built with [Next.js](https://nextjs.org/).
 
 ## Environment variables
 
-Create a `.env` file which should override environment variables required to run locally:
+Rename the `.env.example` to `.env` and add the missing values.
 
 ```text
 # Default
-SERVICE_NAME="Manage Your Screening (MAYS)"
+SERVICE_NAME="Manage your screening"
 
 # Auth
 NEXTAUTH_URL=https://localhost:3000/api/auth
