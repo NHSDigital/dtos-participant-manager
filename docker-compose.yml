@@ -1,4 +1,22 @@
 services:
+  ### ✅ Nginx ###
+  nginx:
+    container_name: "nginx"
+    image: "nginx:latest"
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certificates:/etc/ssl/certs
+      - ./certificates:/etc/ssl/private
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+    networks:
+      - backend
+
+  ### ✅ Migrations ###
   migrations:
     container_name: "migrations"
     build:
@@ -41,8 +59,6 @@ services:
     build:
       context: ./src/api/ParticipantManager.API # Path to the API Dockerfile
       dockerfile: Dockerfile
-      args:
-        FUNCTION_KEY_API: "${FUNCTION_KEY_API}"
     platform: linux/amd64
     restart: always
     environment:
@@ -64,17 +80,8 @@ services:
     build:
       context: ./src/web # Path to the Next.js project Dockerfile
       dockerfile: Dockerfile
-      target: builder # Use builder stage for development
     restart: always
     platform: linux/amd64
-    volumes:
-      - ./src/web:/app # Mount source code
-      - /app/node_modules # Preserve node_modules
-      - /app/.next # Preserve Next.js build
-    environment:
-      - NODE_ENV=development
-      - WATCHPACK_POLLING=true # Enable polling for hot reload
-    command: npm run dev:secure # Run in development mode
     depends_on:
       - api
     ports:
