@@ -3,23 +3,13 @@ import { auth } from "@/app/lib/auth";
 import SignInButton from "@/app/components/signInButton";
 import SignOutButton from "./components/signOutButton";
 import { formatNhsNumber, formatDate } from "@/app/lib/utils";
-import { fetchData } from "@/app/lib/fetch";
 
 export const metadata: Metadata = {
-  title: `Overview - ${process.env.SERVICE_NAME}`,
+  title: `${process.env.SERVICE_NAME}`,
 };
 
 export default async function Home() {
   const session = await auth();
-
-  try {
-    if (session?.user?.nhsNumber) {
-      const data = await fetchData(session.user.nhsNumber);
-      console.log(data);
-    }
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
 
   return (
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">

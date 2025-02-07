@@ -278,3 +278,4 @@ __pycache__/
 *.pyc
 
 .env
+*.pem
