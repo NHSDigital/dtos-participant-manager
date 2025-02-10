@@ -16,8 +16,9 @@ public class ScreeningEligibilityFunction(
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
     [Function("GetScreeningEligibility")]
-    public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get" , Route = "eligibility")] HttpRequestData req)
     {
+        logger.LogDebug("Something");
         // Extract the Authorization Header
         if (!req.Headers.TryGetValues("Authorization", out var authHeaderValues))
         {
@@ -47,7 +48,7 @@ public class ScreeningEligibilityFunction(
 
           // Call the Internal CRUD API
           var crudApiUrl =
-            $"{Environment.GetEnvironmentVariable("CRUD_API_URL")}/participants/pathwaytypeassignments?nhsnumber={nhsNumber}";
+            $"{Environment.GetEnvironmentVariable("CRUD_API_URL")}/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}";
 
           var requestMessage = new HttpRequestMessage(HttpMethod.Get, crudApiUrl);
           requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

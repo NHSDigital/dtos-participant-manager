@@ -73,8 +73,6 @@ public class ScreeningEligibilityFunctionTests
       // Assert
       Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
     }
-
-    [Fact]
     public async Task GetScreeningEligibility_ShouldReturnOk_WithValidToken()
     {
         // Arrange
@@ -90,7 +88,7 @@ public class ScreeningEligibilityFunctionTests
     }
 
     // ✅ Helper Method to Create Mock HTTP Request
-    private static HttpRequestData CreateHttpRequest(string authHeader)
+    private static HttpRequestData CreateHttpRequest(string? authHeader)
     {
         var context = new Mock<FunctionContext>();
         var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);

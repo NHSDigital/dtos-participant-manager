@@ -2,8 +2,11 @@
   "profiles": {
     "ParticipantManager.Experience.API": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7103",
-      "launchBrowser": false
+      "commandLineArgs": "--port 6000",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://localhost:6000"
+      }
     }
   }
 }

@@ -28,7 +28,7 @@ public class ParticipantFunctions
   public async Task<IActionResult> CreateParticipant(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")] HttpRequestData req)
   {
-    _logger.LogInformation("C# HTTP trigger function processed a request.");
+    _logger.LogInformation("C# HTTP trigger function processed a request.adsfasfsdf");
 
     try
     {

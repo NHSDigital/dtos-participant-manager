@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ParticipantManager.Experience.API.Client;
 
 var host = new HostBuilder()
+  .ConfigureFunctionsWebApplication()
   .ConfigureServices(services =>
   {
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
