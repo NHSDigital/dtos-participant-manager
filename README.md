@@ -41,6 +41,8 @@ git clone https://github.com/nhs-england-tools/repository-template.git
 cd nhs-england-tools/repository-template
 ```
 
+Windows - Need to install MakeCrt
+
 ### Prerequisites
 
 The following software packages, or their equivalents, are expected to be installed and configured:

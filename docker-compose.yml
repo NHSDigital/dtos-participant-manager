@@ -57,8 +57,8 @@ services:
   api:
     container_name: "api-backend"
     build:
-      context: ./src/api # Path to the API Dockerfile
-      dockerfile: Dockerfile.api
+      context: ./src/api/ParticipantManager.API # Path to the API Dockerfile
+      dockerfile: Dockerfile
     platform: linux/amd64
     restart: always
     environment:
@@ -78,8 +78,8 @@ services:
   experience-api:
     container_name: "experience-api"
     build:
-      context: ./src/api # Path to the API Dockerfile
-      dockerfile: Dockerfile.experience-api
+      context: ./src/api/ParticipantManager.Experience.API # Path to the API Dockerfile
+      dockerfile: Dockerfile
     platform: linux/amd64
     restart: always
     environment:
