@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import SignInButton from "@/app/components/signInButton";
 import SignOutButton from "./components/signOutButton";
 import { formatNhsNumber, formatDate } from "@/app/lib/utils";
-import { fetchPatientData } from "@/app/lib/fetchPatientData";
+import { fetchPatientData, fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 
 export const metadata: Metadata = {
   title: `${process.env.SERVICE_NAME}`,
@@ -13,6 +13,7 @@ export default async function Home() {
   const session = await auth();
 
   let participantId, name, dob, nhsNumber, pathwayTypeAssignments;
+  let eligibility;
 
   if (session?.user) {
     try {
@@ -23,8 +24,19 @@ export default async function Home() {
       } else {
         console.log("No NHS number found");
       }
-    } catch {
-      console.error("Failed to fetch data");
+    } catch(error) {
+      console.error("Failed to fetch patient data:", error);
+    }
+
+    try {
+      if (session.user.accessToken) {
+        const eligibilityResponse = await fetchPatientScreeningEligibility(session.user.accessToken);
+        eligibility = eligibilityResponse;
+      } else {
+        console.log("No access token found");
+      }
+    } catch(error) {
+      console.error("Failed to fetch eligibility data:", error);
     }
   }
 
@@ -79,6 +91,8 @@ export default async function Home() {
           <p>NHS number: {formatNhsNumber(nhsNumber ?? "")}</p>
           <p>Pathway type assignments: {pathwayTypeAssignments ?? ""}</p>
           <hr />
+          <h2>Data from Eligibility API</h2>
+          <p>Eligibility: {eligibility ?? ""}</p>
           <SignOutButton />
         </>
       )}

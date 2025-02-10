@@ -1,7 +1,8 @@
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
 WORKDIR /src/dotnet-function-app
 
-COPY ["ParticipantManager.API.csproj", "./"]
+COPY ["ParticipantManager.Experience.API.csproj", "./"]
 RUN dotnet restore
 
 COPY . .

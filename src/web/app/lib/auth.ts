@@ -11,10 +11,8 @@ async function pemToPrivateKey(): Promise<CryptoKey> {
 
   // Remove headers and convert to binary
   const pemContents = pem
-    .trim()
-    .split("\n")
-    .filter((line) => !line.includes("-----"))
-    .join("");
+  .replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, '')
+  .trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");
@@ -63,7 +61,7 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [NHS_LOGIN],
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
         token.firstName = profile.family_name;
@@ -71,13 +69,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.dob = profile.birthdate;
         token.nhsNumber = profile.nhs_number;
         token.identityLevel = profile.identity_proofing_level;
+        token.accessToken = account?.access_token;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        const { name, firstName, lastName, dob, nhsNumber, identityLevel } =
-          token;
+        const {
+          name,
+          firstName,
+          lastName,
+          dob,
+          nhsNumber,
+          identityLevel,
+          accessToken,
+        } = token;
 
         Object.assign(session.user, {
           name,
@@ -86,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           dob,
           nhsNumber,
           identityLevel,
+          accessToken,
         });
       }
       return session;
@@ -100,5 +107,6 @@ declare module "next-auth" {
     dob?: string;
     nhsNumber?: string;
     identityLevel?: string;
+    accessToken?: string;
   }
 }
