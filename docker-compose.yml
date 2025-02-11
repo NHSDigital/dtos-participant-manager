@@ -92,6 +92,22 @@ services:
     build:
       context: ./src/web # Path to the Next.js project Dockerfile
       dockerfile: dev.Dockerfile
+    develop:
+      watch:
+        - path: ./src/web
+          target: /app
+          action: sync
+          ignore:
+            - node_modules/
+            - .next/
+    volumes:
+      - ./src/web:/app:rw
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    command: npm run dev
     restart: always
     platform: linux/amd64
     depends_on:
