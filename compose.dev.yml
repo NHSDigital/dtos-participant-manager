@@ -1,23 +1,25 @@
 services:
-  ### ✅ Next.js Frontend ###
-  next-app:
-    container_name: next-app
+  frontend:
+    container_name: "nextjs-frontend"
     build:
       context: ./src/web
       dockerfile: dev.Dockerfile
-    volumes:
-      - ./next-app/src:/app/src
-      - ./next-app/public:/app/public
-    command: npm run dev
     develop:
       watch:
-        - action: sync
-          path: ./src/web
-          target: /src/web
+        - path: ./src/web
+          target: /app
+          action: sync
           ignore:
             - node_modules/
-        - action: rebuild
-          path: package.json
+            - .next/
+    volumes:
+      - ./src/web:/app:rw
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    command: npm run dev
     restart: always
     ports:
       - "${WEB_PORT}:3000"
