@@ -16,7 +16,7 @@ public class ScreeningEligibilityFunction(
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
     [Function("GetScreeningEligibility")]
-    public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get" , Route = "eligibility")] HttpRequestData req)
     {
         // Extract the Authorization Header
         if (!req.Headers.TryGetValues("Authorization", out var authHeaderValues))
