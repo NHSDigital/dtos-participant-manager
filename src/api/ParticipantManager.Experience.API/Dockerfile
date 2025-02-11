@@ -14,4 +14,3 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true \
     ASPNETCORE_ENVIRONMENT=Production
 COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
-
