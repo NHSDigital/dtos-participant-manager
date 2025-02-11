@@ -56,7 +56,7 @@ services:
     container_name: "api-backend"
     build:
       context: ./src/api/ParticipantManager.API # Path to the API Dockerfile
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     platform: linux/amd64
     restart: always
     environment:
@@ -74,7 +74,7 @@ services:
     container_name: "experience-api"
     build:
       context: ./src/api/ParticipantManager.Experience.API # Path to the API Dockerfile
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     platform: linux/amd64
     restart: always
     environment:
@@ -91,7 +91,7 @@ services:
     container_name: "nextjs-frontend"
     build:
       context: ./src/web # Path to the Next.js project Dockerfile
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     restart: always
     platform: linux/amd64
     depends_on:
