@@ -75,9 +75,9 @@ export default async function Home() {
           <h2>Data from API</h2>
           <p>Participant ID: {participantId}</p>
           <p>Name: {name}</p>
-          <p>Date of birth: {formatDate(dob)}</p>
-          <p>NHS number: {formatNhsNumber(nhsNumber)}</p>
-          <p>Pathway type assignments: {pathwayTypeAssignments}</p>
+          <p>Date of birth: {formatDate(dob ?? "")}</p>
+          <p>NHS number: {formatNhsNumber(nhsNumber ?? "")}</p>
+          <p>Pathway type assignments: {pathwayTypeAssignments ?? ""}</p>
           <hr />
           <SignOutButton />
         </>
