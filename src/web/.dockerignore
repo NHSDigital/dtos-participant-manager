@@ -1,0 +1,19 @@
+local.settings.json
+# Ignore build output
+bin/
+obj/
+.idea/
+.vscode/
+node_modules/
+dist/
+
+# Ignore user-specific files
+*.user
+*.lock.json
+*.log
+*.tmp
+*.swp
+
+# Ignore environment files
+.env
+secrets.json
