@@ -1,5 +1,5 @@
 # Detect whether to use podman or docker
-DOCKER := $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
+# DOCKER := $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
 # Load environment variables from .env if it exists
 ifneq (,$(wildcard .env))
     include .env
@@ -10,21 +10,24 @@ endif
 # 🔹 Ensure multi-line secrets are handled properly
 ifeq ($(OS),Windows_NT)
     AUTH_NHSLOGIN_PRIVATE_KEY := $(shell type $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
+		DOCKER := wsl docker
 else
     AUTH_NHSLOGIN_PRIVATE_KEY := $(shell cat $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
+		DOCKER := docker
 endif
-
 
 # Define directories
 WEB_DIR=src/web
 API1_DIR=src/api/ParticipantManager.API
-API2_DIR=src/api/ExperienceAPI
+API2_DIR=src/api/ParticipantManager.Experience.API
 
 # Define the database container
 SQL_CONTAINER_NAME=participant_database_local
 SQL_IMAGE=mcr.microsoft.com/mssql/server:latest
 SQL_PORT=1433
 SQL_ENV_VARS=-e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$(DATABASE_PASSWORD)"
+ConnectionStrings__ParticipantManagerDatabase: "Server=${DATABASE_HOST};Database=${DATABASE_NAME};User Id=${DATABASE_USER};Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
+
 
 # 🔹 Store background process PIDs
 PIDS=
@@ -38,8 +41,33 @@ define cleanup
 	@echo "Cleanup completed."
 endef
 
+.PHONY: all web api1 api2 db stop-db stop
+
 # Default command (runs everything)
-all: db web api1 api2 wait
+all: db start wait
+
+start:
+ifeq ($(OS), Windows_NT)
+# Start Next.js (Windows)
+	start /B cmd /c "cd $(WEB_DIR) && npm run dev:secure" & echo $$! > web.pid
+
+# Start API 1 (Windows)
+	start /B cmd /c "cd $(API1_DIR) && dotnet run" & echo $$! > api1.pid
+
+# Start API 2 (Windows)
+	start /B cmd /c "cd $(API2_DIR) && dotnet run" & echo $$! > api2.pid
+else
+# Start Next.js (macOS/Linux)
+	cd $(WEB_DIR) && npm run dev:secure & echo $$! > web.pid
+
+# Start API 1 (macOS/Linux)
+	cd $(API1_DIR) && dotnet watch run & echo $$! > api1.pid
+
+# Start API 2 (macOS/Linux)
+	cd $(API2_DIR) && dotnet watch run & echo $$! > api2.pid
+endif
+
+
 
 # Start the Next.js frontend
 web:
@@ -50,20 +78,19 @@ web:
 # Start API1 (Participant Manager)
 api1:
 	@echo "Starting ParticipantManager API..."
-	cd $(API1_DIR) && dotnet watch run &
+	cd $(API1_DIR) && dotnet run &
 	echo $$! > api1.pid
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
-	cd $(API2_DIR) && dotnet watch run &
+	cd $(API2_DIR) && dotnet run &
 	echo $$! > api2.pid
 
 # Start SQL Server in Podman/Docker
 db:
 	@echo "Starting SQL Server using $(DOCKER)..."
-	$(DOCKER) run --rm --name $(SQL_CONTAINER_NAME) -p $(SQL_PORT):1433 $(SQL_ENV_VARS) -d $(SQL_IMAGE)
-	@PIDS+="$! "
+	$(DOCKER) run -d --rm --name $(SQL_CONTAINER_NAME) -p $(SQL_PORT):1433 $(SQL_ENV_VARS) $(SQL_IMAGE)
 
 # Stop SQL Server
 stop-db:
@@ -83,7 +110,17 @@ stop:
 # ===========================
 wait:
 	@echo "Press CTRL+C to stop services..."
-	@trap 'make stop' INT TERM
-	@wait $(shell cat web.pid api1.pid api2.pid) || true
+	ifeq ($(OS), Windows_NT)
+		@timeout /t -1
+	else
+		@trap 'make stop' INT TERM
+		@wait $(shell cat web.pid api1.pid api2.pid) || true
+	endif
 
-.PHONY: all web api1 api2 db stop-db stop
+debug:
+	@echo $(API1_DIR)
+	@echo $(API2_DIR)
+	@echo $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE)
+	@echo $(AUTH_NHSLOGIN_PRIVATE_KEY)
+	@echo $(API_URL)
+	@echo $(NEXTAUTH_URL)
