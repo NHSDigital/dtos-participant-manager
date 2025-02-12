@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,12 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
 {
-  var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:ParticipantManagerDatabase");
+  Console.WriteLine("Environment Variables:");
+  foreach (DictionaryEntry variable in Environment.GetEnvironmentVariables())
+  {
+      Console.WriteLine($"{variable.Key} = {variable.Value}");
+  }
+  var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__ParticipantManagerDatabase");
   if (string.IsNullOrEmpty(connectionString))
   {
     throw new InvalidOperationException("The connection string has not been initialized.");

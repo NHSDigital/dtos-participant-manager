@@ -26,7 +26,6 @@ SQL_IMAGE=mcr.microsoft.com/mssql/server:latest
 SQL_PORT=1433
 SQL_ENV_VARS=-e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$(DATABASE_PASSWORD)"
 
-
 # 🔹 Store background process PIDs
 PIDS=
 
@@ -40,25 +39,25 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: db web api1 api2
+all: db web api1 api2 wait
 
 # Start the Next.js frontend
 web:
 	@echo "Starting Next.js..."
 	cd $(WEB_DIR) && npm run dev:secure &
-	@PIDS+="$! "
+	echo $$! > web.pid
 
 # Start API1 (Participant Manager)
 api1:
 	@echo "Starting ParticipantManager API..."
 	cd $(API1_DIR) && dotnet watch run &
-	@PIDS+="$! "
+	echo $$! > api1.pid
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
 	cd $(API2_DIR) && dotnet watch run &
-	@PIDS+="$! "
+	echo $$! > api2.pid
 
 # Start SQL Server in Podman/Docker
 db:
@@ -78,5 +77,13 @@ stop:
 	@kill -TERM $(PIDS) 2>/dev/null || true
 	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
 	@echo "Cleanup completed."
+
+# ===========================
+# :white_tick: Wait Until Processes are Stopped
+# ===========================
+wait:
+	@echo "Press CTRL+C to stop services..."
+	@trap 'make stop' INT TERM
+	@wait $(shell cat web.pid api1.pid api2.pid) || true
 
 .PHONY: all web api1 api2 db stop-db stop
