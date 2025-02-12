@@ -16,8 +16,7 @@ using System.IO;
         .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
         .AddEnvironmentVariables()
         .Build();
-
-      var connectionString = configuration["ConnectionStrings:ParticipantManagerDatabase"];
+      var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
       if (string.IsNullOrEmpty(connectionString))
       {
         throw new InvalidOperationException("Connection string 'ParticipantManagerDatabase' is not configured.");

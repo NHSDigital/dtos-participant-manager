@@ -26,8 +26,6 @@ SQL_CONTAINER_NAME=participant_database_local
 SQL_IMAGE=mcr.microsoft.com/mssql/server:latest
 SQL_PORT=1433
 SQL_ENV_VARS=-e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$(DATABASE_PASSWORD)"
-ConnectionStrings__ParticipantManagerDatabase: "Server=${DATABASE_HOST};Database=${DATABASE_NAME};User Id=${DATABASE_USER};Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
-
 
 # 🔹 Store background process PIDs
 PIDS=
@@ -61,10 +59,10 @@ else
 	cd $(WEB_DIR) && npm run dev:secure & echo $$! > web.pid
 
 # Start API 1 (macOS/Linux)
-	cd $(API1_DIR) && dotnet watch run & echo $$! > api1.pid
+	cd $(API1_DIR) && dotnet run & echo $$! > api1.pid
 
 # Start API 2 (macOS/Linux)
-	cd $(API2_DIR) && dotnet watch run & echo $$! > api2.pid
+	cd $(API2_DIR) && dotnet run & echo $$! > api2.pid
 endif
 
 
@@ -91,6 +89,7 @@ api2:
 db:
 	@echo "Starting SQL Server using $(DOCKER)..."
 	$(DOCKER) run -d --rm --name $(SQL_CONTAINER_NAME) -p $(SQL_PORT):1433 $(SQL_ENV_VARS) $(SQL_IMAGE)
+# cd $(API1_DIR) && dotnet ef database update  &
 
 # Stop SQL Server
 stop-db:
@@ -99,10 +98,27 @@ stop-db:
 
 # Stop all running services
 stop:
-	@echo "Stopping all services..."
-	@pkill -P $$ || true
-	@kill -TERM $(PIDS) 2>/dev/null || true
+ifeq ($(OS), Windows_NT)
+	# Stop processes using port numbers on Windows
+	@for %%P in ($(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT)) do (
+		for /f "tokens=5" %%T in ('netstat -ano ^| findstr :%%P') do (
+			taskkill /F /PID %%T 2>nul
+		)
+	)
+else
+	# Stop processes using port numbers on macOS/Linux
+	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT); do \
+			PID=$$(lsof -ti :$$port); \
+			echo "PID: $$PID"; \
+			if [ -n "$$PID" ]; then \
+					kill -9 $$PID 2>/dev/null || true; \
+			fi; \
+	done
+endif
+
+	# Stop the SQL Server container
 	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
+
 	@echo "Cleanup completed."
 
 # ===========================
