@@ -56,18 +56,18 @@ endif
 api1:
 	@echo "Starting ParticipantManager API..."
 ifeq ($(OS), Windows_NT)
-		start /B cmd /c "cd $(API1_DIR) && dotnet run --port $(API_PORT)"
+		start /B cmd /c "cd $(API1_DIR) && dotnet watch run --port $(API_PORT)"
 else
-		cd $(API1_DIR) && dotnet run --port $(API_PORT)&
+		cd $(API1_DIR) && dotnet watch run --port $(API_PORT)&
 endif
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-		start /B cmd /c "cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT)"
+		start /B cmd /c "cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT)"
 else
-		cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT) &
+		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
 endif
 
 # Start SQL Server in Podman/Docker
@@ -85,6 +85,9 @@ stop-db:
 stop:
 
 ifeq ($(OS), Windows_NT)
+	@echo "Stopping dotnet watch processes..."
+	@taskkill /F /IM "dotnet.exe" /FI "WINDOWTITLE eq dotnet watch*" 2>nul || echo "No dotnet watch found"
+
 # Stop processes using port numbers on Windows
 	@for %%P in ($(WEB_PORT) $(API1_PORT) $(API2_PORT)) do (
 		for /f "tokens=5" %%T in ('netstat -ano ^| findstr :%%P') do (
@@ -96,6 +99,12 @@ ifeq ($(OS), Windows_NT)
 	)
 
 else
+
+# Stop dotnet watch processes first
+	@echo "Stopping dotnet watch processes..."
+	@pkill -f "dotnet watch" || true
+	@sleep 1  # Give it a moment to stop
+
 # Stop processes using port numbers on macOS/Linux
 	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT); do \
 			PID=$$(lsof -ti :$$port); \
