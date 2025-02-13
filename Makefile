@@ -40,8 +40,7 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: db api1 api2 web wait
-
+all: db db-migrations api1 api2 web
 
 # Start the Next.js frontend
 web:
@@ -58,7 +57,7 @@ api1:
 ifeq ($(OS), Windows_NT)
 		start /B cmd /c "cd $(API1_DIR) && dotnet watch run --port $(API_PORT)"
 else
-		cd $(API1_DIR) && dotnet watch run --port $(API_PORT)&
+		cd $(API1_DIR) && dotnet watch run --port $(API_PORT) &
 endif
 
 # Start API2 (Experience API)
@@ -74,7 +73,21 @@ endif
 db:
 	@echo "Starting SQL Server using $(DOCKER)..."
 	$(DOCKER) run -d --rm --name $(SQL_CONTAINER_NAME) -p $(SQL_PORT):1433 $(SQL_ENV_VARS) $(SQL_IMAGE)
-# cd $(API1_DIR) && dotnet ef database update  &
+
+db-migrations: db
+# Wait for the database to be available
+	@echo "⏳ Waiting for SQL Server to be ready..."
+	@sleep 5
+	@until nc -z localhost 1433; do \
+		echo "⏳ Waiting for database to be reachable..."; sleep 3; \
+	done
+
+	@echo "✅ Database is ready!"
+
+	# Run EF database migrations
+	@echo "⚙️  Running database migrations..."
+	cd $(API1_DIR) && ParticipantManagerDatabaseConnectionString="$(ParticipantManagerDatabaseConnectionString)" dotnet ef database update
+	@echo "✅ Migrations applied!"
 
 # Stop SQL Server
 stop-db:
@@ -125,18 +138,6 @@ endif
 	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
 
 	@echo "Cleanup completed."
-
-# ===========================
-# :white_tick: Wait Until Processes are Stopped
-# ===========================
-wait:
-	@echo "Press CTRL+C to stop services..."
-ifeq ($(OS), Windows_NT)
-		@timeout /t -1
-else
-		@trap 'make stop' INT TERM
-		@wait $(shell cat web.pid api1.pid api2.pid) || true
-endif
 
 debug:
 	@echo $(API1_DIR)
