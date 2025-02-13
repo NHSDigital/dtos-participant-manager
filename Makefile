@@ -39,51 +39,36 @@ define cleanup
 	@echo "Cleanup completed."
 endef
 
-.PHONY: all web api1 api2 db stop-db stop
-
 # Default command (runs everything)
-all: db start wait
-
-start:
-ifeq ($(OS), Windows_NT)
-# Start Next.js (Windows)
-	start /B cmd /c "cd $(WEB_DIR) && npm run dev:secure" & echo $$! > web.pid
-
-# Start API 1 (Windows)
-	start /B cmd /c "cd $(API1_DIR) && dotnet run" & echo $$! > api1.pid
-
-# Start API 2 (Windows)
-	start /B cmd /c "cd $(API2_DIR) && dotnet run" & echo $$! > api2.pid
-else
-# Start Next.js (macOS/Linux)
-	cd $(WEB_DIR) && npm run dev:secure & echo $$! > web.pid
-
-# Start API 1 (macOS/Linux)
-	cd $(API1_DIR) && dotnet run & echo $$! > api1.pid
-
-# Start API 2 (macOS/Linux)
-	cd $(API2_DIR) && dotnet run & echo $$! > api2.pid
-endif
-
+all: db api1 api2 web wait
 
 
 # Start the Next.js frontend
 web:
 	@echo "Starting Next.js..."
-	cd $(WEB_DIR) && npm run dev:secure &
-	echo $$! > web.pid
+ifeq ($(OS), Windows_NT)
+		start /B cmd /c "cd $(WEB_DIR) && PORT=$(WEB_PORT) npm run dev:secure"
+else
+		cd $(WEB_DIR) && PORT=$(WEB_PORT) npm run dev:secure
+endif
 
 # Start API1 (Participant Manager)
 api1:
 	@echo "Starting ParticipantManager API..."
-	cd $(API1_DIR) && dotnet run &
-	echo $$! > api1.pid
+ifeq ($(OS), Windows_NT)
+		start /B cmd /c "cd $(API1_DIR) && dotnet run --port $(API_PORT)"
+else
+		cd $(API1_DIR) && dotnet run --port $(API_PORT)&
+endif
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
-	cd $(API2_DIR) && dotnet run &
-	echo $$! > api2.pid
+ifeq ($(OS), Windows_NT)
+		start /B cmd /c "cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT)"
+else
+		cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT) &
+endif
 
 # Start SQL Server in Podman/Docker
 db:
@@ -98,25 +83,36 @@ stop-db:
 
 # Stop all running services
 stop:
+
 ifeq ($(OS), Windows_NT)
-	# Stop processes using port numbers on Windows
-	@for %%P in ($(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT)) do (
+# Stop processes using port numbers on Windows
+	@for %%P in ($(WEB_PORT) $(API1_PORT) $(API2_PORT)) do (
 		for /f "tokens=5" %%T in ('netstat -ano ^| findstr :%%P') do (
-			taskkill /F /PID %%T 2>nul
+			for /f "tokens=1 delims= " %%C in ('tasklist /FI "PID eq %%T" /FO LIST ^| findstr "Image Name"') do (
+				if /I "%%C"=="node.exe" (taskkill /F /PID %%T)
+				if /I "%%C"=="dotnet.exe" (taskkill /F /PID %%T)
+			)
 		)
 	)
+
 else
-	# Stop processes using port numbers on macOS/Linux
+# Stop processes using port numbers on macOS/Linux
 	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT); do \
 			PID=$$(lsof -ti :$$port); \
 			echo "PID: $$PID"; \
 			if [ -n "$$PID" ]; then \
+				ACTUAL_CMD=$$(ps -o comm= -p $$PID); \
+				if [ "$$ACTUAL_CMD" = "node" ] || [ "$$ACTUAL_CMD" = "func" ]; then \
 					kill -9 $$PID 2>/dev/null || true; \
+					echo "Stopped $$ACTUAL_CMD on port $$port"; \
+				else \
+					echo "Skipping $$ACTUAL_CMD (not expected)"; \
+				fi \
 			fi; \
 	done
 endif
 
-	# Stop the SQL Server container
+# Stop the SQL Server container
 	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
 
 	@echo "Cleanup completed."
@@ -126,12 +122,12 @@ endif
 # ===========================
 wait:
 	@echo "Press CTRL+C to stop services..."
-	ifeq ($(OS), Windows_NT)
+ifeq ($(OS), Windows_NT)
 		@timeout /t -1
-	else
+else
 		@trap 'make stop' INT TERM
 		@wait $(shell cat web.pid api1.pid api2.pid) || true
-	endif
+endif
 
 debug:
 	@echo $(API1_DIR)
@@ -140,3 +136,6 @@ debug:
 	@echo $(AUTH_NHSLOGIN_PRIVATE_KEY)
 	@echo $(API_URL)
 	@echo $(NEXTAUTH_URL)
+
+
+.PHONY: all web api1 api2 db stop-db stop
