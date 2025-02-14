@@ -32,8 +32,10 @@ app_insights = {
 }
 
 law = {
-  law_sku        = "PerGB2018"
-  retention_days = 30
+  law_sku            = "PerGB2018"
+  retention_days     = 30
+  export_enabled     = false
+  export_table_names = ["Alert"]
 }
 
 storage_accounts = {
