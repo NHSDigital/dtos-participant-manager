@@ -12,4 +12,6 @@ public class PathwayTypeAssignment
   public Participant Participant { get; set; }
   public Guid PathwayTypeId {get; set;}
   public ICollection<Episode> Episodes { get; set; }
+  public string ScreeningName {get; set;}
+  public string PathwayName {get; set;}
 }

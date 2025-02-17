@@ -1,3 +1,5 @@
+import { EligibilityResponse } from "@/app/types";
+
 export async function fetchPatientData(nhsNumber: string) {
   try {
     const url = `${process.env.CRUD_API_URL}/api/participants?nhsnumber=${nhsNumber}`;
@@ -14,7 +16,9 @@ export async function fetchPatientData(nhsNumber: string) {
   }
 }
 
-export async function fetchPatientScreeningEligibility(accessToken: string) {
+export async function fetchPatientScreeningEligibility(
+  accessToken: string
+): Promise<EligibilityResponse> {
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/eligibility`;
     const response = await fetch(url, {
