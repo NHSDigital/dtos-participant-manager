@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace ParticipantManager.Experience.API.Client;
@@ -11,10 +9,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     logger.LogInformation("GetPathwayAssignmentsAsync");
     try
     {
-      var responseMessage =
-        await httpClient.GetAsync(
-          "/participants/pathwaytypeassignments?nhsnumber={nhsNumber}");
-      return responseMessage;
+      return await httpClient.GetAsync($"/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}");
     }
     catch (Exception ex)
     {
