@@ -25,19 +25,11 @@ export const formatCompactDate = (dateString: string): string => {
   return date.toLocaleDateString("en-GB", options);
 };
 
-export const formatPhoneNumber = (phoneNumber: string): string => {
-  return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, "$1 $2 $3");
-};
-
-export function formatCIS2Roles(roles?: string): string[] {
-  if (!roles) return [];
-  return roles.replace(/"/g, "").split(":");
-}
-
-export function getCurrentDate(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function createUrlSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-")
+    .trim();
 }
