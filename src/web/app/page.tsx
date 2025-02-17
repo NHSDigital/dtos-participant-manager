@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import type { Session } from "next-auth";
 import { auth } from "@/app/lib/auth";
-import SignInButton from "@/app/components/signInButton";
-import SignOutButton from "@/app/components/signOutButton";
+import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import BackLink from "@/app/components/backLink";
 import Card from "@/app/components/card";
+import SignInButton from "@/app/components/signInButton";
+import SignOutButton from "@/app/components/signOutButton";
 
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
@@ -19,8 +21,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const getEligibility = async (session: Session | null) => {
+  if (!session?.user?.accessToken) {
+    console.log("No access token found");
+    return null;
+  }
+
+  try {
+    return await fetchPatientScreeningEligibility(session.user.accessToken);
+  } catch (error) {
+    console.error("Failed to fetch eligibility data:", error);
+    return null;
+  }
+};
+
 export default async function Home() {
   const session = await auth();
+  const eligibility = await getEligibility(session);
 
   return (
     <>
@@ -59,7 +76,21 @@ export default async function Home() {
             <div className="nhsuk-grid-row">
               <div className="nhsuk-grid-column-two-thirds">
                 <h1>My screening</h1>
-                <Card title="Breast screening" url="/breast-screening" />
+
+                {eligibility?.length ? (
+                  eligibility.map(
+                    (item: { assignmentId: string; screeningName: string }) => (
+                      <Card
+                        key={item.assignmentId}
+                        title={item.screeningName}
+                        url="/breast-screening"
+                      />
+                    )
+                  )
+                ) : (
+                  <p>No screening assignments found.</p>
+                )}
+
                 <p>
                   Find out more information about{" "}
                   <a href="https://www.nhs.uk/conditions/nhs-screening/">
