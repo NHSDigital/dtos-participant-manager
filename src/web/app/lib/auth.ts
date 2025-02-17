@@ -5,7 +5,6 @@ import { SecretClient } from "@azure/keyvault-secrets";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey> {
-  var pem;
   const keyVaultUrl = process.env.KEY_VAULT_URL || "";
 
   const credential = new DefaultAzureCredential();
@@ -13,7 +12,7 @@ async function pemToPrivateKey(): Promise<CryptoKey> {
 
   const secretName = process.env.SECRET_NAME || "";
   const secret = await client.getSecret(secretName);
-  pem = secret.value;
+  const pem = secret.value;
 
   if (!pem) {
     throw new Error("Could not get secret from azure key vault");
