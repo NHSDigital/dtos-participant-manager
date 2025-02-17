@@ -42,9 +42,9 @@ all: db db-migrations api1 api2 web
 web:
 	@echo "Starting Next.js..."
 ifeq ($(OS), Windows_NT)
-	cd "$(WEB_DIR)" && set PORT=$(WEB_PORT) && start /B npm run dev:secure
+	cd "$(WEB_DIR)" && npm install && set PORT=$(WEB_PORT) && start /B npm run dev:secure
 else
-		cd $(WEB_DIR) && PORT=$(WEB_PORT) npm run dev:secure
+		cd $(WEB_DIR) && npm install && PORT=$(WEB_PORT) npm run dev:secure
 endif
 
 # Start API1 (Participant Manager)
