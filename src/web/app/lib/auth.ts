@@ -19,9 +19,7 @@ async function pemToPrivateKey(): Promise<CryptoKey> {
   }
 
   // Remove headers and convert to binary
-  const pemContents = pem
-  .replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, '')
-  .trim();
+  const pemContents = pem.replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, "").trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");
@@ -70,6 +68,9 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [NHS_LOGIN],
   callbacks: {
+    authorized: async ({ auth }) => {
+      return !!auth;
+    },
     async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
@@ -106,6 +107,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/",
   },
 });
 
