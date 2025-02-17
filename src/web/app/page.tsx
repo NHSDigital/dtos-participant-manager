@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
+import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import BackLink from "@/app/components/backLink";
@@ -21,7 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const getEligibility = async (session: Session | null) => {
+const getEligibility = async (
+  session: Session | null
+): Promise<EligibilityResponse | null> => {
   if (!session?.user?.accessToken) {
     console.log("No access token found");
     return null;
@@ -78,15 +81,13 @@ export default async function Home() {
                 <h1>My screening</h1>
 
                 {eligibility?.length ? (
-                  eligibility.map(
-                    (item: { assignmentId: string; screeningName: string }) => (
-                      <Card
-                        key={item.assignmentId}
-                        title={item.screeningName}
-                        url="/breast-screening"
-                      />
-                    )
-                  )
+                  eligibility.map((item: EligibilityItem) => (
+                    <Card
+                      key={item.assignmentId}
+                      title={item.screeningName}
+                      url="/breast-screening"
+                    />
+                  ))
                 ) : (
                   <p>No screening assignments found.</p>
                 )}
