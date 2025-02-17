@@ -5,13 +5,9 @@ ifneq (,$(wildcard .env))
 	export
 endif
 
-
-# 🔹 Ensure multi-line secrets are handled properly
 ifeq ($(OS),Windows_NT)
-	AUTH_NHSLOGIN_PRIVATE_KEY := $(shell type $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
 	DOCKER := wsl docker
 else
-	AUTH_NHSLOGIN_PRIVATE_KEY := $(shell cat $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
 	DOCKER := docker
 endif
 
@@ -46,9 +42,9 @@ all: db db-migrations api1 api2 web
 web:
 	@echo "Starting Next.js..."
 ifeq ($(OS), Windows_NT)
-	cd "$(WEB_DIR)" && set PORT=$(WEB_PORT) && start /B npm run dev:secure
+	cd "$(WEB_DIR)" && npm install && set PORT=$(WEB_PORT) && start /B npm run dev:secure
 else
-		cd $(WEB_DIR) && PORT=$(WEB_PORT) npm run dev:secure
+		cd $(WEB_DIR) && npm install && PORT=$(WEB_PORT) npm run dev:secure
 endif
 
 # Start API1 (Participant Manager)
