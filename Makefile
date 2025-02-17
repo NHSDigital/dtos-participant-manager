@@ -46,7 +46,7 @@ all: db db-migrations api1 api2 web
 web:
 	@echo "Starting Next.js..."
 ifeq ($(OS), Windows_NT)
-	cd $(WEB_DIR) && set PORT=$(WEB_PORT) && npm run dev:secure"
+	cd "$(WEB_DIR)" && set PORT=$(WEB_PORT) && start /B npm run dev:secure
 else
 		cd $(WEB_DIR) && PORT=$(WEB_PORT) npm run dev:secure
 endif
@@ -64,7 +64,7 @@ endif
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-	@cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT)"
+	@cd $(API2_DIR) && start /B dotnet watch run --port $(EXPERIENCE_PORT)"
 else
 		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
 endif
