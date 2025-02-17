@@ -110,7 +110,7 @@ jobs:
       excluded_containers_csv_list: azurite,azurite-setup,sql-database,database-setup
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: src
-      project_name: service-insights
+      project_name: participant-manager
     secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: Acceptance stage
