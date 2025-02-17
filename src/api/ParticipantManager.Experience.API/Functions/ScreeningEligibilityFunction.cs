@@ -61,7 +61,7 @@ public class ScreeningEligibilityFunction(
           }
 
           var content = await response.Content.ReadAsStringAsync();
-
+        logger.LogInformation("WARREN TEST " + content);
           return new OkObjectResult(content);
         }
         catch (Exception ex)
