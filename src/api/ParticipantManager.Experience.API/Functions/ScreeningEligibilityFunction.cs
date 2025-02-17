@@ -42,8 +42,11 @@ public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> 
       logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
 
       var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
+      if (pathwayAssignments == null)
+      {
+        throw new Exception("Unable to find pathway assignments");
+      }
 
-      //var content = await response.Content.ReadAsStringAsync();
       return new OkObjectResult(pathwayAssignments);
     }
     catch (Exception ex)

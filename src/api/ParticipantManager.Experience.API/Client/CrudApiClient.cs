@@ -8,7 +8,7 @@ namespace ParticipantManager.Experience.API.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
-  public async Task<List<PathwayAssignmentDto>> GetPathwayAssignmentsAsync(string nhsNumber)
+  public async Task<List<PathwayAssignmentDto>?> GetPathwayAssignmentsAsync(string nhsNumber)
   {
     logger.LogInformation("GetPathwayAssignmentsAsync");
     try
