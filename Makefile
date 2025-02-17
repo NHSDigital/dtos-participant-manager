@@ -5,13 +5,9 @@ ifneq (,$(wildcard .env))
 	export
 endif
 
-
-# 🔹 Ensure multi-line secrets are handled properly
 ifeq ($(OS),Windows_NT)
-	AUTH_NHSLOGIN_PRIVATE_KEY := $(shell type $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
 	DOCKER := wsl docker
 else
-	AUTH_NHSLOGIN_PRIVATE_KEY := $(shell cat $(AUTH_NHSLOGIN_PRIVATE_KEY_FILE))
 	DOCKER := docker
 endif
 
