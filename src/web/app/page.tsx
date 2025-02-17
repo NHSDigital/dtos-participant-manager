@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 import { auth } from "@/app/lib/auth";
+import { createUrlSlug } from "@/app/lib/utils";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import BackLink from "@/app/components/backLink";
 import Card from "@/app/components/card";
@@ -41,6 +42,7 @@ const getEligibility = async (
 export default async function Home() {
   const session = await auth();
   const eligibility = await getEligibility(session);
+  console.log(eligibility);
 
   return (
     <>
@@ -85,7 +87,7 @@ export default async function Home() {
                     <Card
                       key={item.assignmentId}
                       title={item.screeningName}
-                      url="/breast-screening"
+                      url={createUrlSlug(item.screeningName)}
                     />
                   ))
                 ) : (
