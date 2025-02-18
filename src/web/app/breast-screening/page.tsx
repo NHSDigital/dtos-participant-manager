@@ -6,9 +6,19 @@ import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import Unauthorised from "@/app/components/unauthorised";
 
-export const metadata: Metadata = {
-  title: `Breast screening - ${process.env.SERVICE_NAME}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+
+  if (session?.user) {
+    return {
+      title: `Breast screening - ${process.env.SERVICE_NAME}`,
+    };
+  }
+
+  return {
+    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME}`,
+  };
+}
 
 export default async function Home() {
   const session = await auth();
