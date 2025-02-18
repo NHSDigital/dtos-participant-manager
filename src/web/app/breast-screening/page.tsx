@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { auth } from "@/app/lib/auth";
-import Link from "next/link";
 import SignOutButton from "@/app/components/signOutButton";
 import BackLink from "@/app/components/backLink";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
+import Unauthorised from "@/app/components/unauthorised";
 
 export const metadata: Metadata = {
   title: `Breast screening - ${process.env.SERVICE_NAME}`,
@@ -13,19 +13,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   const session = await auth();
 
-  if (!session)
-    return (
-      <main className="nhsuk-main-wrapper" id="maincontent" role="main">
-        <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-two-thirds">
-            <h1>Not authenticated</h1>
-            <p>
-              <Link href="/">Return to the homepage</Link>
-            </p>
-          </div>
-        </div>
-      </main>
-    );
+  if (!session) return <Unauthorised />;
 
   return (
     <>
