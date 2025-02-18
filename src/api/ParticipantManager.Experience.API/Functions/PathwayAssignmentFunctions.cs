@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Client;
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
-using ParticipantManager.Experience.API.Utils;
 using ParticipantManager.Experience.API.Services;
 
 public class PathwayAssignmentFunctions(ILogger<PathwayAssignmentFunctions> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
