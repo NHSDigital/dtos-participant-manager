@@ -1,61 +1,68 @@
-namespace ParticipantManager.Experience.API.Services;
-
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using HttpRequestData = Microsoft.Azure.Functions.Worker.Http.HttpRequestData;
 
-public class TokenService(ILogger<TokenService> logger, SecretClient secretClient) : ITokenService
+namespace ParticipantManager.Experience.API.Services
 {
-  private readonly string _issuer = Environment.GetEnvironmentVariable("Authentication:Issuer");
-  private readonly string _audience = Environment.GetEnvironmentVariable("Authentication:Audience");
-
-  private readonly ILogger<TokenService> _logger = logger;
-
   /// <summary>
-  /// :white_tick: Extracts token from Authorization header
-  /// </summary>
-  public string? ExtractToken(IEnumerable<string> authorizationHeader)
-  {
-    var accessToken = authorizationHeader.FirstOrDefault()?.Replace("Bearer ", "");
-
-    if (string.IsNullOrEmpty(accessToken) || !accessToken.StartsWith("Bearer "))
+    /// Validates an incoming request and extracts any <see cref="ClaimsPrincipal"/> contained within the bearer token.
+    /// </summary>
+    public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logger) : ITokenService
     {
-      _logger.LogWarning("Missing or invalid Authorization header.");
-      return null;
+        private const string AuthHeaderName = "Authorization";
+        private const string BearerPrefix = "Bearer ";
+        private readonly string _audience = Environment.GetEnvironmentVariable("OAUTH_AUDIENCE") ?? throw new InvalidOperationException("OAUTH_AUDIENCE environment variable is missing.");
+        private readonly string _issuer = Environment.GetEnvironmentVariable("OAUTH_ISSUER") ?? throw new InvalidOperationException("OAUTH_ISSUER environment variable is missing.");
+        public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
+        {
+            try
+            {
+                // Get the token from the header
+                logger.LogInformation("Validating token");
+                if (request.Headers.TryGetValues(AuthHeaderName, out var authHeaderValues) &&
+                    authHeaderValues.FirstOrDefault().StartsWith(BearerPrefix))
+                {
+                    var token = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
+                    var tokenParams = new TokenValidationParameters()
+                    {
+                        ValidAudience = _audience,
+                        ValidateAudience = true,
+                        ValidIssuer = _issuer,
+                        ValidateIssuer = true,
+                        RequireSignedTokens = false,
+                        ValidateIssuerSigningKey = false,
+                        ValidateLifetime = false,
+                        //TODO Make sure this is set to true
+                        IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
+                    };
+                    // Validate the token
+                    var handler = new JwtSecurityTokenHandler();
+                    logger.LogInformation("About to validate access token");
+                    var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+                    return AccessTokenResult.Success(result);
+                }
+                else
+                {
+                  logger.LogInformation("No valid token found");
+                  return AccessTokenResult.NoToken();
+                }
+            }
+            catch (SecurityTokenExpiredException se)
+            {
+              logger.LogInformation("Token expired at {0}", se.Message);
+              return AccessTokenResult.Expired();
+            }
+            catch (Exception ex)
+            {
+              logger.LogInformation("Token validation exception  at {0}", ex.Message);
+              return AccessTokenResult.Error(ex);
+            }
+        }
     }
-    return accessToken.Substring("Bearer ".Length).Trim();
-  }
-  /// <summary>
-  /// :white_tick: Validates token and returns ClaimsPrincipal
-  /// </summary>
-  public ClaimsPrincipal? ValidateToken(string token)
-  {
-    try
-    {
-      var _clientSecret = secretClient.GetSecretAsync(Environment.GetEnvironmentVariable("SECRET_NAME")).ToString();
-      var tokenHandler = new JwtSecurityTokenHandler();
-      var key = Convert.FromBase64String(_clientSecret);
-      var validationParameters = new TokenValidationParameters
-      {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = _issuer,
-        ValidAudience = _audience,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-      };
-      SecurityToken validatedToken;
-      var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-      return principal;
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError("Token validation failed: {Message}", ex.Message);
-      return null;
-    }
-  }
 }

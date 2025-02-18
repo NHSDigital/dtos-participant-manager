@@ -14,36 +14,15 @@ public class PathwayAssignmentFunctions(ILogger<PathwayAssignmentFunctions> logg
   [Function("GetPathwayAssignmentById")]
   public async Task<IActionResult> GetParticipantById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req)
   {
-    try {
-    logger.LogDebug("{PathwayAssignmentsDetails} Function Called", nameof(PathwayAssignmentFunctions));
-    // Extract the Authorization Header
+    var result = await tokenService.ValidateToken(req);
 
-   if (!req.Headers.TryGetValues("Authorization", out var authHeaderValues))
+    if (result.Status == AccessTokenStatus.Valid)
     {
-      return new UnauthorizedResult();
+      logger.LogInformation($"Request received for {result.Principal.Identity.Name}.");
+      return new OkResult();
     }
+    return new UnauthorizedResult();
 
-    var token = tokenService.ExtractToken(authHeaderValues);
-    if (token == null || tokenService.ValidateToken(token) == null)
-    {
-      return new UnauthorizedResult();
-    }
-      logger.LogInformation("Token: {Token}", token);
-
-      // logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
-      // var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-      // if (pathwayAssignments == null)
-      // {
-      //   throw new Exception("Unable to find pathway assignments");
-      // }
-
-      // return new OkObjectResult(pathwayAssignments);
-      return new OkObjectResult(token);
-    }
-    catch (Exception ex)
-    {
-      return new BadRequestObjectResult(ex.Message);
-    }
   }
 
   private ObjectResult HandleResponseError(HttpResponseMessage? response, [CallerMemberName] string functionName = "")

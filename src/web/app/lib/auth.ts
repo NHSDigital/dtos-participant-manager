@@ -2,6 +2,7 @@ import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
 import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
+import { Console } from "console";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey> {
@@ -91,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           identityLevel,
           accessToken,
         } = token;
+        console.log(token);
 
         Object.assign(session.user, {
           name,
