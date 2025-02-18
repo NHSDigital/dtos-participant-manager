@@ -1,6 +1,6 @@
 services:
   ### ✅ API Backend (Azure Functions in .NET 9) ###
-  api:
+  api-backend:
     container_name: "api-backend"
     build:
       context: ./src/api/ParticipantManager.API
@@ -35,7 +35,7 @@ services:
       - backend
 
   ### ✅ Next.js Frontend ###
-  frontend:
+  nextjs-frontend:
     container_name: "nextjs-frontend"
     build:
       context: ./src/web
