@@ -4,5 +4,5 @@ namespace ParticipantManager.Experience.API.Client;
 
 public interface ICrudApiClient
 {
-  Task<HttpResponseMessage?> GetPathwayAssignmentsAsync(string nhsNumber);
+  Task<List<PathwayAssignmentDto>?> GetPathwayAssignmentsAsync(string nhsNumber);
 }

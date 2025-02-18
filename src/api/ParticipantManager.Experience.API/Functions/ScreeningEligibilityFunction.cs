@@ -41,14 +41,13 @@ public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> 
 
       logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
 
-      var response = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-      if (response == null || !response.IsSuccessStatusCode)
+      var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
+      if (pathwayAssignments == null)
       {
-        return HandleResponseError(response);
+        throw new Exception("Unable to find pathway assignments");
       }
 
-      var content = await response.Content.ReadAsStringAsync();
-      return new OkObjectResult(content);
+      return new OkObjectResult(pathwayAssignments);
     }
     catch (Exception ex)
     {
