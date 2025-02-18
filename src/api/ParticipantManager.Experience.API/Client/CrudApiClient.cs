@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
-//using System.Text.Json;
 
 namespace ParticipantManager.Experience.API.Client;
 

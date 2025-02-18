@@ -68,9 +68,6 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [NHS_LOGIN],
   callbacks: {
-    authorized: async ({ auth }) => {
-      return !!auth;
-    },
     async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
