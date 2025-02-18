@@ -29,7 +29,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+  AUTH_NHSLOGIN_PRIVATE_KEY=dummy_value
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
