@@ -165,11 +165,11 @@ public class ScreeningEligibilityFunctionTests
       new PathwayAssignmentDto() {
         AssignmentId = "123",
         ScreeningName = "BreastScreening"
-       },
+        },
       new PathwayAssignmentDto() {
         AssignmentId = "1234",
         ScreeningName = "BowelScreening"
-       }
+        }
     };
   }
 }
