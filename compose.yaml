@@ -43,7 +43,7 @@ services:
     restart: always
     platform: linux/amd64
     environment:
-      AUTH_NHSLOGIN_PRIVATE_KEY: dummy_value
+      AUTH_NHSLOGIN_PRIVATE_KEY: "${AUTH_NHSLOGIN_PRIVATE_KEY}"
     depends_on:
       - experience-api
     ports:
