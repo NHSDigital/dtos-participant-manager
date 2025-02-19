@@ -8,5 +8,5 @@ public class AssignedPathwayDetailsDTO
   public DateTime? NextActionDate { get; set; }
   public string ScreeningName { get; set; }
   public string PathwayName { get; set; }
-  public string InfoUrl { get; set; }
+  public string InfoUrl => PathwayInfoUrlMapper.GetUrl(PathwayName);
 }
