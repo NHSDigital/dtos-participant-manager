@@ -2,7 +2,7 @@ namespace ParticipantManager.Experience.API.DTOs;
 
 public class AssignedPathwayDetailsDTO
 {
-  public string AssignmentId { get; set; }
+  public Guid AssignmentId { get; set; }
   public DateTime AssignmentDate { get; set; }
   public string Status { get; set; }
   public DateTime? NextActionDate { get; set; }

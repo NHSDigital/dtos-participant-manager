@@ -45,7 +45,7 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -70,7 +70,7 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -95,7 +95,7 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request) as OkObjectResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as OkObjectResult;
 
     // Assert
     var pathwayAssignmentDto = (AssignedPathwayDetailsDTO)response.Value;
@@ -110,17 +110,12 @@ public class PathwayAssignmentFunctionTests
     var context = new Mock<FunctionContext>();
     var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
     var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-    var queryParameters = new NameValueCollection
-    {
-      { "assignmentid", "123" },
-    };
     if (!string.IsNullOrEmpty(authHeader))
     {
       headers.Add("Authorization", $"{authHeader}");
     }
 
     request.Setup(r => r.Headers).Returns(headers);
-    request.Setup(r => r.Query).Returns(queryParameters);
     return request.Object;
   }
 
@@ -133,8 +128,7 @@ public class PathwayAssignmentFunctionTests
       Status = "Active",
       AssignmentDate = DateTime.Now,
       PathwayName = "Breast Screening Regular",
-      NextActionDate = DateTime.Now,
-      InfoUrl = "https://www.nhs.uk/"
+      NextActionDate = DateTime.Now
     };
   }
 }
