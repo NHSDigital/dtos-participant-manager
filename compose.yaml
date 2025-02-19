@@ -43,6 +43,8 @@ services:
     restart: always
     platform: linux/amd64
     environment:
+      SERVICE_NAME: "${SERVICE_NAME}"
+      AUTH_NHSLOGIN_ISSUER_URL: "${AUTH_NHSLOGIN_ISSUER_URL}"
       AUTH_NHSLOGIN_PRIVATE_KEY: "${AUTH_NHSLOGIN_PRIVATE_KEY}"
     depends_on:
       - experience-api
