@@ -1,0 +1,68 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using HttpRequestData = Microsoft.Azure.Functions.Worker.Http.HttpRequestData;
+
+namespace ParticipantManager.Experience.API.Services
+{
+  /// <summary>
+    /// Validates an incoming request and extracts any <see cref="ClaimsPrincipal"/> contained within the bearer token.
+    /// </summary>
+    public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logger) : ITokenService
+    {
+        private const string AuthHeaderName = "Authorization";
+        private const string BearerPrefix = "Bearer ";
+        private readonly string _audience = Environment.GetEnvironmentVariable("OAUTH_AUDIENCE") ?? throw new InvalidOperationException("OAUTH_AUDIENCE environment variable is missing.");
+        private readonly string _issuer = Environment.GetEnvironmentVariable("OAUTH_ISSUER") ?? throw new InvalidOperationException("OAUTH_ISSUER environment variable is missing.");
+        public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
+        {
+            try
+            {
+                // Get the token from the header
+                logger.LogInformation("Validating token");
+                if (request.Headers.TryGetValues(AuthHeaderName, out var authHeaderValues) &&
+                    authHeaderValues.FirstOrDefault().StartsWith(BearerPrefix))
+                {
+                    var token = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
+                    var tokenParams = new TokenValidationParameters()
+                    {
+                        ValidAudience = _audience,
+                        ValidateAudience = true,
+                        ValidIssuer = _issuer,
+                        ValidateIssuer = true,
+                        RequireSignedTokens = false,
+                        ValidateIssuerSigningKey = false,
+                        ValidateLifetime = false,
+                        //TODO Make sure this is set to true
+                        IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
+                    };
+                    // Validate the token
+                    var handler = new JwtSecurityTokenHandler();
+                    logger.LogInformation("About to validate access token");
+                    var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+                    return AccessTokenResult.Success(result);
+                }
+                else
+                {
+                  logger.LogInformation("No valid token found");
+                  return AccessTokenResult.NoToken();
+                }
+            }
+            catch (SecurityTokenExpiredException se)
+            {
+              logger.LogInformation("Token expired at {0}", se.Message);
+              return AccessTokenResult.Expired();
+            }
+            catch (Exception ex)
+            {
+              logger.LogInformation("Token validation exception  at {0}", ex.Message);
+              return AccessTokenResult.Error(ex);
+            }
+        }
+    }
+}

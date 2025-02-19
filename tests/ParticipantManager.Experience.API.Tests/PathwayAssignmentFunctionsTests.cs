@@ -1,5 +1,6 @@
 using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.TestUtils;
 
 namespace ParticipantManager.Experience.API.Tests;
 
@@ -18,38 +19,40 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using ParticipantManager.Experience.API.Client;
+using System.Collections.Specialized;
 
-public class ScreeningEligibilityFunctionTests
+public class PathwayAssignmentFunctionTests
 {
-  private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
+  private readonly Mock<ILogger<PathwayAssignmentFunction>> _loggerMock;
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
   private readonly Mock<ITokenService> _mockTokenService = new();
-  private readonly ScreeningEligibilityFunction _function;
+  private readonly PathwayAssignmentFunction _function ;
 
-  public ScreeningEligibilityFunctionTests()
+  public PathwayAssignmentFunctionTests()
   {
-    _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result).Returns(MockListPathwayAssignments);
-    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _loggerMock = new Mock<ILogger<PathwayAssignmentFunction>>();
+    _crudApiClient.Setup(s => s.GetPathwayAssignmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result).Returns(MockPathwayDetails);
+    _function = new PathwayAssignmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfInvalidToken()
+  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfInvalidToken()
   {
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
 
     var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfNoNhsNumber()
+  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
   {
     var claims = new List<Claim>
     {
@@ -61,19 +64,20 @@ public class ScreeningEligibilityFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
     var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayAssignmentById_ShouldReturnOk_WithValidToken()
   {
     var claims = new List<Claim>
     {
@@ -85,17 +89,19 @@ public class ScreeningEligibilityFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as OkObjectResult;
+    var response = await _function.GetPathwayAssignmentById(request, "123") as OkObjectResult;
 
     // Assert
-
+    var pathwayAssignmentDto = (AssignedPathwayDetailsDTO)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayAssignmentDTO>)response?.Value).Count);
+    Assert.Equal(pathwayAssignmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -108,22 +114,21 @@ public class ScreeningEligibilityFunctionTests
     {
       headers.Add("Authorization", $"{authHeader}");
     }
+
     request.Setup(r => r.Headers).Returns(headers);
     return request.Object;
   }
 
-  private List<PathwayAssignmentDTO> MockListPathwayAssignments()
+  private AssignedPathwayDetailsDTO MockPathwayDetails()
   {
-    return new List<PathwayAssignmentDTO>()
+    return new AssignedPathwayDetailsDTO()
     {
-      new PathwayAssignmentDTO() {
-        AssignmentId = "123",
-        ScreeningName = "BreastScreening"
-        },
-      new PathwayAssignmentDTO() {
-        AssignmentId = "1234",
-        ScreeningName = "BowelScreening"
-        }
+      AssignmentId = new Guid(),
+      ScreeningName = "Breast Screening",
+      Status = "Active",
+      AssignmentDate = DateTime.Now,
+      PathwayName = "Breast Screening Regular",
+      NextActionDate = DateTime.Now
     };
   }
 }

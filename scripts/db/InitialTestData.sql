@@ -5,3 +5,7 @@ VALUES
     ('33333333-3333-3333-3333-333333333333', 'Dave Tester', '1978-01-01', '9686368973'),
     ('44444444-4444-4444-4444-444444444444', 'Emma Wilson', '1995-07-08', '7890123456'),
     ('55555555-5555-5555-5555-555555555555', 'David Taylor', '1982-09-25', '2345678901');
+
+INSERT INTO PathwayTypeAssignments  (AssignmentId, ParticipantId, PathwayId, AssignmentDate, LapsedDate, Status, NextActionDate, PathwayTypeId, ScreeningName, PathwayName )
+VALUES
+    ('11111111-1111-1111-1111-111111111112', '33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111113', '2025-02-17', '', 'Active', '2025-05-17', '11111111-1111-1111-1111-111111111114', 'Breast Screening', 'Breast Screening Regular')

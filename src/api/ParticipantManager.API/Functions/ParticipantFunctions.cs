@@ -115,9 +115,6 @@ public class ParticipantFunctions
 
     return new OkObjectResult(participant);
   }
-
-
-
 }
 
 

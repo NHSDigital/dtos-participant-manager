@@ -19,9 +19,7 @@ async function pemToPrivateKey(): Promise<CryptoKey> {
   }
 
   // Remove headers and convert to binary
-  const pemContents = pem
-  .replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, '')
-  .trim();
+  const pemContents = pem.replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, "").trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");
@@ -106,6 +104,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/",
   },
 });
 
