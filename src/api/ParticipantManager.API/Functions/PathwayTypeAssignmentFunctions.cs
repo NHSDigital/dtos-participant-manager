@@ -30,7 +30,6 @@ public class PathwayTypeAssignmentFunctions
     }
 
     var pathwayTypeAssignments = await _dbContext.PathwayTypeAssignments
-      .Include(i => i.Participant)
       .Where(p => p.Participant.NHSNumber == nhsNumber)
       .ToListAsync();
 
