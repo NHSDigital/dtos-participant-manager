@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
 using ParticipantManager.Experience.API.Services;
 
-public class PathwayAssignmentFunctions(ILogger<PathwayAssignmentFunctions> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
+public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
 {
   [Function("GetPathwayAssignmentById")]
-  public async Task<IActionResult> GetParticipantById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req)
+  public async Task<IActionResult> GetPathwayAssignmentById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req)
   {
     var result = await tokenService.ValidateToken(req);
 

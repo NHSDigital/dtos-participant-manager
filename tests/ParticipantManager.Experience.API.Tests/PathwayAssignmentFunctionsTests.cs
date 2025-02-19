@@ -1,3 +1,4 @@
+using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Services;
 
 namespace ParticipantManager.Experience.API.Tests;
@@ -20,73 +21,85 @@ using ParticipantManager.Experience.API.Client;
 
 public class PathwayAssignmentFunctionTests
 {
-  private readonly Mock<ILogger<PathwayAssignmentFunctions>> _loggerMock;
-  private readonly Mock<ITokenService> _tokenServiceMock;
+  private readonly Mock<ILogger<PathwayAssignmentFunction>> _loggerMock;
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
-  private readonly PathwayAssignmentFunctions _function;
+  private readonly Mock<ITokenService> _mockTokenService = new();
+  private readonly PathwayAssignmentFunction _function ;
 
   public PathwayAssignmentFunctionTests()
   {
-    _loggerMock = new Mock<ILogger<PathwayAssignmentFunctions>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result).Returns(MockListPathwayAssignments);
-    _tokenServiceMock = new Mock<ITokenService>();
-    _function = new PathwayAssignmentFunctions(_loggerMock.Object, _crudApiClient.Object, _tokenServiceMock.Object);
+    _loggerMock = new Mock<ILogger<PathwayAssignmentFunction>>();
+    _crudApiClient.Setup(s => s.GetPathwayAssignmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result).Returns(MockPathwayDetails);
+    _function = new PathwayAssignmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfNoAuthorizationHeader()
+  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfInvalidToken()
   {
-    // Arrange
-    var request = CreateHttpRequest(null);
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
+
+    var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnBadRequest_IfInvalidToken()
+  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
   {
-    // Arrange
-    var request = CreateHttpRequest("Bearer invalid_token");
+    var claims = new List<Claim>
+    {
+      new Claim(ClaimTypes.NameIdentifier, "12345"),
+      new Claim(ClaimTypes.Email, "user@example.com"),
+      new Claim("custom_claim", "my_value")
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+
+    var request = CreateHttpRequest($"");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as BadRequestObjectResult;
-
-    // Assert
-    Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
-  }
-
-  [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfNoNhsNumber()
-  {
-    var token = GenerateJwtToken("");
-    // Arrange
-    var request = CreateHttpRequest($"Bearer {token}");
-
-    // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetPathwayAssignmentById(request) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayAssignmentById_ShouldReturnOk_WithValidToken()
   {
-    // Arrange
-    var token = GenerateJwtToken("1234567890");
-    var request = CreateHttpRequest($"Bearer {token}");
+    var claims = new List<Claim>
+    {
+      new Claim(ClaimTypes.NameIdentifier, "12345678"),
+      new Claim(ClaimTypes.Email, "user@example.com"),
+      new Claim("nhs_number", "12345678")
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+
+    var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as OkObjectResult;
+    var response = await _function.GetPathwayAssignmentById(request) as OkObjectResult;
 
     // Assert
-
+    var pathwayAssignmentDto = (AssignedPathwayDetailsDTO)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayAssignmentDto>)response?.Value).Count);
+    Assert.Equal(pathwayAssignmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -99,81 +112,22 @@ public class PathwayAssignmentFunctionTests
     {
       headers.Add("Authorization", $"{authHeader}");
     }
-      ;
+
     request.Setup(r => r.Headers).Returns(headers);
     return request.Object;
   }
 
-  // ✅ Helper Method to Generate a JWT Token
-  private static string GenerateJwtToken(string nhsNumber)
+  private AssignedPathwayDetailsDTO MockPathwayDetails()
   {
-    var securityTokenDescriptor = new SecurityTokenDescriptor
+    return new AssignedPathwayDetailsDTO()
     {
-      Subject = new ClaimsIdentity(new[]
-        {
-                new Claim("nhs_number", nhsNumber)
-            }),
-      Expires = DateTime.UtcNow.AddMinutes(30)
-    };
-
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var token = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
-    return tokenHandler.WriteToken(token);
-  }
-
-  // ✅ Mock HTTP Handler to Simulate the CRUD API Response
-  private class MockHttpMessageHandler : HttpMessageHandler
-  {
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-      var response = new HttpResponseMessage(HttpStatusCode.OK)
-      {
-        Content = new StringContent(JsonSerializer.Serialize(new
-        {
-          nhsNumber = "1234567890",
-          pathways = new[]
-              {
-                        new { name = "Breast Screening", status = "Eligible" },
-                        new { name = "Bowel Screening", status = "Due" }
-                    }
-        }))
-      };
-      response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-      return Task.FromResult(response);
-    }
-  }
-
-  private HttpResponseMessage MockHttpMessage()
-  {
-    var response = new HttpResponseMessage(HttpStatusCode.OK)
-    {
-      Content = new StringContent(JsonSerializer.Serialize(new
-      {
-        nhsNumber = "1234567890",
-        pathways = new[]
-      {
-                        new { name = "Breast Screening", status = "Eligible" },
-                        new { name = "Bowel Screening", status = "Due" }
-                    }
-      }))
-    };
-    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-    return response;
-  }
-
-  private List<PathwayAssignmentDto> MockListPathwayAssignments()
-  {
-    return new List<PathwayAssignmentDto>()
-    {
-      new PathwayAssignmentDto() {
-        AssignmentId = "123",
-        ScreeningName = "BreastScreening"
-        },
-      new PathwayAssignmentDto() {
-        AssignmentId = "1234",
-        ScreeningName = "BowelScreening"
-        }
+      AssignmentId = new Guid(),
+      ScreeningName = "Breast Screening",
+      Status = "Active",
+      AssignmentDate = DateTime.Now,
+      PathwayName = "Breast Screening Regular",
+      NextActionDate = DateTime.Now,
+      InfoUrl = "https://www.nhs.uk/"
     };
   }
 }

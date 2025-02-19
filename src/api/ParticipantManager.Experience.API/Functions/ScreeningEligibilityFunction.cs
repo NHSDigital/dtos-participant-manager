@@ -1,3 +1,5 @@
+using ParticipantManager.Experience.API.Services;
+
 namespace ParticipantManager.Experience.API.Functions;
 
 using Microsoft.AspNetCore.Mvc;
@@ -8,46 +10,36 @@ using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Client;
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
-public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> logger, ICrudApiClient crudApiClient)
+public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
 {
 
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
   {
     logger.LogDebug("{GetScreeningEligibility} Function Called", nameof(GetParticipantEligibility));
-    // Extract the Authorization Header
-    if (!req.Headers.TryGetValues("Authorization", out var authHeaderValues))
-    {
-      return new UnauthorizedResult();
-    }
-
-    var accessToken = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
-    if (string.IsNullOrEmpty(accessToken))
-    {
-      return new UnauthorizedResult();
-    }
-
-    // Decode the JWT to Extract NHS Number
     try
     {
-      var handler = new JwtSecurityTokenHandler();
-      var token = handler.ReadJwtToken(accessToken);
-      var nhsNumber = token.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      var result = await tokenService.ValidateToken(req);
 
-      if (string.IsNullOrEmpty(nhsNumber))
+      if (result.Status == AccessTokenStatus.Valid)
       {
-        return new UnauthorizedResult();
+        var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+        if (string.IsNullOrEmpty(nhsNumber))
+        {
+          return new UnauthorizedResult();
+        }
+
+        logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
+        var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
+        if (pathwayAssignments == null)
+        {
+          throw new Exception("Unable to find pathway assignments");
+        }
+
+        return new OkObjectResult(pathwayAssignments);
       }
 
-      logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
-
-      var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-      if (pathwayAssignments == null)
-      {
-        throw new Exception("Unable to find pathway assignments");
-      }
-
-      return new OkObjectResult(pathwayAssignments);
+      return new UnauthorizedResult();
     }
     catch (Exception ex)
     {
