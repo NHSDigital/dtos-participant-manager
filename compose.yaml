@@ -40,11 +40,10 @@ services:
     build:
       context: ./src/web
       dockerfile: Dockerfile
+      args:
+        AUTH_NHSLOGIN_PRIVATE_KEY: "${AUTH_NHSLOGIN_PRIVATE_KEY}"
     restart: always
     platform: linux/amd64
-    environment:
-      SERVICE_NAME: "Manage your screening"
-      AUTH_NHSLOGIN_PRIVATE_KEY: "test"
     depends_on:
       - experience-api
     ports:

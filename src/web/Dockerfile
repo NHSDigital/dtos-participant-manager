@@ -39,12 +39,10 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-
-ARG SERVICE_NAME
-ENV SERVICE_NAME=${SERVICE_NAME:-"Manage your screening"}
+ENV SERVICE_NAME="Manage your screening"
 
 ARG AUTH_NHSLOGIN_PRIVATE_KEY
-ENV AUTH_NHSLOGIN_PRIVATE_KEY=${AUTH_NHSLOGIN_PRIVATE_KEY:-"default_private_key"}
+ENV AUTH_NHSLOGIN_PRIVATE_KEY=${AUTH_NHSLOGIN_PRIVATE_KEY}
 
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
