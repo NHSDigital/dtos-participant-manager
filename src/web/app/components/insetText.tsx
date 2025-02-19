@@ -1,6 +1,8 @@
+import { formatDate } from "@/app/lib/utils";
+
 interface InsetTextProps {
   text: string;
-  date: string;
+  date?: string;
 }
 
 export default function InsetText({ text, date }: InsetTextProps) {
@@ -8,7 +10,7 @@ export default function InsetText({ text, date }: InsetTextProps) {
     <div className="nhsuk-inset-text">
       <span className="nhsuk-u-visually-hidden">Information: </span>
       <p>
-        {text} <strong>{date}</strong>
+        {text} <strong>{date ? formatDate(date) : ""}</strong>
       </p>
     </div>
   );
