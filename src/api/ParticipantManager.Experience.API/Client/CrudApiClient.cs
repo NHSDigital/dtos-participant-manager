@@ -34,10 +34,15 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     {
       HttpResponseMessage response = await httpClient.GetAsync($"/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}&assignmentid={assignmentId}");
       response.EnsureSuccessStatusCode();
-      return await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true
-      });
+
+      var test = await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(CancellationToken.None);
+      var test2 = await response.Content.ReadAsStringAsync(CancellationToken.None);
+
+      return new AssignedPathwayDetailsDTO{};
+      // return await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(new JsonSerializerOptions
+      // {
+      //   PropertyNameCaseInsensitive = true
+      // });
     }
     catch (Exception ex)
     {
