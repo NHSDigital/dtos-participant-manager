@@ -162,21 +162,21 @@ namespace ParticipantManager.API.Tests
 
           var function = new PathwayTypeAssignmentFunctions(logger.Object, dbContext);
 
-          var participantId = new Guid();
+          var participantId = Guid.NewGuid();
 
           string nhsNumber = "123";
-          Guid assignmentId = new Guid();
+          Guid assignmentId = Guid.NewGuid();
 
           var assignmentDetail = new PathwayTypeAssignment
           {
             AssignmentId = assignmentId,
             ParticipantId = participantId,
-            PathwayId = new Guid(),
+            PathwayId = Guid.NewGuid(),
             AssignmentDate = DateTime.Now,
             LapsedDate = DateTime.Now,
             Status = "test status",
             NextActionDate = DateTime.Now,
-            PathwayTypeId = new Guid(),
+            PathwayTypeId = Guid.NewGuid(),
             ScreeningName = "test screening name",
             PathwayName = "test pathway name",
             Participant = new Participant()
