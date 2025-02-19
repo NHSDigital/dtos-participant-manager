@@ -39,9 +39,8 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV SERVICE_NAME="Manage your screening"
-ENV AUTH_NHSLOGIN_ISSUER_URL=https://auth.sandpit.signin.nhs.uk
-ENV AUTH_NHSLOGIN_PRIVATE_KEY="dummy_value"
+ENV AUTH_NHSLOGIN_ISSUER_URL="https://auth.sandpit.signin.nhs.uk"
+
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
