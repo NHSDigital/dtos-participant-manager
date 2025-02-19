@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.DTOs;
 
@@ -32,17 +31,13 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     logger.LogInformation("GetPathwayAssignmentByIdAsync");
     try
     {
-      HttpResponseMessage response = await httpClient.GetAsync($"/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}&assignmentid={assignmentId}");
+      HttpResponseMessage response = await httpClient.GetAsync($"/api/participants/pathwaytypeassignments/nhsnumber/{nhsNumber}/assignmentid/{assignmentId}");
       response.EnsureSuccessStatusCode();
 
-      var test = await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(CancellationToken.None);
-      var test2 = await response.Content.ReadAsStringAsync(CancellationToken.None);
-
-      return new AssignedPathwayDetailsDTO{};
-      // return await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(new JsonSerializerOptions
-      // {
-      //   PropertyNameCaseInsensitive = true
-      // });
+      return await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true
+      });
     }
     catch (Exception ex)
     {

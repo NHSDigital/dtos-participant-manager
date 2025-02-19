@@ -22,8 +22,6 @@ public class PathwayTypeAssignmentFunctions
   [Function("PathwayTypeAssignmentFunctions")]
   public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "participants/pathwaytypeassignments")] HttpRequest req)
   {
-    _logger.LogInformation("C# HTTP trigger function processed a request.");
-
     string nhsNumber = req.Query["nhsnumber"].ToString();
 
     if (string.IsNullOrEmpty(nhsNumber))
@@ -32,6 +30,7 @@ public class PathwayTypeAssignmentFunctions
     }
 
     var pathwayTypeAssignments = await _dbContext.PathwayTypeAssignments
+      .Include(i => i.Participant)
       .Where(p => p.Participant.NHSNumber == nhsNumber)
       .ToListAsync();
 

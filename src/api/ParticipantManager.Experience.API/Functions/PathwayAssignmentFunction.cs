@@ -12,7 +12,7 @@ using ParticipantManager.Experience.API.Services;
 public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
 {
   [Function("GetPathwayAssignmentById")]
-  public async Task<IActionResult> GetPathwayAssignmentById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req)
+  public async Task<IActionResult> GetPathwayAssignmentById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req, string assignmentId)
   {
     var result = await tokenService.ValidateToken(req);
 
@@ -27,7 +27,7 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
       }
 
       logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
-      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, req.Query["assignmentid"]);
+      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
       if (pathwayAssignment == null)
       {
         throw new Exception("Unable to find assigned pathway");
