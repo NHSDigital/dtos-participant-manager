@@ -1,7 +1,7 @@
 services:
   ### ✅ API Backend (Azure Functions in .NET 9) ###
-  api-backend:
-    container_name: "api-backend"
+  backend-api:
+    container_name: "backend-api"
     build:
       context: ./src/api/ParticipantManager.API
       dockerfile: Dockerfile
