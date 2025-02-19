@@ -1,18 +1,25 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
+import { DefaultAzureCredential } from "@azure/identity";
+import { SecretClient } from "@azure/keyvault-secrets";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey> {
-  const pem = process.env.AUTH_NHSLOGIN_PRIVATE_KEY;
+  const keyVaultUrl = process.env.KEY_VAULT_URL || "";
+
+  const credential = new DefaultAzureCredential();
+  const client = new SecretClient(keyVaultUrl, credential);
+
+  const secretName = process.env.SECRET_NAME || "";
+  const secret = await client.getSecret(secretName);
+  const pem = secret.value;
 
   if (!pem) {
-    throw new Error("AUTH_NHSLOGIN_PRIVATE_KEY env variable is not defined");
+    throw new Error("Could not get secret from azure key vault");
   }
 
   // Remove headers and convert to binary
-  const pemContents = pem
-  .replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, '')
-  .trim();
+  const pemContents = pem.replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, "").trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");
@@ -97,6 +104,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/",
   },
 });
 

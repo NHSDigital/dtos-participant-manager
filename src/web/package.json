@@ -16,6 +16,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/identity": "^4.6.0",
+    "@azure/keyvault-certificates": "^4.9.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "jwt-decode": "^4.0.0",
     "next": "14.2.23",
     "next-auth": "5.0.0-beta.25",

@@ -1,20 +1,8 @@
-export async function fetchPatientData(nhsNumber: string) {
-  try {
-    const url = `${process.env.CRUD_API_URL}/api/participants?nhsnumber=${nhsNumber}`;
-    const response = await fetch(url);
+import { EligibilityResponse, PathwayResponse } from "@/app/types";
 
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
-  }
-}
-
-export async function fetchPatientScreeningEligibility(accessToken: string) {
+export async function fetchPatientScreeningEligibility(
+  accessToken: string
+): Promise<EligibilityResponse> {
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/eligibility`;
     const response = await fetch(url, {
@@ -25,12 +13,40 @@ export async function fetchPatientScreeningEligibility(accessToken: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
+      throw new Error(
+        `Error fetching patient screening eligibility data: ${response.statusText}`
+      );
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Error fetching patient screening eligibility data:", error);
+    throw error;
+  }
+}
+
+export async function fetchPathwayAssignment(
+  accessToken: string,
+  assignmentId: string
+): Promise<PathwayResponse> {
+  try {
+    const url = `${process.env.EXPERIENCE_API_URL}/api/pathwayassignments/${assignmentId}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + accessToken,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Error fetching pathway assignment data: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching pathway assignment data:", error);
     throw error;
   }
 }

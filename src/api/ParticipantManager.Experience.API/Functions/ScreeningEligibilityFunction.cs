@@ -1,72 +1,66 @@
-using Microsoft.AspNetCore.Mvc;
+using ParticipantManager.Experience.API.Services;
 
 namespace ParticipantManager.Experience.API.Functions;
 
+using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
-public class ScreeningEligibilityFunction(
-  IHttpClientFactory httpClientFactory,
-  ILogger<ScreeningEligibilityFunction> logger)
+using ParticipantManager.Experience.API.Client;
+using Microsoft.AspNetCore.Http;
+using System.Runtime.CompilerServices;
+public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
 {
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
 
-    [Function("GetScreeningEligibility")]
-    public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get" , Route = "eligibility")] HttpRequestData req)
+  [Function("GetScreeningEligibility")]
+  public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
+  {
+    logger.LogDebug("{GetScreeningEligibility} Function Called", nameof(GetParticipantEligibility));
+    try
     {
-        logger.LogDebug("Something");
-        // Extract the Authorization Header
-        if (!req.Headers.TryGetValues("Authorization", out var authHeaderValues))
+      var result = await tokenService.ValidateToken(req);
+
+      if (result.Status == AccessTokenStatus.Valid)
+      {
+        var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+        if (string.IsNullOrEmpty(nhsNumber))
         {
-            return new UnauthorizedResult();
+          return new UnauthorizedResult();
         }
 
-        var accessToken = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(accessToken))
+        logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
+        var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
+        if (pathwayAssignments == null)
         {
-            return new UnauthorizedResult();
+          throw new Exception("Unable to find pathway assignments");
         }
 
-        // Decode the JWT to Extract NHS Number
-        try
-        {
+        return new OkObjectResult(pathwayAssignments);
+      }
 
-          var handler = new JwtSecurityTokenHandler();
-          var token = handler.ReadJwtToken(accessToken);
-          var nhsNumber = token.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-
-          if (string.IsNullOrEmpty(nhsNumber))
-          {
-            return new UnauthorizedResult();
-          }
-
-          logger.LogInformation($"Extracted NHS Number: {nhsNumber}");
-
-          // Call the Internal CRUD API
-          var crudApiUrl =
-            $"{Environment.GetEnvironmentVariable("CRUD_API_URL")}/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}";
-
-          var requestMessage = new HttpRequestMessage(HttpMethod.Get, crudApiUrl);
-          requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-          var response = await _httpClient.SendAsync(requestMessage);
-
-          if (!response.IsSuccessStatusCode)
-          {
-            return new UnprocessableEntityResult();
-          }
-
-          var content = await response.Content.ReadAsStringAsync();
-
-          return new OkObjectResult(content);
-        }
-        catch (Exception ex)
-        {
-          return new BadRequestObjectResult(ex.Message);
-        }
+      return new UnauthorizedResult();
     }
+    catch (Exception ex)
+    {
+      return new BadRequestObjectResult(ex.Message);
+    }
+  }
+
+
+  private ObjectResult HandleResponseError(HttpResponseMessage? response, [CallerMemberName] string functionName = "")
+  {
+    var statusCode = (int?)response?.StatusCode ?? StatusCodes.Status500InternalServerError;
+    logger.LogError("GetPathwayAssignments failed. {ErrorMessage}", response?.Content);
+
+    return new ObjectResult(new
+    {
+      Title = functionName,
+      Status = response?.StatusCode,
+      Message = $"Failed to retrieve pathway assignments. Status: {response?.StatusCode.ToString() ?? "Null response"}",
+    })
+    {
+      StatusCode = statusCode
+    };
+  }
 }

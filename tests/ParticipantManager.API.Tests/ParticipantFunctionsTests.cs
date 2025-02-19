@@ -15,6 +15,7 @@ using ParticipantManager.API.Models;
 using Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ParticipantManager.TestUtils;
 
 namespace ParticipantManager.API.Tests
 {
@@ -148,6 +149,56 @@ namespace ParticipantManager.API.Tests
           var result = Assert.IsType<OkObjectResult>(response);
           var returnedParticipant = Assert.IsType<Participant>(result.Value);
           Assert.Equal(participant.ParticipantId, returnedParticipant.ParticipantId);
+        }
+
+        [Fact]
+        public async Task GetAssignmentDetailsById_ShouldAssignmentDetails_WhenValidIdProvided()
+        {
+          // Arrange
+          var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
+          var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+          var logger = new Mock<ILogger<PathwayTypeAssignmentFunctions>>();
+          var functionContext = new Mock<FunctionContext>().Object;
+
+          var function = new PathwayTypeAssignmentFunctions(logger.Object, dbContext);
+
+          var participantId = Guid.NewGuid();
+
+          string nhsNumber = "123";
+          Guid assignmentId = Guid.NewGuid();
+
+          var assignmentDetail = new PathwayTypeAssignment
+          {
+            AssignmentId = assignmentId,
+            ParticipantId = participantId,
+            PathwayId = Guid.NewGuid(),
+            AssignmentDate = DateTime.Now,
+            LapsedDate = DateTime.Now,
+            Status = "test status",
+            NextActionDate = DateTime.Now,
+            PathwayTypeId = Guid.NewGuid(),
+            ScreeningName = "test screening name",
+            PathwayName = "test pathway name",
+            Participant = new Participant()
+            {
+              Name = "test Name",
+              NHSNumber = nhsNumber
+            }
+          };
+
+          dbContext.PathwayTypeAssignments.Add(assignmentDetail);
+          await dbContext.SaveChangesAsync();
+
+          var request = CreateMockHttpRequest(functionContext, null);
+
+          // Act
+          var response = await function.GetPathwayAssignmentById(request, nhsNumber, assignmentId);
+
+          // Assert
+          var result = Assert.IsType<OkObjectResult>(response);
+          var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeAssignment>(result.Value);
+          Assert.Equal(assignmentDetail.AssignmentId, returnedPathwayTypeAssignment.AssignmentId);
+          Assert.Equal(assignmentDetail.Participant.NHSNumber, returnedPathwayTypeAssignment.Participant.NHSNumber);
         }
 
         [Fact]

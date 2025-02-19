@@ -1,7 +1,7 @@
 services:
   ### ✅ API Backend (Azure Functions in .NET 9) ###
-  api:
-    container_name: "api-backend"
+  backend-api:
+    container_name: "backend-api"
     build:
       context: ./src/api/ParticipantManager.API
       dockerfile: Dockerfile
@@ -35,11 +35,13 @@ services:
       - backend
 
   ### ✅ Next.js Frontend ###
-  frontend:
+  nextjs-frontend:
     container_name: "nextjs-frontend"
     build:
       context: ./src/web
       dockerfile: Dockerfile
+      args:
+        AUTH_NHSLOGIN_PRIVATE_KEY: "${AUTH_NHSLOGIN_PRIVATE_KEY}"
     restart: always
     platform: linux/amd64
     depends_on:
