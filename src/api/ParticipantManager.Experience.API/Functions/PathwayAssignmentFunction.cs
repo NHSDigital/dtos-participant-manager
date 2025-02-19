@@ -19,7 +19,21 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
     if (result.Status == AccessTokenStatus.Valid)
     {
       logger.LogInformation($"Request received for {result.Principal.Identity.Name}.");
-      return new OkResult();
+
+      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      if (string.IsNullOrEmpty(nhsNumber))
+      {
+        return new UnauthorizedResult();
+      }
+
+      logger.LogInformation("Extracted NHS Number: {NhsNumber}", nhsNumber);
+      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, req.Query["assignmentid"]);
+      if (pathwayAssignment == null)
+      {
+        throw new Exception("Unable to find assigned pathway");
+      }
+
+      return new OkObjectResult(pathwayAssignment);
     }
     return new UnauthorizedResult();
 

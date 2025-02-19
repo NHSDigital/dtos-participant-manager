@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using ParticipantManager.Experience.API.Client;
+using System.Collections.Specialized;
 
 public class PathwayAssignmentFunctionTests
 {
@@ -108,12 +109,17 @@ public class PathwayAssignmentFunctionTests
     var context = new Mock<FunctionContext>();
     var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
     var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
+    var queryParameters = new NameValueCollection
+    {
+      { "assignmentid", "123" },
+    };
     if (!string.IsNullOrEmpty(authHeader))
     {
       headers.Add("Authorization", $"{authHeader}");
     }
 
     request.Setup(r => r.Headers).Returns(headers);
+    request.Setup(r => r.Query).Returns(queryParameters);
     return request.Object;
   }
 
