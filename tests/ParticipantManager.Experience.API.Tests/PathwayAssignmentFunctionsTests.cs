@@ -1,5 +1,6 @@
 using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.TestUtils;
 
 namespace ParticipantManager.Experience.API.Tests;
 
