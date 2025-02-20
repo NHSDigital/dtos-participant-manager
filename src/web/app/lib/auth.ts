@@ -71,7 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
-        token.firstName = profile.family_name;
+        token.firstName = profile.given_name;
         token.lastName = profile.surname;
         token.dob = profile.birthdate;
         token.nhsNumber = profile.nhs_number;
