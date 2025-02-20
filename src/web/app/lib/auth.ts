@@ -1,21 +1,14 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
-import { DefaultAzureCredential } from "@azure/identity";
-import { SecretClient } from "@azure/keyvault-secrets";
+import { fetchKeyVaultSecret } from "@/app/lib/keyVault";
 
 // Function to convert PEM to CryptoKey
-async function pemToPrivateKey(): Promise<CryptoKey> {
-  const keyVaultUrl = process.env.KEY_VAULT_URL || "";
-
-  const credential = new DefaultAzureCredential();
-  const client = new SecretClient(keyVaultUrl, credential);
-
-  const secretName = process.env.SECRET_NAME || "";
-  const secret = await client.getSecret(secretName);
-  const pem = secret.value;
+async function pemToPrivateKey(): Promise<CryptoKey | null> {
+  const pem = await fetchKeyVaultSecret();
 
   if (!pem) {
-    throw new Error("Could not get secret from azure key vault");
+    console.warn("Could not get secret from Azure Key Vault");
+    return null;
   }
 
   // Remove headers and convert to binary
