@@ -1,21 +1,14 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
-import { DefaultAzureCredential } from "@azure/identity";
-import { SecretClient } from "@azure/keyvault-secrets";
+import { fetchKeyVaultSecret } from "@/app/lib/keyVault";
 
 // Function to convert PEM to CryptoKey
-async function pemToPrivateKey(): Promise<CryptoKey> {
-  const keyVaultUrl = process.env.KEY_VAULT_URL || "";
-
-  const credential = new DefaultAzureCredential();
-  const client = new SecretClient(keyVaultUrl, credential);
-
-  const secretName = process.env.SECRET_NAME || "";
-  const secret = await client.getSecret(secretName);
-  const pem = secret.value;
+async function pemToPrivateKey(): Promise<CryptoKey | null> {
+  const pem = await fetchKeyVaultSecret();
 
   if (!pem) {
-    throw new Error("Could not get secret from azure key vault");
+    console.warn("Could not get secret from Azure Key Vault");
+    return null;
   }
 
   // Remove headers and convert to binary
@@ -71,8 +64,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
-        token.firstName = profile.family_name;
-        token.lastName = profile.surname;
+        token.firstName = profile.given_name;
+        token.lastName = profile.family_name;
         token.dob = profile.birthdate;
         token.nhsNumber = profile.nhs_number;
         token.identityLevel = profile.identity_proofing_level;

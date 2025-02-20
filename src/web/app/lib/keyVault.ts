@@ -6,9 +6,10 @@ export async function fetchKeyVaultSecret(): Promise<string> {
   const secretName = process.env.SECRET_NAME;
 
   if (!keyVaultUrl || !secretName) {
-    throw new Error(`Azure Key Vault configuration is missing:
+    console.warn(`Azure Key Vault configuration is missing:
       KEY_VAULT_URL: ${keyVaultUrl ? "✓" : "✗"}
       SECRET_NAME: ${secretName ? "✓" : "✗"}`);
+    return "";
   }
 
   try {

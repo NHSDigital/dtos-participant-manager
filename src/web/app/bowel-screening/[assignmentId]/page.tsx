@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `Breast screening - ${process.env.SERVICE_NAME}`,
+      title: `Bowel screening - ${process.env.SERVICE_NAME}`,
     };
   }
 
@@ -60,7 +60,7 @@ export default async function Page(props: {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
-            <h1>Breast screening</h1>
+            <h1>Bowel screening</h1>
             {pathwayAssignment?.nextActionDate ? (
               <InsetText
                 text={`Your next ${pathwayAssignment.screeningName} invitation will be approximately`}
