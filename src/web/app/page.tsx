@@ -41,7 +41,7 @@ const getEligibility = async (
 
 export default async function Home() {
   const session = await auth();
-  const eligibility = await getEligibility(session);
+  const eligibility = session?.user ? await getEligibility(session) : null;
 
   return (
     <>

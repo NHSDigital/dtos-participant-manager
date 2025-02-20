@@ -45,12 +45,14 @@ export default async function Page(props: {
 }) {
   const session = await auth();
 
-  if (!session) return <Unauthorised />;
+  if (!session?.user) return <Unauthorised />;
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const params = await props.params;
   const assignmentId = params.assignmentId;
-  const eligibility = await getPathwayAssignment(session, assignmentId);
+  const pathwayAssignment = session?.user
+    ? await getPathwayAssignment(session, assignmentId)
+    : null;
 
   return (
     <>
@@ -59,18 +61,18 @@ export default async function Page(props: {
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
             <h1>Bowel screening</h1>
-            {eligibility?.nextActionDate ? (
+            {pathwayAssignment?.nextActionDate ? (
               <InsetText
-                text={`Your next ${eligibility.screeningName} invitation will be approximately`}
-                date={eligibility.nextActionDate}
+                text={`Your next ${pathwayAssignment.screeningName} invitation will be approximately`}
+                date={pathwayAssignment.nextActionDate}
               />
             ) : (
               <InsetText text="You have no upcoming breast screening invitations." />
             )}
-            {eligibility?.infoUrl && (
+            {pathwayAssignment?.infoUrl && (
               <Card
-                title={`About ${eligibility.screeningName}`}
-                url={eligibility.infoUrl}
+                title={`About ${pathwayAssignment.screeningName}`}
+                url={pathwayAssignment.infoUrl}
               />
             )}
             {session.user && (
