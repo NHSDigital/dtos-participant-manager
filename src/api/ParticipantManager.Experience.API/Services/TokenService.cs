@@ -17,8 +17,8 @@ namespace ParticipantManager.Experience.API.Services
     {
         private const string AuthHeaderName = "Authorization";
         private const string BearerPrefix = "Bearer ";
-        private readonly string _audience = Environment.GetEnvironmentVariable("OAUTH_AUDIENCE") ?? throw new InvalidOperationException("OAUTH_AUDIENCE environment variable is missing.");
-        private readonly string _issuer = Environment.GetEnvironmentVariable("OAUTH_ISSUER") ?? throw new InvalidOperationException("OAUTH_ISSUER environment variable is missing.");
+        private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
+        private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
         public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
         {
             try

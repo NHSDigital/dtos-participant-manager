@@ -4,7 +4,6 @@ import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { createUrlSlug } from "@/app/lib/utils";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
-import BackLink from "@/app/components/backLink";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignInButton from "@/app/components/signInButton";
@@ -42,7 +41,7 @@ const getEligibility = async (
 
 export default async function Home() {
   const session = await auth();
-  const eligibility = await getEligibility(session);
+  const eligibility = session?.user ? await getEligibility(session) : null;
 
   return (
     <>
@@ -76,7 +75,6 @@ export default async function Home() {
 
       {session?.user && (
         <>
-          <BackLink url="/" />
           <main className="nhsuk-main-wrapper" id="maincontent" role="main">
             <div className="nhsuk-grid-row">
               <div className="nhsuk-grid-column-two-thirds">
