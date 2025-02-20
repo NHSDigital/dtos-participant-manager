@@ -19,7 +19,7 @@ var host = new HostBuilder()
     services.AddSingleton<IJwksProvider>(provider =>
     {
       var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
-      string issuer = Environment.GetEnvironmentVariable("OAUTH_ISSUER");
+      string issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL");
       return new JwksProvider(logger, issuer);
     });
 
