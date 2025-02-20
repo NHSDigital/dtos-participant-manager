@@ -38,20 +38,4 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
     return new UnauthorizedResult();
 
   }
-
-  private ObjectResult HandleResponseError(HttpResponseMessage? response, [CallerMemberName] string functionName = "")
-  {
-    var statusCode = (int?)response?.StatusCode ?? StatusCodes.Status500InternalServerError;
-    logger.LogError("GetPathwayAssignments failed. {ErrorMessage}", response?.Content);
-
-    return new ObjectResult(new
-    {
-      Title = functionName,
-      Status = response?.StatusCode,
-      Message = $"Failed to retrieve pathway assignments. Status: {response?.StatusCode.ToString() ?? "Null response"}",
-    })
-    {
-      StatusCode = statusCode
-    };
-  }
 }
