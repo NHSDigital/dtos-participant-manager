@@ -3,12 +3,11 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ParticipantManager.API.Helpers;
 using ParticipantManager.API.Models;
 using Xunit;
 using System;
 using System.Net.Http;
-using Microsoft.AspNetCore.Mvc;
+using Shared.ErrorHandling;
 
 public class ErrorHandlerServiceTests
 {

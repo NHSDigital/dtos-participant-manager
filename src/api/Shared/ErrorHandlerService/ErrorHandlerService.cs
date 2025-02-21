@@ -1,4 +1,4 @@
-namespace ParticipantManager.API.Helpers;
+﻿namespace Shared.ErrorHandling;
 
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
@@ -54,7 +54,7 @@ public class ErrorHandlerService(ILogger logger)
       Title = functionName,
       Status = response?.StatusCode,
       Message = CreateErrorMessage(response),
-      Headers = headers,
+      // Headers = headers,
       Timestamp = DateTime.UtcNow
     };
 

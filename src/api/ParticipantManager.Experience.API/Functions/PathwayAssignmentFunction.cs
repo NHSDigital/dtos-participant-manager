@@ -1,12 +1,11 @@
 namespace ParticipantManager.Experience.API.Functions;
 
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Client;
-using Microsoft.AspNetCore.Http;
-using System.Runtime.CompilerServices;
 using ParticipantManager.Experience.API.Services;
 
 public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
@@ -30,7 +29,7 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
       var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
       if (pathwayAssignment == null)
       {
-        throw new Exception("Unable to find assigned pathway");
+        return new NotFoundResult();
       }
 
       return new OkObjectResult(pathwayAssignment);

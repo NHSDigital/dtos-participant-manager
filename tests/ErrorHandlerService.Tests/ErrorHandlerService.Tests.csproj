@@ -20,5 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\api\ParticipantManager.API\ParticipantManager.API.csproj" />
+    <ProjectReference Include="..\..\src\api\Shared\ErrorHandlerService\ErrorHandlerService.csproj" />
   </ItemGroup>
 </Project>
