@@ -63,6 +63,10 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [NHS_LOGIN],
+  session: {
+    strategy: "jwt",
+    maxAge: 1800, // 30 minutes [Recommended by NHS login]
+  },
   callbacks: {
     async signIn({ account }) {
       if (!account || typeof account.id_token !== "string") {
@@ -117,6 +121,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
       }
       return session;
+    },
+  },
+  events: {
+    async session({ session }) {
+      const maxAge = 1800; // 30 minutes [Recommended by NHS login]
+      const now = Math.floor(Date.now() / 1000);
+      session.expires = new Date((now + maxAge) * 1000).toISOString();
     },
   },
   pages: {
