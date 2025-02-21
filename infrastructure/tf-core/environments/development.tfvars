@@ -178,7 +178,7 @@ function_apps = {
       function_endpoint_name = "ParticipantManagerExperience"
       app_service_plan_key   = "Default"
     }
-
+  }
 }
 
 function_app_slots = []
@@ -224,6 +224,6 @@ storage_accounts = {
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false
-    containers = {}
+    containers                    = {}
   }
 }
