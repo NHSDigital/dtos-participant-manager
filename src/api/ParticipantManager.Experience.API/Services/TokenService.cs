@@ -45,6 +45,14 @@ namespace ParticipantManager.Experience.API.Services
                     var handler = new JwtSecurityTokenHandler();
                     logger.LogInformation("About to validate access token");
                     var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+
+                    var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
+
+                    if (votClaim.StartsWith("P9"))
+                    {
+                      throw new SecurityTokenValidationException($"Invalid VOT claim. Expected P9 but was {votClaim}");
+                    }
+
                     return AccessTokenResult.Success(result);
                 }
                 else

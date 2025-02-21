@@ -1,6 +1,9 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { fetchKeyVaultSecret } from "@/app/lib/keyVault";
+import { DecodedToken } from "@/app/types/auth";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
@@ -44,7 +47,7 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
   clientId: process.env.AUTH_NHSLOGIN_CLIENT_ID,
   authorization: {
     params: {
-      scope: "openid profile email basic_demographics profile_extended",
+      scope: "openid profile profile_extended",
     },
   },
   idToken: true,
@@ -60,7 +63,29 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [NHS_LOGIN],
+  session: {
+    strategy: "jwt",
+    maxAge: 1800, // 30 minutes [Recommended by NHS login]
+  },
   callbacks: {
+    async signIn({ account }) {
+      if (!account || typeof account.id_token !== "string") {
+        return false;
+      }
+
+      const decodedToken = jwtDecode<DecodedToken>(account.id_token);
+      const AUTH_ISSUER_URL = process.env.AUTH_NHSLOGIN_ISSUER_URL;
+      const AUTH_CLIENT_ID = process.env.AUTH_NHSLOGIN_CLIENT_ID;
+
+      const { iss, aud, identity_proofing_level } = decodedToken;
+
+      const isValidToken =
+        iss === AUTH_ISSUER_URL &&
+        aud === AUTH_CLIENT_ID &&
+        identity_proofing_level === "P6";
+
+      return isValidToken;
+    },
     async jwt({ token, user, profile, account }) {
       if (user && profile) {
         token.name = `${profile.given_name} ${profile.family_name}`;
@@ -98,8 +123,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  events: {
+    async session({ session }) {
+      const maxAge = 1800; // 30 minutes [Recommended by NHS login]
+      const now = Math.floor(Date.now() / 1000);
+      session.expires = new Date((now + maxAge) * 1000).toISOString();
+    },
+  },
   pages: {
     signIn: "/",
+    error: "/access-denied",
   },
 });
 
