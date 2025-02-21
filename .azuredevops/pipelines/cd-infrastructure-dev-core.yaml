@@ -18,14 +18,15 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: DEV_audit_backend
+  - group: DEV_core_backend
+  - group: DEV_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
-    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: TF_VERSION
     value: 1.9.2
   - name: TF_PLAN_ARTIFACT
-    value: tf_plan_audit_DEV
+    value: tf_plan_core_DEV
   - name: ENVIRONMENT
     value: development
 
