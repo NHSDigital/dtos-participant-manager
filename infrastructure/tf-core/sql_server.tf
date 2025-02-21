@@ -35,12 +35,12 @@ module "azure_sql_server" {
   auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
 
   # Default database
-  db_name_suffix = var.sqlserver.dbs.serins.db_name_suffix
-  collation      = var.sqlserver.dbs.serins.collation
-  licence_type   = var.sqlserver.dbs.serins.licence_type
-  max_gb         = var.sqlserver.dbs.serins.max_gb
-  read_scale     = var.sqlserver.dbs.serins.read_scale
-  sku            = var.sqlserver.dbs.serins.sku
+  db_name_suffix = var.sqlserver.dbs.parman.db_name_suffix
+  collation      = var.sqlserver.dbs.parman.collation
+  licence_type   = var.sqlserver.dbs.parman.licence_type
+  max_gb         = var.sqlserver.dbs.parman.max_gb
+  read_scale     = var.sqlserver.dbs.parman.read_scale
+  sku            = var.sqlserver.dbs.parman.sku
 
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules
