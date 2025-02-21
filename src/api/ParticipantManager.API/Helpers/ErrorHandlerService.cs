@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Models;
 
-public class ErrorHandler(ILogger logger)
+public class ErrorHandlerService(ILogger logger)
 {
   private readonly ILogger _logger = logger;
   private static readonly string[] HeaderNames = ["x-correlation-id", "x-request-id", "x-session-id", "x-trace-id"];

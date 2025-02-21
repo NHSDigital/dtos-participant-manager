@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.API.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.Experience.API.Tests", "..\..\tests\ParticipantManager.Experience.API.Tests\ParticipantManager.Experience.API.Tests.csproj", "{02964EA0-0B5B-45CA-9A4B-5FA7371E21AD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ErrorHandlerService.Tests", "..\..\tests\ErrorHandlerService.Tests\ErrorHandlerService.Tests.csproj", "{02964EA0-0B5B-45CA-9A4B-5FA7371E21ZZ}"
+EndProject
 Global
   GlobalSection(SolutionConfigurationPlatforms) = preSolution
     Debug|Any CPU = Debug|Any CPU
