@@ -3,12 +3,15 @@ import { EligibilityResponse, PathwayResponse } from "@/app/types";
 export async function fetchPatientScreeningEligibility(
   accessToken: string
 ): Promise<EligibilityResponse> {
+  const traceId = crypto.randomUUID();
+
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/eligibility`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
         Authorization: "Bearer " + accessToken,
+        traceId: traceId,
       },
     });
 
@@ -29,12 +32,15 @@ export async function fetchPathwayAssignment(
   accessToken: string,
   assignmentId: string
 ): Promise<PathwayResponse> {
+  const traceId = crypto.randomUUID();
+
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/pathwayassignments/${assignmentId}`;
     const response = await fetch(url, {
       method: "GET",
       headers: {
         Authorization: "Bearer " + accessToken,
+        traceId: traceId,
       },
     });
 
