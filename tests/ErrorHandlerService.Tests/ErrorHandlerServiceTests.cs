@@ -24,12 +24,12 @@ public class ErrorHandlerServiceTests
   {
     // Act
     var result = _errorHandlerService.HandleResponseError(null);
-    var response = (ErrorResponse)result.Value;
+    var response = result.Value as ErrorResponse;
 
     // Assert
     Assert.Equal(500, result.StatusCode);
-    Assert.Equal("Unknown", response.Status.ToString());
-    Assert.Contains("Unknown", response.Message);
+    Assert.Equal("InternalServerError", response.Status.ToString());
+    Assert.Contains("Failed to retrieve", response.Message);
     Assert.All(response.Headers.Values, value => Assert.Equal("not-found", value));
   }
 
@@ -45,7 +45,7 @@ public class ErrorHandlerServiceTests
 
     // Act
     var result = _errorHandlerService.HandleResponseError(response);
-    var errorResponse = (ErrorResponse)result.Value;
+    var errorResponse = result.Value as ErrorResponse;
 
     // Assert
     Assert.Equal("test-correlation", errorResponse.Headers["x-correlation-id"]);
@@ -82,12 +82,14 @@ public class ErrorHandlerServiceTests
     _errorHandlerService.HandleResponseError(response);
 
     // Assert
-    _loggerMock.Verify(x => x.LogError(
-        It.Is<string>(s => s.Contains("Operation")),
-        It.IsAny<string>(),
-        It.Is<string>(s => s == "NotFound"),
-        It.IsAny<Dictionary<string, string>>(),
-        It.IsAny<string>()
+    _loggerMock.Verify(x => x.Log(
+        LogLevel.Error,
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) =>
+            v.ToString().Contains("Operation") &&
+            v.ToString().Contains("NotFound")),
+        It.IsAny<Exception>(),
+        It.Is<Func<It.IsAnyType, Exception, string>>((o, e) => true)
     ), Times.Once);
   }
 
@@ -99,10 +101,10 @@ public class ErrorHandlerServiceTests
 
     // Act
     var result = _errorHandlerService.HandleResponseError(response, "TestMethod");
-    var errorResponse = (ErrorResponse)result.Value;
+    var errorResponse = result.Value as ErrorResponse;
 
     // Assert
-    Assert.Equal("TestMethod", errorResponse.Title);
+    Assert.Equal("TestMethod", errorResponse?.Title);
   }
 
   [Fact]
@@ -113,7 +115,7 @@ public class ErrorHandlerServiceTests
 
     // Act
     var result = _errorHandlerService.HandleResponseError(response);
-    var errorResponse = (ErrorResponse)result.Value;
+    var errorResponse = result.Value as ErrorResponse;
 
     // Assert
     Assert.True((DateTime.UtcNow - errorResponse.Timestamp).TotalSeconds < 1);
@@ -130,21 +132,21 @@ public class ErrorHandlerServiceTests
 
     // Act
     var result = _errorHandlerService.HandleResponseError(response);
-    var errorResponse = (ErrorResponse)result.Value;
+    var errorResponse = result.Value as ErrorResponse;
 
     // Assert
     Assert.Contains("Custom Reason", errorResponse.Message);
   }
 
   [Fact]
-  public void HandleResponseError_WhenHeadersAreMissing_UsesNotFound()
+  public void HandleResponseError_WhenHeadersAreMissing_ReturnsNotFound()
   {
     // Arrange
     var response = new HttpResponseMessage(HttpStatusCode.OK);
 
     // Act
     var result = _errorHandlerService.HandleResponseError(response);
-    var errorResponse = (ErrorResponse)result.Value;
+    var errorResponse = result.Value as ErrorResponse;
 
     // Assert
     Assert.All(errorResponse.Headers.Values, value => Assert.Equal("not-found", value));

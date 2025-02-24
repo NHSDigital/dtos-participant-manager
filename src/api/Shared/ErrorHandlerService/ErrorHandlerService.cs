@@ -1,7 +1,9 @@
 ﻿namespace Shared.ErrorHandling;
 
+using System.Net;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Models;
@@ -9,7 +11,8 @@ using ParticipantManager.API.Models;
 public class ErrorHandlerService(ILogger logger)
 {
   private readonly ILogger _logger = logger;
-  private static readonly string[] HeaderNames = ["x-correlation-id", "x-request-id", "x-session-id", "x-trace-id"];
+  private static readonly string[] headerNames = ["x-correlation-id", "x-request-id", "x-session-id", "x-trace-id"];
+  private static HttpStatusCode defaultStatusCode = HttpStatusCode.InternalServerError;
 
   public ObjectResult HandleResponseError(HttpResponseMessage? response, [CallerMemberName] string functionName = "")
   {
@@ -25,7 +28,7 @@ public class ErrorHandlerService(ILogger logger)
       (int?)response?.StatusCode ?? StatusCodes.Status500InternalServerError;
 
   private static Dictionary<string, string> ExtractHeaders(HttpResponseMessage? response) =>
-      HeaderNames.ToDictionary(
+      headerNames.ToDictionary(
           name => name,
           name => response?.Headers.TryGetValues(name, out var values) == true
               ? values.FirstOrDefault() ?? "not-found"
@@ -37,9 +40,9 @@ public class ErrorHandlerService(ILogger logger)
     _logger.LogError(
         "Operation {Operation} failed. Status: {Status}. Headers: {@Headers}. Content: {Content}",
         functionName,
-        response?.StatusCode.ToString() ?? "Unknown",
+        response?.StatusCode.ToString() ?? "StatusCode Null or Empty",
         headers,
-        response?.Content.ToString() ?? "No content"
+        response?.Content.ToString() ?? "No Content"
     );
   }
 
@@ -52,9 +55,9 @@ public class ErrorHandlerService(ILogger logger)
     var errorResponse = new ErrorResponse
     {
       Title = functionName,
-      Status = response?.StatusCode,
+      Status = response?.StatusCode ?? defaultStatusCode, //WP - do we default to 500 as standard*/
       Message = CreateErrorMessage(response),
-      // Headers = headers,
+      Headers = headers,
       Timestamp = DateTime.UtcNow
     };
 
