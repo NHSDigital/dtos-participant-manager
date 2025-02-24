@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
-import { auth } from "@/app/lib/auth";
+import { getAuthConfig } from "@/app/lib/auth";
 import { createUrlSlug } from "@/app/lib/utils";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import Card from "@/app/components/card";
@@ -10,6 +12,8 @@ import SignInButton from "@/app/components/signInButton";
 import SignOutButton from "@/app/components/signOutButton";
 
 export async function generateMetadata(): Promise<Metadata> {
+  console.log("generateMetadata");
+  const { auth } = await getAuthConfig();
   const session = await auth();
 
   if (session?.user) {
@@ -40,6 +44,8 @@ const getEligibility = async (
 };
 
 export default async function Home() {
+  console.log("Home");
+  const { auth } = await getAuthConfig();
   const session = await auth();
   const eligibility = session?.user ? await getEligibility(session) : null;
 
