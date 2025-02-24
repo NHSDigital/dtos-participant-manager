@@ -14,6 +14,7 @@ var host = new HostBuilder()
     Log.Logger = new LoggerConfiguration()
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
+      .Destructure.With<NhsNumberHashingPolicy>() // Apply NHS number hashing by default
       .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
       .WriteTo.ApplicationInsights(
         Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
