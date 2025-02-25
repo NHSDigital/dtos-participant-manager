@@ -6,7 +6,7 @@ using ParticipantManager.Experience.API.Services;
 using Serilog;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
 using ParticipantManager.Experience.API;
-
+using Serilog.Enrichers.Sensitive;
 
 var host = new HostBuilder()
   .ConfigureFunctionsWebApplication()
@@ -16,6 +16,9 @@ var host = new HostBuilder()
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+      .Enrich.WithSensitiveDataMasking(options => {
+        options.MaskingOperators.Add(new NhsNumberRegexMask(@"\d{10}"));
+      })
       .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
       .WriteTo.ApplicationInsights(
         Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",

@@ -5,6 +5,7 @@ using Serilog.Events;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Text;
+using Serilog.Enrichers.Sensitive;
 
 public class NhsNumberHashingPolicy : IDestructuringPolicy
 {
@@ -12,6 +13,7 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
   //private static readonly bool DisableHashing = Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
   public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory, out LogEventPropertyValue result)
   {
+    Console.WriteLine("TryDestructure start");
     var properties = value.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
 
     foreach (var property in properties)
@@ -47,4 +49,11 @@ public static class DataMasking
             return Convert.ToBase64String(hashBytes);
         }
     }
+}
+
+public class NhsNumberRegexMask : RegexMaskingOperator
+{
+  public NhsNumberRegexMask(string regexString) : base(regexString)
+  {
+  }
 }
