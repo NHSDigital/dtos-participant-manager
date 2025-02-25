@@ -12,17 +12,25 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
   //private static readonly bool DisableHashing = Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
   public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory, out LogEventPropertyValue result)
   {
-    if (value is string strValue && NhsNumberPattern.IsMatch(strValue))
-    {
-      string loggedValue = $"[HASHED:{DataMasking.HashNhsNumber(strValue)}]";
-      // if( DisableHashing )
-      // {
-      //   loggedValue = strValue;
-      // }
+    var properties = value.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
 
-      result = new ScalarValue(loggedValue);
-      return true;
+    foreach (var property in properties)
+    {
+      string? propertyValue = property.GetValue(value) as string;
+
+      if (!string.IsNullOrEmpty(propertyValue) && NhsNumberPattern.IsMatch(propertyValue))
+      {
+        string loggedValue = $"[HASHED:{DataMasking.HashNhsNumber(propertyValue)}]";
+        // if( DisableHashing )
+        // {
+        //   loggedValue = strValue;
+        // }
+
+        result = new ScalarValue(loggedValue);
+        return true;
+      }
     }
+
     result = null;
     return false;
   }

@@ -29,7 +29,7 @@ public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> 
           return new UnauthorizedResult();
         }
 
-        logger.LogInformation("Extracted NHS Number: {@NhsNumber}", nhsNumber);
+        logger.LogInformation("Extracted NHS Number: {@NhsNumber}", new { NhsNumber = nhsNumber });
         var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
         if (pathwayAssignments == null)
         {
