@@ -1,3 +1,5 @@
+namespace ParticipantManager.Experience.API;
+
 using Serilog.Core;
 using Serilog.Events;
 using System.Text.RegularExpressions;

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Services;
 using Serilog;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
+using ParticipantManager.Experience.API;
 
 
 var host = new HostBuilder()
@@ -14,7 +15,7 @@ var host = new HostBuilder()
     Log.Logger = new LoggerConfiguration()
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
-      .Destructure.With<NhsNumberHashingPolicy>() // Apply NHS number hashing by default
+      .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
       .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
       .WriteTo.ApplicationInsights(
         Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
