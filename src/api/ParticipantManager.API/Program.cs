@@ -4,11 +4,34 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Data;
-
+using ParticipantManager.Experience.API;
+using Serilog;
+using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
+using Serilog.Enrichers.Sensitive;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
+  Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+    .Enrich.WithSensitiveDataMasking(options => {
+      options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+      options.MaskingOperators.Add(new EmailAddressMaskingOperator());
+    })
+    .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
+    .WriteTo.ApplicationInsights(
+      Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
+      new TraceTelemetryConverter())
+    .CreateLogger();
+  builder.Services.AddLogging(loggingBuilder =>
+  {
+    loggingBuilder.ClearProviders();
+    loggingBuilder.AddSerilog();
+  });
+
+
 builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
 {
   var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");

@@ -34,4 +34,7 @@
     <ItemGroup>
         <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ParticipantManager.Shared\ParticipantManager.Shared.csproj" />
+    </ItemGroup>
 </Project>

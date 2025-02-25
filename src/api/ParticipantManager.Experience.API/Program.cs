@@ -17,7 +17,8 @@ var host = new HostBuilder()
       .Enrich.FromLogContext()
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
       .Enrich.WithSensitiveDataMasking(options => {
-        options.MaskingOperators.Add(new NhsNumberRegexMask(@"\d{10}"));
+        options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+        options.MaskingOperators.Add(new EmailAddressMaskingOperator());
       })
       .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
       .WriteTo.ApplicationInsights(
@@ -29,15 +30,10 @@ var host = new HostBuilder()
       loggingBuilder.ClearProviders();
       loggingBuilder.AddSerilog();
     });
-  })
-  .ConfigureServices(services =>
-  {
-
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
       client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
     });
-
     services.AddSingleton<IJwksProvider>(provider =>
     {
       var logger = provider.GetRequiredService<ILogger<JwksProvider>>();

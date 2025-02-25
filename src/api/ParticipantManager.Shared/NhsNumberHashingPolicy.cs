@@ -9,8 +9,11 @@ using Serilog.Enrichers.Sensitive;
 
 public class NhsNumberHashingPolicy : IDestructuringPolicy
 {
-  private static readonly Regex NhsNumberPattern = new Regex(@"\b\d{10}\b", RegexOptions.Compiled);
-  //private static readonly bool DisableHashing = Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
+
+  private const string NHSPattern =@"\b\d{10}\b";
+
+  private static readonly Regex NhsNumberPattern = new Regex(NHSPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+  private static readonly bool DisableHashing = Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
   public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory, out LogEventPropertyValue result)
   {
     Console.WriteLine("TryDestructure start");
@@ -23,10 +26,10 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
       if (!string.IsNullOrEmpty(propertyValue) && NhsNumberPattern.IsMatch(propertyValue))
       {
         string loggedValue = $"[HASHED:{DataMasking.HashNhsNumber(propertyValue)}]";
-        // if( DisableHashing )
-        // {
-        //   loggedValue = strValue;
-        // }
+        if( DisableHashing )
+        {
+          loggedValue = propertyValue;
+        }
 
         result = new ScalarValue(loggedValue);
         return true;
@@ -51,9 +54,10 @@ public static class DataMasking
     }
 }
 
-public class NhsNumberRegexMask : RegexMaskingOperator
+public class NhsNumberRegexMaskOperator : RegexMaskingOperator
 {
-  public NhsNumberRegexMask(string regexString) : base(regexString)
-  {
-  }
+    private const string NHSPattern =@"\d{10}";
+    public NhsNumberRegexMaskOperator() : base(NHSPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled)
+    {
+    }
 }

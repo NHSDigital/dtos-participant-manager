@@ -20,24 +20,27 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
 
     if (result.Status == AccessTokenStatus.Valid)
     {
-      logger.LogInformation("Processing request: {@TokenName}", result.Principal.Identity.Name);
+      logger.LogInformation("Access token is valid, looking for NHS Number");
 
       var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-      logger.LogInformation("NHS number: {@nhsNumber}", nhsNumber);
       if (string.IsNullOrEmpty(nhsNumber))
       {
         logger.LogError("Access token doesn't contain NHS number");
         return new UnauthorizedResult();
       }
+      logger.LogInformation("Getting Assignments for Request {@Request}", new {NhsNumber = nhsNumber, AssignmentId = assignmentId});
 
       var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
       if (pathwayAssignment == null)
       {
+        logger.LogError("Failed to find assignments for Assignments for Request {@Request}", new {NhsNumber = nhsNumber, AssignmentId = assignmentId});
         return new NotFoundResult();
       }
-
+      logger.LogInformation("Found pathway assignment for Assignments for Request {@Request}", new {NhsNumber = nhsNumber, AssignmentId = assignmentId});
       return new OkObjectResult(pathwayAssignment);
     }
+
+    logger.LogError ("Invalid access token");
     return new UnauthorizedResult();
 
   }

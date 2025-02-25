@@ -1,6 +1,40 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
 
+// Function to convert PEM to CryptoKey
+async function pemToPrivateKey(): Promise<CryptoKey | null> {
+  const pem = process.env.AUTH_NHSLOGIN_CLIENT_SECRET;
+
+  if (!pem) {
+    console.warn("Could not get secret from Azure Key Vault");
+    return null;
+  }
+
+  // Remove headers and convert to binary
+  const pemContents = pem.replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, "").trim();
+
+  // Convert base64 to buffer
+  const keyBuffer = Buffer.from(pemContents, "base64");
+
+  // Import as CryptoKey
+  const privateKey = await crypto.subtle.importKey(
+    "pkcs8",
+    keyBuffer,
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      hash: "SHA-512",
+    },
+    true,
+    ["sign"]
+  );
+
+  return privateKey;
+}
+
+// Convert PEM to CryptoKey
+const clientPrivateKey = await pemToPrivateKey();
+
+
 const NHS_LOGIN: OAuthConfig<Profile> = {
   id: "nhs-login",
   name: "NHS login authentication",
@@ -19,7 +53,7 @@ const NHS_LOGIN: OAuthConfig<Profile> = {
     userinfo_signed_response_alg: "RS512",
   },
   token: {
-    clientPrivateKey: process.env.AUTH_NHSLOGIN_CLIENT_SECRET,
+    clientPrivateKey: clientPrivateKey,
   },
   checks: [],
 };
