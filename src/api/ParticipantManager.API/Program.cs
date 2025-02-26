@@ -1,58 +1,79 @@
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.API.Data;
 using Serilog;
-using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
 using Serilog.Enrichers.Sensitive;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 using ParticipantManager.Shared;
+using Microsoft.EntityFrameworkCore;
+using ParticipantManager.API.Data;
 
-var builder = FunctionsApplication.CreateBuilder(args);
-
-builder.ConfigureFunctionsWebApplication();
-Log.Logger = new LoggerConfiguration()
-  .MinimumLevel.Information()
-  .Enrich.FromLogContext()
-  .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
-  .Enrich.WithSensitiveDataMasking(options =>
-  {
-    options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
-    options.MaskingOperators.Add(new EmailAddressMaskingOperator());
-  })
-  .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
-  .WriteTo.ApplicationInsights(
-    Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
-    new TraceTelemetryConverter())
-  .CreateLogger();
-builder.Services.AddLogging(loggingBuilder =>
-{
-  loggingBuilder.ClearProviders();
-  loggingBuilder.AddSerilog();
-});
+string appInsightsConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
+string databaseConnectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
 
 
-builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
-{
-  var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
-  if (string.IsNullOrEmpty(connectionString))
-  {
-    throw new InvalidOperationException("The connection string has not been initialized.");
-  }
 
-  options.UseSqlServer(connectionString);
-});
+var host = new HostBuilder()
+    .ConfigureFunctionsWebApplication()
+    .ConfigureServices((context, services) =>
+    {
+      services.AddOpenTelemetry()
+      .ConfigureResource(builder => builder
+      .AddService(serviceName: "ParticipantManager.API"))
+      .WithTracing(builder => builder
+      .AddSource(nameof(ParticipantManager.API))
+      .AddHttpClientInstrumentation()
+      .AddAspNetCoreInstrumentation()
+      .AddAzureMonitorTraceExporter(options =>
+      {
+        options.ConnectionString = appInsightsConnectionString;
+      }))
+      .WithMetrics(builder => builder
+      .AddMeter(nameof(ParticipantManager.API))
+      .AddHttpClientInstrumentation()
+      .AddAspNetCoreInstrumentation()
+      .AddAzureMonitorMetricExporter(options =>
+      {
+        options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+      }));
 
-builder.Services.AddLogging(builder =>
-{
-  builder.AddConsole(); // Use console logging
-  builder.SetMinimumLevel(LogLevel.Debug);
-});
+      services.AddDbContext<ParticipantManagerDbContext>(options =>
+          {
+            if (string.IsNullOrEmpty(databaseConnectionString))
+            {
+              throw new InvalidOperationException("The connection string has not been initialized.");
+            }
 
-// Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4.
-// builder.Services
-//     .AddApplicationInsightsTelemetryWorkerService()
-//     .ConfigureFunctionsApplicationInsights();
+            options.UseSqlServer(databaseConnectionString);
+          });
+    })
+    .UseSerilog((context, services, loggerConfiguration) =>
+    {
+      loggerConfiguration
+          .MinimumLevel.Information()
+          .Enrich.FromLogContext()
+          .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+          .Enrich.WithSensitiveDataMasking(options =>
+          {
+            options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+            options.MaskingOperators.Add(new EmailAddressMaskingOperator());
+          })
+          .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
+          .WriteTo.ApplicationInsights(appInsightsConnectionString, TelemetryConverter.Traces);
+    })
+    .ConfigureLogging(logging =>
+    {
+      logging.AddOpenTelemetry(options =>
+      {
+        options.AddAzureMonitorLogExporter(options =>
+          {
+            options.ConnectionString = appInsightsConnectionString;
+          });
+      });
+    })
+    .Build();
 
-builder.Build().Run();
+await host.RunAsync();

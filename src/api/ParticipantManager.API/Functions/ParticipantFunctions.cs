@@ -1,10 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +25,7 @@ public class ParticipantFunctions
   public async Task<IActionResult> CreateParticipant(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")] HttpRequestData req)
   {
-    _logger.LogInformation("C# HTTP trigger function processed a request.adsfasfsdf");
+    _logger.LogDebug("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
     try
     {
@@ -44,7 +41,7 @@ public class ParticipantFunctions
 
       if (!Validator.TryValidateObject(participant, context, validationResults, true))
       {
-        _logger.LogWarning("Validation failed for participant creation.");
+        _logger.LogError("Validation failed for participant creation.");
         return new BadRequestObjectResult(validationResults);
       }
       // Check if a participant with the same NHS Number already exists
@@ -53,18 +50,18 @@ public class ParticipantFunctions
 
       if (existingParticipant != null)
       {
-        _logger.LogWarning("Attempted to create a duplicate participant with NHS Number: {NHSNumber}", participant.NHSNumber);
+        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}", new {NhsNumber = participant.NHSNumber});
         return new ConflictObjectResult(new { message = "A participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
       await _dbContext.SaveChangesAsync();
-
+      _logger.LogInformation("Successfully Created Participant, NHS Number: {@NhsNumber}", new {NhsNumber = participant.NHSNumber});
       return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "C# HTTP trigger function processed a request and an exception was thrown.");
+      _logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.", nameof(CreateParticipant));
       return new BadRequestObjectResult(new { message = "An error occurred while processing the request." });
     }
   }

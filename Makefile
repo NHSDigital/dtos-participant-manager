@@ -96,7 +96,7 @@ endif
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-	@cd $(API2_DIR) && start /B dotnet watch run --port $(EXPERIENCE_PORT)"
+	@cd "$(API2_DIR)" && start /B dotnet watch run --port $(EXPERIENCE_PORT)
 else
 		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
 endif
