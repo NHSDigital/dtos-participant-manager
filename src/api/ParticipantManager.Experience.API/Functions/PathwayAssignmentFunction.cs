@@ -6,10 +6,16 @@ using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.Services;
 
 namespace ParticipantManager.Experience.API.Functions;
-public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
+
+public class PathwayAssignmentFunction(
+  ILogger<PathwayAssignmentFunction> logger,
+  ICrudApiClient crudApiClient,
+  ITokenService tokenService)
 {
   [Function("GetPathwayAssignmentById")]
-  public async Task<IActionResult> GetPathwayAssignmentById([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req, string assignmentId)
+  public async Task<IActionResult> GetPathwayAssignmentById(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req,
+    string assignmentId)
   {
     logger.LogDebug("GetPathwayAssignmentById execution started at {Timestamp}", DateTime.UtcNow);
     try
@@ -25,15 +31,20 @@ public class PathwayAssignmentFunction(ILogger<PathwayAssignmentFunction> logger
           logger.LogError("Access token doesn't contain NHS number");
           return new UnauthorizedResult();
         }
-        logger.LogDebug("Getting Assignments for Request {@Request}", new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+
+        logger.LogDebug("Getting Assignments for Request {@Request}",
+          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
 
         var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
         if (pathwayAssignment == null)
         {
-          logger.LogError("Failed to find assignments for Assignments for Request {@Request}", new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+          logger.LogError("Failed to find assignments for Assignments for Request {@Request}",
+            new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
           return new NotFoundResult();
         }
-        logger.LogInformation("Found pathway assignment for Assignments for Request {@Request}", new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+
+        logger.LogInformation("Found pathway assignment for Assignments for Request {@Request}",
+          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
         return new OkObjectResult(pathwayAssignment);
       }
 

@@ -10,8 +10,8 @@ public class PathwayTypeAssignment
   public string Status { get; set; }
   public DateTime? NextActionDate { get; set; }
   public Participant Participant { get; set; }
-  public Guid PathwayTypeId {get; set;}
+  public Guid PathwayTypeId { get; set; }
   public ICollection<Episode> Episodes { get; set; }
-  public string ScreeningName {get; set;}
-  public string PathwayName {get; set;}
+  public string ScreeningName { get; set; }
+  public string PathwayName { get; set; }
 }

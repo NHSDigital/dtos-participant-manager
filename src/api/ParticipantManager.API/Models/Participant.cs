@@ -4,9 +4,6 @@ namespace ParticipantManager.API.Models;
 
 public class Participant
 {
-  public Participant() { }
-
-
   public Guid ParticipantId { get; set; } = Guid.NewGuid();
 
   [Required(ErrorMessage = "Name is required.")]

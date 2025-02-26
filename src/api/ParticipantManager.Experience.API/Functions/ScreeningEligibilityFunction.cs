@@ -1,18 +1,20 @@
-using ParticipantManager.Experience.API.Services;
-
-namespace ParticipantManager.Experience.API.Functions;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Client;
+using ParticipantManager.Experience.API.Services;
 
-public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> logger, ICrudApiClient crudApiClient, ITokenService tokenService)
+namespace ParticipantManager.Experience.API.Functions;
+
+public class ScreeningEligibilityFunction(
+  ILogger<ScreeningEligibilityFunction> logger,
+  ICrudApiClient crudApiClient,
+  ITokenService tokenService)
 {
-
   [Function("GetScreeningEligibility")]
-  public async Task<IActionResult> GetParticipantEligibility([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
+  public async Task<IActionResult> GetParticipantEligibility(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
   {
     logger.LogDebug("GetScreeningEligibility execution started at {Timestamp}", DateTime.UtcNow);
     try
@@ -29,24 +31,27 @@ public class ScreeningEligibilityFunction(ILogger<ScreeningEligibilityFunction> 
           return new UnauthorizedResult();
         }
 
-        logger.LogDebug("Getting Assignments for NhsNumber: {@NhsNumber}", new {NhsNumber = nhsNumber});
+        logger.LogDebug("Getting Assignments for NhsNumber: {@NhsNumber}", new { NhsNumber = nhsNumber });
 
         var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
         if (pathwayAssignments == null)
         {
-          logger.LogError("Failed to find assignments for Assignments for NhsNumber: {@NhsNumber}", new {NhsNumber = nhsNumber});
+          logger.LogError("Failed to find assignments for Assignments for NhsNumber: {@NhsNumber}",
+            new { NhsNumber = nhsNumber });
           return new NotFoundObjectResult("Unable to find pathway assignments");
         }
-        logger.LogInformation("Found pathway assignment for Assignments for NhsNumber: {@NhsNumber}", new {NhsNumber = nhsNumber});
+
+        logger.LogInformation("Found pathway assignment for Assignments for NhsNumber: {@NhsNumber}",
+          new { NhsNumber = nhsNumber });
         return new OkObjectResult(pathwayAssignments);
       }
 
-      logger.LogError ("Invalid access token");
+      logger.LogError("Invalid access token");
       return new UnauthorizedResult();
     }
     catch (Exception ex)
     {
-      logger.LogError (ex, "Invalid: Bad Request");
+      logger.LogError(ex, "Invalid: Bad Request");
       return new BadRequestObjectResult(ex.Message);
     }
   }

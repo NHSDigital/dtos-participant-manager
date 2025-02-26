@@ -1,13 +1,14 @@
+using Microsoft.EntityFrameworkCore;
 using ParticipantManager.API.Models;
 
 namespace ParticipantManager.API.Data;
 
-using Microsoft.EntityFrameworkCore;
-
 public class ParticipantManagerDbContext : DbContext
 {
   public ParticipantManagerDbContext(DbContextOptions<ParticipantManagerDbContext> options)
-    : base(options) { }
+    : base(options)
+  {
+  }
 
   public DbSet<Participant> Participants { get; set; }
   public DbSet<PathwayTypeAssignment> PathwayTypeAssignments { get; set; }

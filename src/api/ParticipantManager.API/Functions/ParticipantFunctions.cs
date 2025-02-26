@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Models;
 
@@ -12,8 +13,8 @@ namespace ParticipantManager.API.Functions;
 
 public class ParticipantFunctions
 {
-  private readonly ILogger<ParticipantFunctions> _logger;
   private readonly ParticipantManagerDbContext _dbContext;
+  private readonly ILogger<ParticipantFunctions> _logger;
 
   public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext)
   {
@@ -23,7 +24,8 @@ public class ParticipantFunctions
 
   [Function("CreateParticipant")]
   public async Task<IActionResult> CreateParticipant(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")] HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")]
+    HttpRequestData req)
   {
     _logger.LogDebug("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
@@ -37,31 +39,35 @@ public class ParticipantFunctions
         });
       // Validate Data Annotations
       var validationResults = new List<ValidationResult>();
-      var context = new ValidationContext(participant, serviceProvider: null, items: null);
+      var context = new ValidationContext(participant, null, null);
 
       if (!Validator.TryValidateObject(participant, context, validationResults, true))
       {
         _logger.LogError("Validation failed for participant creation.");
         return new BadRequestObjectResult(validationResults);
       }
+
       // Check if a participant with the same NHS Number already exists
       var existingParticipant = await _dbContext.Participants
         .FirstOrDefaultAsync(p => p.NHSNumber == participant.NHSNumber);
 
       if (existingParticipant != null)
       {
-        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}", new { NhsNumber = participant.NHSNumber });
+        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}",
+          new { NhsNumber = participant.NHSNumber });
         return new ConflictObjectResult(new { message = "A participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
       await _dbContext.SaveChangesAsync();
-      _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}", new { NhsNumber = participant.NHSNumber, ParticipantId = participant.ParticipantId });
+      _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}",
+        new { NhsNumber = participant.NHSNumber, participant.ParticipantId });
       return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.", nameof(CreateParticipant));
+      _logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.",
+        nameof(CreateParticipant));
       return new BadRequestObjectResult(new { message = "An error occurred while processing the request." });
     }
   }
@@ -80,6 +86,7 @@ public class ParticipantFunctions
       _logger.LogWarning("Participant not found: {ParticipantId}", participantId);
       return new NotFoundObjectResult($"Participant with ID {participantId} not found.");
     }
+
     return new OkObjectResult(participant);
   }
 
@@ -92,8 +99,8 @@ public class ParticipantFunctions
     _logger.LogInformation("Processing participant search request.");
 
     // Extract query parameters
-    var queryParams = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
-    string? nhsNumber = queryParams["nhsNumber"];
+    var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
+    var nhsNumber = queryParams["nhsNumber"];
 
     if (string.IsNullOrEmpty(nhsNumber))
     {
@@ -113,5 +120,3 @@ public class ParticipantFunctions
     return new OkObjectResult(participant);
   }
 }
-
-

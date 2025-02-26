@@ -1,29 +1,29 @@
-namespace ParticipantManager.Experience.API.Tests;
-
-using ParticipantManager.Experience.API.DTOs;
-using ParticipantManager.Experience.API.Services;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using ParticipantManager.Experience.API.Functions;
-using System.Security.Claims;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 using ParticipantManager.Experience.API.Client;
+using ParticipantManager.Experience.API.DTOs;
+using ParticipantManager.Experience.API.Functions;
+using ParticipantManager.Experience.API.Services;
+
+namespace ParticipantManager.Experience.API.Tests;
 
 public class PathwayAssignmentFunctionTests
 {
-  private readonly Mock<ILogger<PathwayAssignmentFunction>> _loggerMock;
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
+  private readonly PathwayAssignmentFunction _function;
+  private readonly Mock<ILogger<PathwayAssignmentFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
-  private readonly PathwayAssignmentFunction _function ;
 
   public PathwayAssignmentFunctionTests()
   {
     _loggerMock = new Mock<ILogger<PathwayAssignmentFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result).Returns(MockPathwayDetails);
+    _crudApiClient.Setup(s => s.GetPathwayAssignmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
+      .Returns(MockPathwayDetails);
     _function = new PathwayAssignmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
@@ -34,7 +34,7 @@ public class PathwayAssignmentFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
 
-    var request = CreateHttpRequest($"");
+    var request = CreateHttpRequest("");
 
     // Act
     var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
@@ -48,9 +48,9 @@ public class PathwayAssignmentFunctionTests
   {
     var claims = new List<Claim>
     {
-      new Claim(ClaimTypes.NameIdentifier, "12345"),
-      new Claim(ClaimTypes.Email, "user@example.com"),
-      new Claim("custom_claim", "my_value")
+      new(ClaimTypes.NameIdentifier, "12345"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("custom_claim", "my_value")
     };
     var identity = new ClaimsIdentity(claims, "Bearer");
     var principal = new ClaimsPrincipal(identity);
@@ -59,7 +59,7 @@ public class PathwayAssignmentFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
-    var request = CreateHttpRequest($"");
+    var request = CreateHttpRequest("");
 
     // Act
     var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
@@ -73,9 +73,9 @@ public class PathwayAssignmentFunctionTests
   {
     var claims = new List<Claim>
     {
-      new Claim(ClaimTypes.NameIdentifier, "12345678"),
-      new Claim(ClaimTypes.Email, "user@example.com"),
-      new Claim("nhs_number", "12345678")
+      new(ClaimTypes.NameIdentifier, "12345678"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "12345678")
     };
     var identity = new ClaimsIdentity(claims, "Bearer");
     var principal = new ClaimsPrincipal(identity);
@@ -93,7 +93,6 @@ public class PathwayAssignmentFunctionTests
     var pathwayAssignmentDto = (AssignedPathwayDetailsDTO)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
     Assert.Equal(pathwayAssignmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
-
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -102,10 +101,7 @@ public class PathwayAssignmentFunctionTests
     var context = new Mock<FunctionContext>();
     var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
     var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-    if (!string.IsNullOrEmpty(authHeader))
-    {
-      headers.Add("Authorization", $"{authHeader}");
-    }
+    if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
 
     request.Setup(r => r.Headers).Returns(headers);
     return request.Object;
@@ -113,7 +109,7 @@ public class PathwayAssignmentFunctionTests
 
   private AssignedPathwayDetailsDTO MockPathwayDetails()
   {
-    return new AssignedPathwayDetailsDTO()
+    return new AssignedPathwayDetailsDTO
     {
       AssignmentId = new Guid(),
       ScreeningName = "Breast Screening",
