@@ -50,13 +50,13 @@ public class ParticipantFunctions
 
       if (existingParticipant != null)
       {
-        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}", new {NhsNumber = participant.NHSNumber});
+        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}", new { NhsNumber = participant.NHSNumber });
         return new ConflictObjectResult(new { message = "A participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
       await _dbContext.SaveChangesAsync();
-      _logger.LogInformation("Successfully Created Participant, NHS Number: {@NhsNumber}", new {NhsNumber = participant.NHSNumber});
+      _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}", new { NhsNumber = participant.NHSNumber, ParticipantId = participant.ParticipantId });
       return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
     }
     catch (Exception ex)

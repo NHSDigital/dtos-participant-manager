@@ -15,24 +15,24 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
 
   public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory, out LogEventPropertyValue result)
   {
-    var properties = value.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
+    var properties = value.GetType().GetProperties();
 
     var structureProperties = new List<LogEventProperty>();
 
     // Hash property values that match NHS Number format
     foreach (var property in properties)
     {
-      string? propertyValue = property.GetValue(value) as string;
+      string? propertyValue = property.GetValue(value)?.ToString();
 
       if (!string.IsNullOrEmpty(propertyValue) && NhsNumberRegex.IsMatch(propertyValue))
       {
-        string loggedValue = $"[HASHED:{DataMasking.HashNhsNumber(propertyValue)}]";
+        string hashedNhsNumberValue = $"[HASHED:{DataMasking.HashNhsNumber(propertyValue)}]";
         if (DisableHashing)
         {
-          loggedValue = propertyValue;
+          hashedNhsNumberValue = propertyValue;
         }
 
-        structureProperties.Add(new LogEventProperty(property.Name, new ScalarValue(loggedValue)));
+        structureProperties.Add(new LogEventProperty(property.Name, new ScalarValue(hashedNhsNumberValue)));
       }
       else
       {
