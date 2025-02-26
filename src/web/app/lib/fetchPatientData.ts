@@ -8,7 +8,7 @@ export async function fetchPatientScreeningEligibility(
 
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/eligibility`;
-    logger.info({ url, correlationId }, 'Making eligibility API request');
+    logger.info({ url, correlationId }, "Making eligibility API request");
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -18,16 +18,27 @@ export async function fetchPatientScreeningEligibility(
     });
 
     if (!response.ok) {
-      logger.error({ url, correlationId }, `Failed to get eligibility data: ${response.statusText}`);
+      logger.error(
+        { url, correlationId },
+        `Failed to get eligibility data: ${response.statusText}`
+      );
       throw new Error(
         `Error fetching patient screening eligibility data: ${response.statusText}`
       );
     }
     const data = await response.json();
-    logger.info({ url, correlationId }, `Successfully got eligibility API data`);
+    logger.info(
+      { url, correlationId },
+      `Successfully got eligibility API data`
+    );
     return data;
   } catch (error) {
-    logger.error({ correlationId }, `Failed to get eligibility data: ${error instanceof Error ? error.message : "Unknown error"}`);
+    logger.error(
+      { correlationId },
+      `Failed to get eligibility data: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
     throw error;
   }
 }
@@ -40,7 +51,7 @@ export async function fetchPathwayAssignment(
 
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/pathwayassignments/${assignmentId}`;
-    logger.info({ url, correlationId }, 'Making pathway API request');
+    logger.info({ url, correlationId }, "Making pathway API request");
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -50,7 +61,10 @@ export async function fetchPathwayAssignment(
     });
 
     if (!response.ok) {
-      logger.error({ url, correlationId }, `Failed to get pathway data: ${response.statusText}`);
+      logger.error(
+        { url, correlationId },
+        `Failed to get pathway data: ${response.statusText}`
+      );
       throw new Error(
         `Error fetching pathway assignment data: ${response.statusText}`
       );
@@ -60,7 +74,12 @@ export async function fetchPathwayAssignment(
     logger.info({ url, correlationId }, `Successfully got pathway API data`);
     return data;
   } catch (error) {
-    logger.error({ correlationId }, `Failed to get pathway data: ${error instanceof Error ? error.message : "Unknown error"}`);
+    logger.error(
+      { correlationId },
+      `Failed to get pathway data: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
     throw error;
   }
 }

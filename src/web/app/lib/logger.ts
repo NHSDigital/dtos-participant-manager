@@ -1,25 +1,8 @@
 import pino, { Logger } from "pino";
-//import { TelemetryClient } from 'applicationinsights';
+import { registerOpenTelemetry } from "@/app/lib/registerTelemetry";
 
-import type { SpanExporter } from '@opentelemetry/sdk-trace-base';
-import { registerOTel } from '@vercel/otel';
-
-export async function register() {
-  let traceExporter: SpanExporter | undefined;
-
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { AzureMonitorTraceExporter } = await import('@azure/monitor-opentelemetry-exporter');
-    traceExporter = new AzureMonitorTraceExporter({
-      connectionString: process.env.APP_INSIGHTS_INSTRUMENTATION_KEY,
-      // you can read from ENV if you prefer to
-      // connectionString: process.env.APP_INSIGHTS_CONNECTION_STRING,
-    });
-  }
-
-  registerOTel({ serviceName: 'your-project-name', traceExporter });
-}
-
-//const appInsights = new TelemetryClient(process.env.TESTVARIABLE);
+// Initialize OpenTelemetry
+registerOpenTelemetry();
 
 export const logger: Logger =
   process.env["NODE_ENV"] === "production"
@@ -30,14 +13,14 @@ export const logger: Logger =
         transport: {
           targets: [
             {
-              target: 'pino-pretty',
-              level: 'debug',
+              target: "pino-pretty",
+              level: "debug",
               options: {
                 colorize: true,
-                translateTime: 'SYS:standard'
-              }
-            }
-          ]
+                translateTime: "SYS:standard",
+              },
+            },
+          ],
         },
         level: "debug",
       });
