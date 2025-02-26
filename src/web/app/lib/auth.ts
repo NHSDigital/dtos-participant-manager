@@ -1,5 +1,4 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
-import { JWT } from "next-auth/jwt";
 import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { fetchKeyVaultSecret } from "@/app/lib/keyVault";
@@ -144,16 +143,4 @@ export async function getAuthConfig() {
       error: "/access-denied",
     },
   });
-}
-
-// Declare user properties in NextAuth
-declare module "next-auth" {
-  interface User {
-    firstName?: string;
-    lastName?: string;
-    dob?: string;
-    nhsNumber?: string;
-    identityLevel?: string;
-    accessToken?: string;
-  }
 }
