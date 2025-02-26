@@ -16,7 +16,8 @@ var host = new HostBuilder()
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
-      .Enrich.WithSensitiveDataMasking(options => {
+      .Enrich.WithSensitiveDataMasking(options =>
+      {
         options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
         options.MaskingOperators.Add(new EmailAddressMaskingOperator());
       })
@@ -41,7 +42,7 @@ var host = new HostBuilder()
       return new JwksProvider(logger, issuer);
     });
 
-    services.AddSingleton<ITokenService,TokenService>();
+    services.AddSingleton<ITokenService, TokenService>();
 
     services.AddAuthorization();
   })

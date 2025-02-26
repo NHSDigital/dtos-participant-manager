@@ -12,24 +12,25 @@ using ParticipantManager.Shared;
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-  Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .Enrich.FromLogContext()
-    .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
-    .Enrich.WithSensitiveDataMasking(options => {
-      options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
-      options.MaskingOperators.Add(new EmailAddressMaskingOperator());
-    })
-    .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
-    .WriteTo.ApplicationInsights(
-      Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
-      new TraceTelemetryConverter())
-    .CreateLogger();
-  builder.Services.AddLogging(loggingBuilder =>
+Log.Logger = new LoggerConfiguration()
+  .MinimumLevel.Information()
+  .Enrich.FromLogContext()
+  .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+  .Enrich.WithSensitiveDataMasking(options =>
   {
-    loggingBuilder.ClearProviders();
-    loggingBuilder.AddSerilog();
-  });
+    options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+    options.MaskingOperators.Add(new EmailAddressMaskingOperator());
+  })
+  .WriteTo.Console(new Serilog.Formatting.Compact.RenderedCompactJsonFormatter())
+  .WriteTo.ApplicationInsights(
+    Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? "",
+    new TraceTelemetryConverter())
+  .CreateLogger();
+builder.Services.AddLogging(loggingBuilder =>
+{
+  loggingBuilder.ClearProviders();
+  loggingBuilder.AddSerilog();
+});
 
 
 builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
