@@ -82,7 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isValidToken =
         iss === AUTH_ISSUER_URL &&
         aud === AUTH_CLIENT_ID &&
-        identity_proofing_level === "P6";
+        identity_proofing_level === "P9";
 
       return isValidToken;
     },
