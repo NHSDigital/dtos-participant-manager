@@ -22,9 +22,7 @@ export async function fetchKeyVaultSecret(): Promise<string> {
     // Try Azure CLI credential first for local development
     let credential;
     try {
-      credential = new DefaultAzureCredential({
-        managedIdentityClientId: process.env.AZURE_CLIENT_ID,
-      });
+      credential = new DefaultAzureCredential();
     } catch (error) {
       console.error("Failed to create Azure credential:", error);
       throw new Error("Azure authentication failed");
