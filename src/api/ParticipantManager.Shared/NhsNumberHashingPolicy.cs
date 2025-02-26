@@ -60,7 +60,7 @@ public static class DataMasking
 
 public class NhsNumberRegexMaskOperator : RegexMaskingOperator
 {
-  private const string NhsNumberPattern = @"\d{10}";
+  private const string NhsNumberPattern = @"\b\d{10}\b";
   public NhsNumberRegexMaskOperator() : base(NhsNumberPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled)
   {
   }
