@@ -1,10 +1,11 @@
-import { signOut } from "@/app/lib/auth";
+import { getAuthConfig } from "@/app/lib/auth";
 
 export default function SignOutButton() {
   return (
     <form
       action={async () => {
         "use server";
+        const { signOut } = await getAuthConfig();
         await signOut({ redirectTo: "/" });
       }}
     >
