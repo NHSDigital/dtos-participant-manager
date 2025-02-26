@@ -1,21 +1,16 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
-using System.Net;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Castle.Components.DictionaryAdapter.Xml;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
-using Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.TestUtils;
 
 namespace ParticipantManager.API.Tests
 {

@@ -1,25 +1,17 @@
-using ParticipantManager.Experience.API.DTOs;
-using ParticipantManager.Experience.API.Services;
-using ParticipantManager.TestUtils;
-
 namespace ParticipantManager.Experience.API.Tests;
 
+using ParticipantManager.Experience.API.DTOs;
+using ParticipantManager.Experience.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.IdentityModel.Tokens;
 using ParticipantManager.Experience.API.Functions;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using ParticipantManager.Experience.API.Client;
-using System.Collections.Specialized;
 
 public class PathwayAssignmentFunctionTests
 {

@@ -45,6 +45,7 @@ namespace ParticipantManager.Experience.API.Services
                     var handler = new JwtSecurityTokenHandler();
                     logger.LogInformation("About to validate access token");
                     var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+                    logger.LogInformation("email address: {@EmailAdress}", result.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
                     return AccessTokenResult.Success(result);
                 }
                 else
