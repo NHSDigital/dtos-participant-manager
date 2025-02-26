@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Services;
 using Serilog;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
-using ParticipantManager.Experience.API;
 using Serilog.Enrichers.Sensitive;
+using ParticipantManager.Shared;
 
 var host = new HostBuilder()
   .ConfigureFunctionsWebApplication()

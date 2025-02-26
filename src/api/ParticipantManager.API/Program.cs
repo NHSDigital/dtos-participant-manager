@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Data;
-using ParticipantManager.Experience.API;
 using Serilog;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
 using Serilog.Enrichers.Sensitive;
+using ParticipantManager.Shared;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
