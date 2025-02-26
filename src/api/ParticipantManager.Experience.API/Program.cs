@@ -18,6 +18,7 @@ var host = new HostBuilder()
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
       .Enrich.WithSensitiveDataMasking(options =>
       {
+        options.MaskingOperators.Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
         options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
         options.MaskingOperators.Add(new EmailAddressMaskingOperator());
       })
