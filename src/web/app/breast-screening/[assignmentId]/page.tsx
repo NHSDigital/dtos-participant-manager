@@ -1,7 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
-import { auth } from "@/app/lib/auth";
+import { getAuthConfig } from "@/app/lib/auth";
 import { fetchPathwayAssignment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
@@ -10,6 +12,7 @@ import SignOutButton from "@/app/components/signOutButton";
 import Unauthorised from "@/app/components/unauthorised";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { auth } = await getAuthConfig();
   const session = await auth();
 
   if (session?.user) {
@@ -43,6 +46,7 @@ const getPathwayAssignment = async (
 export default async function Page(props: {
   params: Promise<{ assignmentId: string }>;
 }) {
+  const { auth } = await getAuthConfig();
   const session = await auth();
 
   if (!session?.user) return <Unauthorised />;

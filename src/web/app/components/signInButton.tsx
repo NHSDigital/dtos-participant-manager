@@ -1,4 +1,4 @@
-import { signIn } from "@/app/lib/auth";
+import { getAuthConfig } from "@/app/lib/auth";
 import styles from "@/app/styles/components/signIn.module.scss";
 
 export default function SignInButton() {
@@ -6,6 +6,7 @@ export default function SignInButton() {
     <form
       action={async () => {
         "use server";
+        const { signIn } = await getAuthConfig();
         await signIn("nhs-login");
       }}
     >
