@@ -1,13 +1,20 @@
-const { NodeSDK, tracing, logs, api } = require("@opentelemetry/sdk-node");
+const { NodeSDK, tracing, logs, api } = require ("@opentelemetry/sdk-node");
+const { useAzureMonitor, AzureMonitorOpenTelemetryOptions } = require("@azure/monitor-opentelemetry");
 import { PinoInstrumentation } from "@opentelemetry/instrumentation-pino";
 
 export function registerOpenTelemetry() {
+
+  const options: AzureMonitorOpenTelemetryOptions = {
+    azureMonitorExporterOptions: {
+      connectionString: "<your connection string>"
+    }
+  };
+
+  useAzureMonitor(options);
+
   const sdk = new NodeSDK({
-    spanProcessor: new tracing.SimpleSpanProcessor(
-      new tracing.ConsoleSpanExporter()
-    ),
     logRecordProcessor: new logs.SimpleLogRecordProcessor(
-      new logs.ConsoleLogRecordExporter()
+      new logs.ConsoleLogRecordExporter(),
     ),
     instrumentations: [
       new PinoInstrumentation({
