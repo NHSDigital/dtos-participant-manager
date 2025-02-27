@@ -32,18 +32,18 @@ public class PathwayAssignmentFunction(
           return new UnauthorizedResult();
         }
 
-        logger.LogDebug("Getting Assignments for Request {@Request}",
+        logger.LogDebug("Getting pathway assignment for Request {@Request}",
           new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
 
         var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
         if (pathwayAssignment == null)
         {
-          logger.LogError("Failed to find assignments for Assignments for Request {@Request}",
+          logger.LogError("Failed to find pathway assignment for Request {@Request}",
             new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
           return new NotFoundResult();
         }
 
-        logger.LogInformation("Found pathway assignment for Assignments for Request {@Request}",
+        logger.LogInformation("Found pathway assignment for Request {@Request}",
           new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
         return new OkObjectResult(pathwayAssignment);
       }

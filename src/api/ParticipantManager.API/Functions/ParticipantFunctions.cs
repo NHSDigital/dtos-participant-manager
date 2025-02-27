@@ -113,7 +113,7 @@ public class ParticipantFunctions
 
     if (participant == null)
     {
-      _logger.LogWarning("Participant with NHS Number {NhsNumber} not found.", nhsNumber);
+      _logger.LogWarning("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
       return new NotFoundObjectResult($"No participant found with NHS Number {nhsNumber}.");
     }
 
