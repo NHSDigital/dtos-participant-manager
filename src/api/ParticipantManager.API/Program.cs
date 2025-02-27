@@ -45,12 +45,14 @@ var host = new HostBuilder()
 
       options.UseSqlServer(databaseConnectionString);
     });
+    services.AddHttpContextAccessor();
   })
   .UseSerilog((context, services, loggerConfiguration) =>
   {
     loggerConfiguration
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
+      .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
       .Enrich.WithSensitiveDataMasking(options =>
       {

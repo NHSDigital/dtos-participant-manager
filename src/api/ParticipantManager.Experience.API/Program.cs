@@ -17,6 +17,10 @@ var appInsightsConnectionString =
 
 var host = new HostBuilder()
   .ConfigureFunctionsWebApplication()
+  .ConfigureFunctionsWorkerDefaults(worker =>
+  {
+    worker.UseMiddleware<CorrelationIdMiddleware>();
+  })
   .ConfigureServices((context, services) =>
   {
     services.AddOpenTelemetry()
@@ -36,10 +40,13 @@ var host = new HostBuilder()
           options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
+    services.AddHttpContextAccessor();
+    services.AddTransient<CorrelationIdHandler>();
+
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
       client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
-    });
+    }).AddHttpMessageHandler<CorrelationIdHandler>();
 
     services.AddSingleton<IJwksProvider>(provider =>
     {
@@ -56,6 +63,7 @@ var host = new HostBuilder()
     loggerConfiguration
       .MinimumLevel.Information()
       .Enrich.FromLogContext()
+      .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
       .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
       .Enrich.WithSensitiveDataMasking(options =>
       {
