@@ -1,25 +1,30 @@
-let isOTelInitialized = false;
-
 export async function register() {
+  let isOTelInitialized = false;
 
-  if(process.env.NEXT_RUNTIME === "nodejs")
-  {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
     if (isOTelInitialized) {
-      console.warn("OpenTelemetry is already initialized. Skipping re-initialization.");
+      console.warn(
+        "OpenTelemetry is already initialized. Skipping re-initialization."
+      );
       return;
     }
     isOTelInitialized = true;
 
     const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
     const { NodeSDK } = await import("@opentelemetry/sdk-node");
-    const { PinoInstrumentation } = await import("@opentelemetry/instrumentation-pino");
-    const { HttpInstrumentation } = await import("@opentelemetry/instrumentation-http");
-    const { FetchInstrumentation } = await import("@opentelemetry/instrumentation-fetch");
+    const { PinoInstrumentation } = await import(
+      "@opentelemetry/instrumentation-pino"
+    );
+    const { HttpInstrumentation } = await import(
+      "@opentelemetry/instrumentation-http"
+    );
+    const { FetchInstrumentation } = await import(
+      "@opentelemetry/instrumentation-fetch"
+    );
 
     const options = {
       azureMonitorExporterOptions: {
-        connectionString:
-          process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
       },
     };
 
@@ -27,8 +32,8 @@ export async function register() {
 
     const sdk = new NodeSDK({
       instrumentations: [
-        new HttpInstrumentation(), // ✅ Added HTTP monitoring
-        new FetchInstrumentation(), // ✅ Added Fetch monitoring
+        new HttpInstrumentation(),
+        new FetchInstrumentation(),
         new PinoInstrumentation({
           logKeys: {
             traceId: "traceId",

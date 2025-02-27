@@ -1,8 +1,4 @@
 import pino, { Logger } from "pino";
-//import { registerOpenTelemetry } from "@/app/lib/registerTelemetry";
-
-// Initialize OpenTelemetry
-//registerOpenTelemetry();
 
 export const logger: Logger =
   process.env["NODE_ENV"] === "production"
