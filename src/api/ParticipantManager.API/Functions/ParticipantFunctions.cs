@@ -83,7 +83,7 @@ public class ParticipantFunctions
     var participant = await _dbContext.Participants.FindAsync(participantId);
     if (participant == null)
     {
-      _logger.LogWarning("Participant not found: {ParticipantId}", participantId);
+      _logger.LogError("Participant not found: {ParticipantId}", participantId);
       return new NotFoundObjectResult($"Participant with ID {participantId} not found.");
     }
 
@@ -104,7 +104,7 @@ public class ParticipantFunctions
 
     if (string.IsNullOrEmpty(nhsNumber))
     {
-      _logger.LogWarning("NHS Number not provided.");
+      _logger.LogError("NHS Number not provided.");
       return new BadRequestObjectResult("Please provide an NHS Number.");
     }
 
@@ -113,7 +113,7 @@ public class ParticipantFunctions
 
     if (participant == null)
     {
-      _logger.LogWarning("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
+      _logger.LogError("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
       return new NotFoundObjectResult($"No Participant found with NHS Number {nhsNumber}.");
     }
 
