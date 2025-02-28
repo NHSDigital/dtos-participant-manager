@@ -15,13 +15,10 @@ public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
     _functionContextAccessor = contextAccessor;
   }
 
-
-
   public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
   {
     var logger = context.GetLogger<CorrelationIdMiddleware>();
     _functionContextAccessor.FunctionContext = context;
-    // Extract headers from the BindingContext
     if (context.BindingContext.BindingData.TryGetValue("Headers", out var headersObj))
     {
       var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersObj.ToString());
@@ -32,7 +29,6 @@ public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
       }
       else
       {
-        // Generate a new correlation ID if missing
         correlationId = Guid.NewGuid().ToString();
         logger.LogInformation("Generated new correlation ID: {CorrelationId}", correlationId);
         context.Items[CorrelationIdHeader] = correlationId;
@@ -40,13 +36,11 @@ public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
     }
     else
     {
-      // Generate a correlation ID if headers are not present
       string correlationId = Guid.NewGuid().ToString();
       logger.LogInformation("Generated correlation ID as headers were missing: {CorrelationId}", correlationId);
       context.Items[CorrelationIdHeader] = correlationId;
     }
 
-    // Continue function execution
     await next(context);
   }
 }
