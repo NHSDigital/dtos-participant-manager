@@ -1,29 +1,35 @@
+namespace ParticipantManager.Experience.API;
+
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
-using AzureFunctions.Extensions.Middleware.Abstractions;
 
 public class CorrelationIdHandler : DelegatingHandler
 {
-    private readonly FunctionContextAccessor _httpContextAccessor;
+  private readonly FunctionContextAccessor _functionContextAccessor;
 
-    public CorrelationIdHandler(FunctionContextAccessor httpContextAccessor)
+  public CorrelationIdHandler(FunctionContextAccessor functionContextAccessor)
+  {
+    _functionContextAccessor = functionContextAccessor;
+  }
+
+  protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+  {
+    var context = _functionContextAccessor.FunctionContext;
+
+    if (context != null && context.Items.TryGetValue("x-correlation-id", out var correlationId) && correlationId is string correlationValue)
     {
-        _httpContextAccessor = httpContextAccessor;
+      if (!request.Headers.Contains("x-correlation-id"))
+      {
+        request.Headers.Add("x-correlation-id", correlationValue);
+      }
     }
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        // Check if the correlation ID is present in the incoming request
-        if (_httpContextAccessor.FunctionContext.Items.ContainsKey("X-Correlation-ID"))
-        {
-            // Add the correlation ID to the outgoing request
-            string correlationId = _httpContextAccessor.FunctionContext.Items["X-Correlation-ID"].ToString();
-            request.Headers.Add("X-Correlation-ID", correlationId);
-        }
-
-        return await base.SendAsync(request, cancellationToken);
-    }
+    return await base.SendAsync(request, cancellationToken);
+  }
 }

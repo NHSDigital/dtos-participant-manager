@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using ParticipantManager.Experience.API;
 using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared;
@@ -16,13 +17,13 @@ var appInsightsConnectionString =
   Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
 
 var host = new HostBuilder()
-  .ConfigureFunctionsWebApplication()
-  .ConfigureFunctionsWorkerDefaults(worker =>
+  .ConfigureFunctionsWebApplication(worker =>
   {
     worker.UseMiddleware<CorrelationIdMiddleware>();
   })
   .ConfigureServices((context, services) =>
   {
+    services.AddSingleton<FunctionContextAccessor>();
     services.AddOpenTelemetry()
       .ConfigureResource(builder => builder
         .AddService("ParticipantManager.Experience.API"))
