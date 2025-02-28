@@ -25,6 +25,7 @@ public class PathwayTypeAssignmentFunctions
     [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "participants/pathwaytypeassignments")]
     HttpRequest req)
   {
+    //test
     var nhsNumber = req.Query["nhsnumber"].ToString();
 
     if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
@@ -45,7 +46,6 @@ public class PathwayTypeAssignmentFunctions
     HttpRequestData req, string nhsNumber, Guid assignmentId)
   {
     _logger.LogInformation("C# HTTP trigger function GetPathwayAssignmentById processed a request.");
-
 
     if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
 

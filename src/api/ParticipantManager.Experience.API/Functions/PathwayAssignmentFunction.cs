@@ -18,6 +18,7 @@ public class PathwayAssignmentFunction(
     string assignmentId)
   {
     try
+    //test
     {
       var result = await tokenService.ValidateToken(req);
 
