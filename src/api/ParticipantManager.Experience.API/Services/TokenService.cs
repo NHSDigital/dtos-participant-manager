@@ -34,57 +34,6 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         var token = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
         var tokenParams = new TokenValidationParameters
         {
-            try
-            {
-                // Get the token from the header
-                logger.LogInformation("Validating token");
-                if (request.Headers.TryGetValues(AuthHeaderName, out var authHeaderValues) &&
-                    authHeaderValues.FirstOrDefault().StartsWith(BearerPrefix))
-                {
-                    var token = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
-                    var tokenParams = new TokenValidationParameters()
-                    {
-                        ValidAudience = _audience,
-                        ValidateAudience = true,
-                        ValidIssuer = _issuer,
-                        ValidateIssuer = true,
-                        RequireSignedTokens = false,
-                        ValidateIssuerSigningKey = false,
-                        ValidateLifetime = false,
-                        //TODO Make sure this is set to true
-                        IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
-                    };
-                    // Validate the token
-                    var handler = new JwtSecurityTokenHandler();
-                    logger.LogInformation("About to validate access token");
-                    var result = handler.ValidateToken(token, tokenParams, out var securityToken);
-
-                    var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
-
-                    if (votClaim.StartsWith("P9"))
-                    {
-                      throw new SecurityTokenValidationException($"Invalid VOT claim. Expected P9 but was {votClaim}");
-                    }
-
-                    return AccessTokenResult.Success(result);
-                }
-                else
-                {
-                  logger.LogInformation("No valid token found");
-                  return AccessTokenResult.NoToken();
-                }
-            }
-            catch (SecurityTokenExpiredException se)
-            {
-              logger.LogInformation("Token expired at {0}", se.Message);
-              return AccessTokenResult.Expired();
-            }
-            catch (Exception ex)
-            {
-              logger.LogInformation("Token validation exception  at {0}", ex.Message);
-              return AccessTokenResult.Error(ex);
-            }
-        }
           ValidAudience = _audience,
           ValidateAudience = true,
           ValidIssuer = _issuer,
@@ -99,6 +48,11 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         var handler = new JwtSecurityTokenHandler();
         logger.LogInformation("About to validate access token");
         var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+        var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
+        {
+          throw new SecurityTokenValidationException($"Invalid VOT claim. Expected P9 but was {votClaim}");
+        }
+        if (votClaim.StartsWith("P9"))
         return AccessTokenResult.Success(result);
       }
 
