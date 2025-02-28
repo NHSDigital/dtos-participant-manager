@@ -1,35 +1,29 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
+using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.DTOs;
+using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
 
 namespace ParticipantManager.Experience.API.Tests;
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.IdentityModel.Tokens;
-using ParticipantManager.Experience.API.Functions;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
-using ParticipantManager.Experience.API.Client;
-
 public class ScreeningEligibilityFunctionTests
 {
-  private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
-  private readonly Mock<ITokenService> _mockTokenService = new();
   private readonly ScreeningEligibilityFunction _function;
+  private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
+  private readonly Mock<ITokenService> _mockTokenService = new();
 
   public ScreeningEligibilityFunctionTests()
   {
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result).Returns(MockListPathwayAssignments);
+    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result)
+      .Returns(MockListPathwayAssignments);
     _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
@@ -37,9 +31,10 @@ public class ScreeningEligibilityFunctionTests
   public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfInvalidToken()
   {
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Expired()); // ✅ Return a valid result
 
-    var request = CreateHttpRequest($"");
+    var request = CreateHttpRequest("");
 
     // Act
     var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
@@ -53,17 +48,18 @@ public class ScreeningEligibilityFunctionTests
   {
     var claims = new List<Claim>
     {
-      new Claim(ClaimTypes.NameIdentifier, "12345"),
-      new Claim(ClaimTypes.Email, "user@example.com"),
-      new Claim("custom_claim", "my_value")
+      new(ClaimTypes.NameIdentifier, "12345"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("custom_claim", "my_value")
     };
     var identity = new ClaimsIdentity(claims, "Bearer");
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
-    var request = CreateHttpRequest($"");
+    var request = CreateHttpRequest("");
 
     // Act
     var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
@@ -77,15 +73,16 @@ public class ScreeningEligibilityFunctionTests
   {
     var claims = new List<Claim>
     {
-      new Claim(ClaimTypes.NameIdentifier, "12345678"),
-      new Claim(ClaimTypes.Email, "user@example.com"),
-      new Claim("nhs_number", "12345678")
+      new(ClaimTypes.NameIdentifier, "12345678"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "12345678")
     };
     var identity = new ClaimsIdentity(claims, "Bearer");
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
     var request = CreateHttpRequest("");
 
@@ -104,26 +101,25 @@ public class ScreeningEligibilityFunctionTests
     var context = new Mock<FunctionContext>();
     var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
     var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-    if (!string.IsNullOrEmpty(authHeader))
-    {
-      headers.Add("Authorization", $"{authHeader}");
-    }
+    if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
     request.Setup(r => r.Headers).Returns(headers);
     return request.Object;
   }
 
   private List<PathwayAssignmentDTO> MockListPathwayAssignments()
   {
-    return new List<PathwayAssignmentDTO>()
+    return new List<PathwayAssignmentDTO>
     {
-      new PathwayAssignmentDTO() {
+      new()
+      {
         AssignmentId = "123",
         ScreeningName = "BreastScreening"
-        },
-      new PathwayAssignmentDTO() {
+      },
+      new()
+      {
         AssignmentId = "1234",
         ScreeningName = "BowelScreening"
-        }
+      }
     };
   }
 }

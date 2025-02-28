@@ -2,7 +2,7 @@
   "profiles": {
     "ParticipantManager.API": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7000",
+      "commandLineArgs": "--port 5001",
       "launchBrowser": false
     }
   }

@@ -2,10 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
 WORKDIR /src/dotnet-function-app
 
-COPY ["ParticipantManager.Experience.API.csproj", "./"]
+COPY ./ParticipantManager.Shared/ParticipantManager.Shared.csproj ../ParticipantManager.Shared/
+COPY ./ParticipantManager.Experience.API/ParticipantManager.Experience.API.csproj .
 RUN dotnet restore
 
-COPY . .
+COPY ./ParticipantManager.Shared/ ../ParticipantManager.Shared/
+COPY ./ParticipantManager.Experience.API/ .
 
 RUN dotnet publish -c Release -o /home/site/wwwroot
 

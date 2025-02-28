@@ -1,34 +1,76 @@
-using Microsoft.Azure.Functions.Worker.Builder;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using ParticipantManager.API.Data;
+using ParticipantManager.Shared;
+using Serilog;
+using Serilog.Enrichers.Sensitive;
+using Serilog.Formatting.Compact;
+
+var appInsightsConnectionString =
+  Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
+var databaseConnectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
 
 
-var builder = FunctionsApplication.CreateBuilder(args);
-
-builder.ConfigureFunctionsWebApplication();
-builder.Services.AddDbContext<ParticipantManagerDbContext>(options =>
-{
-  var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
-  if (string.IsNullOrEmpty(connectionString))
+var host = new HostBuilder()
+  .ConfigureFunctionsWebApplication()
+  .ConfigureServices((context, services) =>
   {
-    throw new InvalidOperationException("The connection string has not been initialized.");
-  }
+    services.AddOpenTelemetry()
+      .ConfigureResource(builder => builder
+        .AddService("ParticipantManager.API"))
+      .WithTracing(builder => builder
+        .AddSource(nameof(ParticipantManager.API))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
+      .WithMetrics(builder => builder
+        .AddMeter(nameof(ParticipantManager.API))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddAzureMonitorMetricExporter(options =>
+        {
+          options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+        }));
 
-  options.UseSqlServer(connectionString);
-});
+    services.AddDbContext<ParticipantManagerDbContext>(options =>
+    {
+      if (string.IsNullOrEmpty(databaseConnectionString))
+        throw new InvalidOperationException("The connection string has not been initialized.");
 
-builder.Services.AddLogging(builder =>
-{
-  builder.AddConsole(); // Use console logging
-  builder.SetMinimumLevel(LogLevel.Debug);
-});
+      options.UseSqlServer(databaseConnectionString);
+    });
+    services.AddHttpContextAccessor();
+  })
+  .UseSerilog((context, services, loggerConfiguration) =>
+  {
+    loggerConfiguration
+      .MinimumLevel.Information()
+      .Enrich.FromLogContext()
+      .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
+      .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+      .Enrich.WithSensitiveDataMasking(options =>
+      {
+        options.MaskingOperators
+          .Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
+        options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+        options.MaskingOperators.Add(new EmailAddressMaskingOperator());
+      })
+      .WriteTo.Console(new RenderedCompactJsonFormatter())
+      .WriteTo.ApplicationInsights(appInsightsConnectionString, TelemetryConverter.Traces);
+  })
+  .ConfigureLogging(logging =>
+  {
+    logging.AddOpenTelemetry(options =>
+    {
+      options.AddAzureMonitorLogExporter(options => { options.ConnectionString = appInsightsConnectionString; });
+    });
+  })
+  .Build();
 
-// Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4.
-// builder.Services
-//     .AddApplicationInsightsTelemetryWorkerService()
-//     .ConfigureFunctionsApplicationInsights();
-
-builder.Build().Run();
+await host.RunAsync();

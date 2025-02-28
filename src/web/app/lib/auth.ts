@@ -1,12 +1,11 @@
 import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
 import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
-import { fetchKeyVaultSecret } from "@/app/lib/keyVault";
 import { DecodedToken } from "@/app/types/auth";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
-  const pem = await fetchKeyVaultSecret();
+  const pem = process.env.AUTH_NHSLOGIN_CLIENT_SECRET;
 
   if (!pem) {
     console.warn("Could not get secret from Azure Key Vault");
