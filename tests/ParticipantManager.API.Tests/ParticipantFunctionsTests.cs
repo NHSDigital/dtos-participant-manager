@@ -109,7 +109,7 @@ public class ParticipantFunctionsTests
     // Act
     var response = await fun.CreateParticipant(request) as ConflictObjectResult;
     Assert.Equal(StatusCodes.Status409Conflict, response?.StatusCode);
-    Assert.Contains("A participant with this NHS Number already exists.", response?.Value.ToString());
+    Assert.Contains("A Participant with this NHS Number already exists.", response?.Value.ToString());
   }
 
   [Fact]

@@ -43,19 +43,19 @@ public class ParticipantFunctions
 
       if (!Validator.TryValidateObject(participant, context, validationResults, true))
       {
-        _logger.LogError("Validation failed for participant creation.");
+        _logger.LogError("Validation failed for Participant creation.");
         return new BadRequestObjectResult(validationResults);
       }
 
-      // Check if a participant with the same NHS Number already exists
+      // Check if a Participant with the same NHS Number already exists
       var existingParticipant = await _dbContext.Participants
         .FirstOrDefaultAsync(p => p.NHSNumber == participant.NHSNumber);
 
       if (existingParticipant != null)
       {
-        _logger.LogError("Attempted to create a duplicate participant with NHS Number: {@NhsNumber}",
+        _logger.LogError("Attempted to create a duplicate Participant with NHS Number: {@NhsNumber}",
           new { NhsNumber = participant.NHSNumber });
-        return new ConflictObjectResult(new { message = "A participant with this NHS Number already exists." });
+        return new ConflictObjectResult(new { message = "A Participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
@@ -78,7 +78,7 @@ public class ParticipantFunctions
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId:guid}")]
     HttpRequestData req, Guid participantId)
   {
-    _logger.LogInformation("Fetching participant with ID: {ParticipantId}", participantId);
+    _logger.LogInformation("Fetching Participant with ID: {ParticipantId}", participantId);
 
     var participant = await _dbContext.Participants.FindAsync(participantId);
     if (participant == null)
@@ -96,7 +96,7 @@ public class ParticipantFunctions
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants")]
     HttpRequestData req)
   {
-    _logger.LogInformation("Processing participant search request.");
+    _logger.LogInformation("Processing Participant search request.");
 
     // Extract query parameters
     var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
@@ -114,7 +114,7 @@ public class ParticipantFunctions
     if (participant == null)
     {
       _logger.LogWarning("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
-      return new NotFoundObjectResult($"No participant found with NHS Number {nhsNumber}.");
+      return new NotFoundObjectResult($"No Participant found with NHS Number {nhsNumber}.");
     }
 
     return new OkObjectResult(participant);
