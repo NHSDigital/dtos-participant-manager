@@ -15,6 +15,7 @@ endif
 WEB_DIR=src/web
 API1_DIR=src/api/ParticipantManager.API
 API2_DIR=src/api/ParticipantManager.Experience.API
+EVENT_HANDLER_DIR=src/api/ParticipantManager.EventHandler
 
 # Define the database container
 SQL_CONTAINER_NAME=participant_database_local
@@ -36,7 +37,7 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: azure-login db db-migrations api1 api2 web
+all: azure-login db db-migrations api1 api2 eventHandler web
 
 # Ensure Azure CLI is logged in
 azure-login:
@@ -101,6 +102,16 @@ else
 		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
 endif
 
+# Start Event Handler
+eventHandler:
+	@echo "Starting Event Handler..."
+ifeq ($(OS), Windows_NT)
+	@cd "$(EVENT_HANDLER_DIR)" && start /B dotnet watch run --port $(EVENT_HANDLER_PORT)
+else
+		cd $(EVENT_HANDLER_DIR) && dotnet watch run --port $(EVENT_HANDLER_PORT) &
+endif
+
+
 # Start SQL Server in Podman/Docker
 db:
 	@echo "Starting SQL Server using $(DOCKER)..."
@@ -149,6 +160,7 @@ ifeq ($(OS), Windows_NT)
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(WEB_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(WEB_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(API_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(API_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
+	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(EVENT_HANDLER_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(EVENT_HANDLER_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@echo "Processes killed."
 
 else
@@ -159,7 +171,7 @@ else
 	@sleep 1  # Give it a moment to stop
 
 # Stop processes using port numbers on macOS/Linux
-	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT); do \
+	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT) $(EVENT_HANDLER_PORT); do \
 			PID=$$(lsof -ti :$$port); \
 			echo "PID: $$PID"; \
 			if [ -n "$$PID" ]; then \
@@ -184,4 +196,4 @@ endif
 
 	@echo "Cleanup completed."
 
-.PHONY: all web api1 api2 db stop-db stop
+.PHONY: all web api1 api2 eventHandler db stop-db stop

@@ -20,4 +20,3 @@ public class EventGridTrigger1
     _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(), eventGridEvent.Subject);
   }
 }
-
