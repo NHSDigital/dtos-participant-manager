@@ -4,11 +4,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
-
 public class CorrelationIdHandler : DelegatingHandler
 {
   private readonly FunctionContextAccessor _functionContextAccessor;
@@ -22,11 +17,11 @@ public class CorrelationIdHandler : DelegatingHandler
   {
     var context = _functionContextAccessor.FunctionContext;
 
-    if (context != null && context.Items.TryGetValue("x-correlation-id", out var correlationId) && correlationId is string correlationValue)
+    if (context != null && context.Items.TryGetValue("X-Correlation-ID", out var correlationId) && correlationId is string correlationValue)
     {
-      if (!request.Headers.Contains("x-correlation-id"))
+      if (!request.Headers.Contains("X-Correlation-ID"))
       {
-        request.Headers.Add("x-correlation-id", correlationValue);
+        request.Headers.Add("X-Correlation-ID", correlationValue);
       }
     }
 

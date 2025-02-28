@@ -8,7 +8,7 @@ namespace ParticipantManager.Experience.API;
 public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
 {
   private readonly FunctionContextAccessor _functionContextAccessor;
-  private const string CorrelationIdHeader = "x-correlation-id";
+  private const string CorrelationIdHeader = "X-Correlation-ID";
 
   public CorrelationIdMiddleware(FunctionContextAccessor contextAccessor)
   {
