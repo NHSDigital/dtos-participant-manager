@@ -1,13 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Text;
 using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Models;
 
@@ -15,8 +13,8 @@ namespace ParticipantManager.API.Functions;
 
 public class ParticipantFunctions
 {
-  private readonly ILogger<ParticipantFunctions> _logger;
   private readonly ParticipantManagerDbContext _dbContext;
+  private readonly ILogger<ParticipantFunctions> _logger;
 
   public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext)
   {
@@ -26,9 +24,10 @@ public class ParticipantFunctions
 
   [Function("CreateParticipant")]
   public async Task<IActionResult> CreateParticipant(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")] HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")]
+    HttpRequestData req)
   {
-    _logger.LogInformation("C# HTTP trigger function processed a request.adsfasfsdf");
+    _logger.LogInformation("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
     try
     {
@@ -40,31 +39,35 @@ public class ParticipantFunctions
         });
       // Validate Data Annotations
       var validationResults = new List<ValidationResult>();
-      var context = new ValidationContext(participant, serviceProvider: null, items: null);
+      var context = new ValidationContext(participant, null, null);
 
       if (!Validator.TryValidateObject(participant, context, validationResults, true))
       {
-        _logger.LogWarning("Validation failed for participant creation.");
+        _logger.LogError("Validation failed for Participant creation.");
         return new BadRequestObjectResult(validationResults);
       }
-      // Check if a participant with the same NHS Number already exists
+
+      // Check if a Participant with the same NHS Number already exists
       var existingParticipant = await _dbContext.Participants
         .FirstOrDefaultAsync(p => p.NHSNumber == participant.NHSNumber);
 
       if (existingParticipant != null)
       {
-        _logger.LogWarning("Attempted to create a duplicate participant with NHS Number: {NHSNumber}", participant.NHSNumber);
-        return new ConflictObjectResult(new { message = "A participant with this NHS Number already exists." });
+        _logger.LogError("Attempted to create a duplicate Participant with NHS Number: {@NhsNumber}",
+          new { NhsNumber = participant.NHSNumber });
+        return new ConflictObjectResult(new { message = "A Participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
       await _dbContext.SaveChangesAsync();
-
+      _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}",
+        new { NhsNumber = participant.NHSNumber, participant.ParticipantId });
       return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "C# HTTP trigger function processed a request and an exception was thrown.");
+      _logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.",
+        nameof(CreateParticipant));
       return new BadRequestObjectResult(new { message = "An error occurred while processing the request." });
     }
   }
@@ -75,14 +78,15 @@ public class ParticipantFunctions
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId:guid}")]
     HttpRequestData req, Guid participantId)
   {
-    _logger.LogInformation("Fetching participant with ID: {ParticipantId}", participantId);
+    _logger.LogInformation("Fetching Participant with ID: {ParticipantId}", participantId);
 
     var participant = await _dbContext.Participants.FindAsync(participantId);
     if (participant == null)
     {
-      _logger.LogWarning("Participant not found: {ParticipantId}", participantId);
+      _logger.LogError("Participant not found: {ParticipantId}", participantId);
       return new NotFoundObjectResult($"Participant with ID {participantId} not found.");
     }
+
     return new OkObjectResult(participant);
   }
 
@@ -92,15 +96,15 @@ public class ParticipantFunctions
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants")]
     HttpRequestData req)
   {
-    _logger.LogInformation("Processing participant search request.");
+    _logger.LogInformation("Processing Participant search request.");
 
     // Extract query parameters
-    var queryParams = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
-    string? nhsNumber = queryParams["nhsNumber"];
+    var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
+    var nhsNumber = queryParams["nhsNumber"];
 
     if (string.IsNullOrEmpty(nhsNumber))
     {
-      _logger.LogWarning("NHS Number not provided.");
+      _logger.LogError("NHS Number not provided.");
       return new BadRequestObjectResult("Please provide an NHS Number.");
     }
 
@@ -109,12 +113,10 @@ public class ParticipantFunctions
 
     if (participant == null)
     {
-      _logger.LogWarning("Participant with NHS Number {NhsNumber} not found.", nhsNumber);
-      return new NotFoundObjectResult($"No participant found with NHS Number {nhsNumber}.");
+      _logger.LogError("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
+      return new NotFoundObjectResult($"No Participant found with NHS Number {nhsNumber}.");
     }
 
     return new OkObjectResult(participant);
   }
 }
-
-
