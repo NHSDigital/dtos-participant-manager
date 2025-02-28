@@ -176,7 +176,8 @@ public class ParticipantFunctionsTests
       {
         Name = "test Name",
         NHSNumber = nhsNumber
-      }
+      },
+      Episodes = []
     };
 
     dbContext.PathwayTypeAssignments.Add(assignmentDetail);

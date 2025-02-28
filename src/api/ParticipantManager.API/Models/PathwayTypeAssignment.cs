@@ -7,11 +7,11 @@ public class PathwayTypeAssignment
   public Guid PathwayId { get; set; }
   public DateTime AssignmentDate { get; set; }
   public DateTime? LapsedDate { get; set; }
-  public string Status { get; set; }
+  public required string Status { get; set; }
   public DateTime? NextActionDate { get; set; }
-  public Participant Participant { get; set; }
+  public required Participant Participant { get; set; }
   public Guid PathwayTypeId { get; set; }
-  public ICollection<Episode> Episodes { get; set; }
-  public string ScreeningName { get; set; }
-  public string PathwayName { get; set; }
+  public required ICollection<Episode> Episodes { get; set; } = [];
+  public required string ScreeningName { get; set; }
+  public required string PathwayName { get; set; }
 }
