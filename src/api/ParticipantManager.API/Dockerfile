@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
 WORKDIR /src/dotnet-function-app
 
+COPY ./ParticipantManager.Shared /ParticipantManager.Shared
 COPY ["ParticipantManager.API.csproj", "./"]
 RUN dotnet restore
 
