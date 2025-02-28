@@ -16,38 +16,36 @@ public class ScreeningEligibilityFunction(
   public async Task<IActionResult> GetParticipantEligibility(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
   {
-    logger.LogDebug("GetScreeningEligibility execution started at {Timestamp}", DateTime.UtcNow);
     try
     {
       var result = await tokenService.ValidateToken(req);
-      if (result.Status == AccessTokenStatus.Valid)
+
+      if (result.Status != AccessTokenStatus.Valid)
       {
-        logger.LogDebug("Access token is valid, looking for NHS Number");
-
-        var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-        if (string.IsNullOrEmpty(nhsNumber))
-        {
-          logger.LogError("Access token doesn't contain NHS number");
-          return new UnauthorizedResult();
-        }
-
-        logger.LogDebug("Getting pathway assignments for NhsNumber: {@NhsNumber}", new { NhsNumber = nhsNumber });
-
-        var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-        if (pathwayAssignments == null)
-        {
-          logger.LogError("Failed to find pathway assignments for NhsNumber: {@NhsNumber}",
-            new { NhsNumber = nhsNumber });
-          return new NotFoundObjectResult("Unable to find pathway assignments");
-        }
-
-        logger.LogInformation("Found pathway assignments for NhsNumber: {@NhsNumber}",
-          new { NhsNumber = nhsNumber });
-        return new OkObjectResult(pathwayAssignments);
+        logger.LogError("Invalid access token");
+        return new UnauthorizedResult();
       }
 
-      logger.LogError("Invalid access token");
-      return new UnauthorizedResult();
+      logger.LogInformation("Access token is valid, looking for NHS Number");
+
+      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      if (string.IsNullOrEmpty(nhsNumber))
+      {
+        logger.LogError("Access token doesn't contain NHS number");
+        return new UnauthorizedResult();
+      }
+
+      var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
+      if (pathwayAssignments == null)
+      {
+        logger.LogError("Failed to find pathway assignments for NhsNumber: {@NhsNumber}",
+          new { NhsNumber = nhsNumber });
+        return new NotFoundObjectResult("Unable to find pathway assignments");
+      }
+
+      logger.LogInformation("Found pathway assignments for NhsNumber: {@NhsNumber}",
+        new { NhsNumber = nhsNumber });
+      return new OkObjectResult(pathwayAssignments);
     }
     catch (Exception ex)
     {

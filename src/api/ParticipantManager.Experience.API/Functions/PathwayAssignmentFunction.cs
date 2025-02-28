@@ -17,39 +17,36 @@ public class PathwayAssignmentFunction(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req,
     string assignmentId)
   {
-    logger.LogDebug("GetPathwayAssignmentById execution started at {Timestamp}", DateTime.UtcNow);
     try
     {
       var result = await tokenService.ValidateToken(req);
-      if (result.Status == AccessTokenStatus.Valid)
+
+      if (result.Status != AccessTokenStatus.Valid)
       {
-        logger.LogDebug("Access token is valid, looking for NHS Number");
-
-        var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-        if (string.IsNullOrEmpty(nhsNumber))
-        {
-          logger.LogError("Access token doesn't contain NHS number");
-          return new UnauthorizedResult();
-        }
-
-        logger.LogDebug("Getting pathway assignment for Request {@Request}",
-          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
-
-        var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
-        if (pathwayAssignment == null)
-        {
-          logger.LogError("Failed to find pathway assignment for Request {@Request}",
-            new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
-          return new NotFoundResult();
-        }
-
-        logger.LogInformation("Found pathway assignment for Request {@Request}",
-          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
-        return new OkObjectResult(pathwayAssignment);
+        logger.LogError("Invalid access token");
+        return new UnauthorizedResult();
       }
 
-      logger.LogError("Invalid access token");
-      return new UnauthorizedResult();
+      logger.LogInformation("Access token is valid, looking for NHS Number");
+
+      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      if (string.IsNullOrEmpty(nhsNumber))
+      {
+        logger.LogError("Access token doesn't contain NHS number");
+        return new UnauthorizedResult();
+      }
+
+      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
+      if (pathwayAssignment == null)
+      {
+        logger.LogError("Failed to find pathway assignment for Request {@Request}",
+          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+        return new NotFoundResult();
+      }
+
+      logger.LogInformation("Found pathway assignment for Request {@Request}",
+        new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+      return new OkObjectResult(pathwayAssignment);
     }
     catch (Exception ex)
     {

@@ -27,7 +27,7 @@ public class ParticipantFunctions
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")]
     HttpRequestData req)
   {
-    _logger.LogDebug("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
+    _logger.LogInformation("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
     try
     {
