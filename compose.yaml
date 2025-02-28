@@ -3,8 +3,8 @@ services:
   backend-api:
     container_name: "backend-api"
     build:
-      context: ./src/api/ParticipantManager.API
-      dockerfile: Dockerfile
+      context: ./src/api
+      dockerfile: ParticipantManager.API/Dockerfile
     platform: linux/amd64
     restart: always
     environment:
@@ -21,8 +21,8 @@ services:
   experience-api:
     container_name: "experience-api"
     build:
-      context: ./src/api/ParticipantManager.Experience.API
-      dockerfile: Dockerfile
+      context: ./src/api
+      dockerfile: ParticipantManager.Experience.API/Dockerfile
     platform: linux/amd64
     restart: always
     environment:
