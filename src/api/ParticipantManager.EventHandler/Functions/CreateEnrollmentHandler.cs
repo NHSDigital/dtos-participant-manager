@@ -5,18 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace ParticipantManager.EventHandler.Functions;
 
-public class EventGridTrigger1
+public class CreateEnrollmentHandler
 {
-  private readonly ILogger<EventGridTrigger1> _logger;
+  private readonly ILogger<CreateEnrollmentHandler> _logger;
 
-  public EventGridTrigger1(ILogger<EventGridTrigger1> logger)
+  public CreateEnrollmentHandler(ILogger<CreateEnrollmentHandler> logger)
   {
     _logger = logger;
   }
 
-  [Function("MockProductHandler")]
+  [Function("CreateEnrollmentHandler")]
   public void Run([EventGridTrigger] EventGridEvent eventGridEvent)
   {
+
     _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(), eventGridEvent.Subject);
   }
 }
