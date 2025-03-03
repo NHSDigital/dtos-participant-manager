@@ -48,17 +48,17 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task CreateEnrollmentAsync(string nhsNumber)
+  public async Task CreateEnrollmentAsync(CreateParticipantDto participantDto)
   {
-    logger.LogInformation("GetPathwayEnrollmentsAsync");
+    logger.LogInformation("CreateEnrollmentAsync");
     try
     {
-      var response = await httpClient.GetAsync($"/api/participants/pathwaytypeenrollments?nhsnumber={nhsNumber}");
+      // First create the Participant
+      var response = await httpClient.PostAsJsonAsync($"/api/participants", participantDto);
       response.EnsureSuccessStatusCode();
-      await response.Content.ReadFromJsonAsync<List<CreateParticipantDto>>(new JsonSerializerOptions
-      {
-        PropertyNameCaseInsensitive = true
-      });
+
+      // Then create the enrollment
+
     }
     catch (Exception ex)
     {
