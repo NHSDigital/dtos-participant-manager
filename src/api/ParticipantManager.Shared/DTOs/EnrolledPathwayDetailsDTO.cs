@@ -1,4 +1,4 @@
-namespace ParticipantManager.Experience.API.DTOs;
+namespace ParticipantManager.Shared.DTOs;
 
 public class EnrolledPathwayDetailsDTO
 {

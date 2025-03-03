@@ -1,4 +1,3 @@
-using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,7 @@ public class CreateEnrollmentHandler
   [Function("CreateEnrollmentHandler")]
   public void Run([EventGridTrigger] EventGridEvent eventGridEvent)
   {
-
-    _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(), eventGridEvent.Subject);
+    _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(),
+      eventGridEvent.Subject);
   }
 }

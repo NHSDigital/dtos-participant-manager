@@ -5,10 +5,10 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ParticipantManager.Experience.API.Client;
-using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
+using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests;
 

@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
 
 namespace ParticipantManager.Experience.API.Functions;
 
@@ -14,7 +14,8 @@ public class PathwayEnrollmentFunction(
 {
   [Function("GetPathwayEnrollmentById")]
   public async Task<IActionResult> GetPathwayEnrollmentById(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrollments/{enrollmentid}")] HttpRequestData req,
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrollments/{enrollmentid}")]
+    HttpRequestData req,
     string enrollmentId)
   {
     try

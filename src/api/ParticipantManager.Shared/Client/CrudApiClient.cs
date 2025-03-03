@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.Experience.API.DTOs;
+using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.Experience.API.Client;
+namespace ParticipantManager.Shared.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
@@ -48,8 +48,22 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public Task CreateEnrollmentAsync(string nhsNumber)
+  public async Task CreateEnrollmentAsync(string nhsNumber)
   {
-    throw new NotImplementedException();
+    logger.LogInformation("GetPathwayEnrollmentsAsync");
+    try
+    {
+      var response = await httpClient.GetAsync($"/api/participants/pathwaytypeenrollments?nhsnumber={nhsNumber}");
+      response.EnsureSuccessStatusCode();
+      await response.Content.ReadFromJsonAsync<List<CreateParticipantDto>>(new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true
+      });
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "GetPathwayEnrollmentsAsync");
+      throw;
+    }
   }
 }

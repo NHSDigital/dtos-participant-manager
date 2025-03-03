@@ -1,6 +1,6 @@
-using ParticipantManager.Experience.API.DTOs;
+using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.Experience.API.Client;
+namespace ParticipantManager.Shared.Client;
 
 public interface ICrudApiClient
 {

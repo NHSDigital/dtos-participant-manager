@@ -1,4 +1,4 @@
-namespace ParticipantManager.EventHandler.DTO;
+namespace ParticipantManager.Shared.DTOs;
 
 public class CreateParticipantDto
 {
