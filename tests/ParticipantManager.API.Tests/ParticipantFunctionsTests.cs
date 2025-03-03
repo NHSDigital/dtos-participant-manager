@@ -145,26 +145,26 @@ public class ParticipantFunctionsTests
   }
 
   [Fact]
-  public async Task GetAssignmentDetailsById_ShouldAssignmentDetails_WhenValidIdProvided()
+  public async Task GetEnrollmentDetailsById_ShouldEnrollmentDetails_WhenValidIdProvided()
   {
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<PathwayTypeAssignmentFunctions>>();
+    var logger = new Mock<ILogger<PathwayTypeEnrollmentFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new PathwayTypeAssignmentFunctions(logger.Object, dbContext);
+    var function = new PathwayTypeEnrollmentFunctions(logger.Object, dbContext);
 
     var participantId = Guid.NewGuid();
 
     var nhsNumber = "123";
-    var assignmentId = Guid.NewGuid();
+    var enrollmentId = Guid.NewGuid();
 
-    var assignmentDetail = new PathwayTypeEnrollment
+    var enrollmentDetail = new PathwayTypeEnrollment
     {
-      EnrollmentId = assignmentId,
+      EnrollmentId = enrollmentId,
       ParticipantId = participantId,
-      AssignmentDate = DateTime.Now,
+      EnrollmentDate = DateTime.Now,
       LapsedDate = DateTime.Now,
       Status = "test status",
       NextActionDate = DateTime.Now,
@@ -179,19 +179,19 @@ public class ParticipantFunctionsTests
       Episodes = []
     };
 
-    dbContext.PathwayTypeAssignments.Add(assignmentDetail);
+    dbContext.PathwayTypeEnrollments.Add(enrollmentDetail);
     await dbContext.SaveChangesAsync();
 
     var request = CreateMockHttpRequest(functionContext, null);
 
     // Act
-    var response = await function.GetPathwayAssignmentById(request, nhsNumber, assignmentId);
+    var response = await function.GetPathwayEnrollmentById(request, nhsNumber, enrollmentId);
 
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);
-    var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeEnrollment>(result.Value);
-    Assert.Equal(assignmentDetail.EnrollmentId, returnedPathwayTypeAssignment.EnrollmentId);
-    Assert.Equal(assignmentDetail.Participant.NHSNumber, returnedPathwayTypeAssignment.Participant.NHSNumber);
+    var returnedPathwayTypeEnrollment = Assert.IsType<PathwayTypeEnrollment>(result.Value);
+    Assert.Equal(enrollmentDetail.EnrollmentId, returnedPathwayTypeEnrollment.EnrollmentId);
+    Assert.Equal(enrollmentDetail.Participant.NHSNumber, returnedPathwayTypeEnrollment.Participant.NHSNumber);
   }
 
   [Fact]

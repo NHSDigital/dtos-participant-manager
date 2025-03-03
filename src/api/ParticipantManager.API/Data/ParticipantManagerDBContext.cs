@@ -11,7 +11,7 @@ public class ParticipantManagerDbContext : DbContext
   }
 
   public DbSet<Participant> Participants { get; set; }
-  public DbSet<PathwayTypeEnrollment> PathwayTypeAssignments { get; set; }
+  public DbSet<PathwayTypeEnrollment> PathwayTypeEnrollments { get; set; }
   public DbSet<Episode> Episodes { get; set; }
   public DbSet<Encounter> Encounters { get; set; }
 

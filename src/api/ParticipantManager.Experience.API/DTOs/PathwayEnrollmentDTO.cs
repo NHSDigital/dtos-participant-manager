@@ -1,7 +1,7 @@
 namespace ParticipantManager.Experience.API.DTOs;
 
-public record PathwayAssignmentDTO
+public record PathwayEnrollmentDTO
 {
-  public string AssignmentId { get; set; }
+  public string EnrollmentId { get; set; }
   public string ScreeningName { get; set; }
 }

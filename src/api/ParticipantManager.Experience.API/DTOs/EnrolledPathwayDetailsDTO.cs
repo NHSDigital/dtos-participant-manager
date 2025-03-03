@@ -1,9 +1,9 @@
 namespace ParticipantManager.Experience.API.DTOs;
 
-public class AssignedPathwayDetailsDTO
+public class EnrolledPathwayDetailsDTO
 {
-  public Guid AssignmentId { get; set; }
-  public DateTime AssignmentDate { get; set; }
+  public Guid EnrollmentId { get; set; }
+  public DateTime EnrollmentDate { get; set; }
   public string Status { get; set; }
   public DateTime? NextActionDate { get; set; }
   public string ScreeningName { get; set; }

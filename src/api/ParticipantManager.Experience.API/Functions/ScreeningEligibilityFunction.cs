@@ -35,17 +35,17 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-      if (pathwayAssignments == null)
+      var pathwayEnrollments = await crudApiClient.GetPathwayEnrollmentsAsync(nhsNumber);
+      if (pathwayEnrollments == null)
       {
-        logger.LogError("Failed to find pathway assignments for NhsNumber: {@NhsNumber}",
+        logger.LogError("Failed to find pathway enrollments for NhsNumber: {@NhsNumber}",
           new { NhsNumber = nhsNumber });
-        return new NotFoundObjectResult("Unable to find pathway assignments");
+        return new NotFoundObjectResult("Unable to find pathway enrollments");
       }
 
-      logger.LogInformation("Found pathway assignments for NhsNumber: {@NhsNumber}",
+      logger.LogInformation("Found pathway enrollments for NhsNumber: {@NhsNumber}",
         new { NhsNumber = nhsNumber });
-      return new OkObjectResult(pathwayAssignments);
+      return new OkObjectResult(pathwayEnrollments);
     }
     catch (Exception ex)
     {

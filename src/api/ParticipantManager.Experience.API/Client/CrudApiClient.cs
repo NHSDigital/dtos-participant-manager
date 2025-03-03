@@ -7,43 +7,43 @@ namespace ParticipantManager.Experience.API.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
-  public async Task<List<PathwayAssignmentDTO>?> GetPathwayAssignmentsAsync(string nhsNumber)
+  public async Task<List<PathwayEnrollmentDTO>?> GetPathwayEnrollmentsAsync(string nhsNumber)
   {
-    logger.LogInformation("GetPathwayAssignmentsAsync");
+    logger.LogInformation("GetPathwayEnrollmentsAsync");
     try
     {
-      var response = await httpClient.GetAsync($"/api/participants/pathwaytypeassignments?nhsnumber={nhsNumber}");
+      var response = await httpClient.GetAsync($"/api/participants/pathwaytypeenrollments?nhsnumber={nhsNumber}");
       response.EnsureSuccessStatusCode();
-      return await response.Content.ReadFromJsonAsync<List<PathwayAssignmentDTO>>(new JsonSerializerOptions
+      return await response.Content.ReadFromJsonAsync<List<PathwayEnrollmentDTO>>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "GetPathwayAssignmentsAsync");
+      logger.LogError(ex, "GetPathwayEnrollmentsAsync");
       throw;
     }
   }
 
-  public async Task<AssignedPathwayDetailsDTO?> GetPathwayAssignmentByIdAsync(string nhsNumber, string assignmentId)
+  public async Task<EnrolledPathwayDetailsDTO?> GetPathwayEnrollmentByIdAsync(string nhsNumber, string enrollmentId)
   {
-    logger.LogInformation("GetPathwayAssignmentByIdAsync");
+    logger.LogInformation("GetPathwayEnrollmentByIdAsync");
     try
     {
       var response =
         await httpClient.GetAsync(
-          $"/api/participants/pathwaytypeassignments/nhsnumber/{nhsNumber}/assignmentid/{assignmentId}");
+          $"/api/participants/pathwaytypeenrollments/nhsnumber/{nhsNumber}/enrollmentid/{enrollmentId}");
       response.EnsureSuccessStatusCode();
 
-      return await response.Content.ReadFromJsonAsync<AssignedPathwayDetailsDTO>(new JsonSerializerOptions
+      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDTO>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "GetPathwayAssignmentByIdAsync");
+      logger.LogError(ex, "GetPathwayEnrollmentByIdAsync");
       throw;
     }
   }

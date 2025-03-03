@@ -7,15 +7,15 @@ using ParticipantManager.Experience.API.Services;
 
 namespace ParticipantManager.Experience.API.Functions;
 
-public class PathwayAssignmentFunction(
-  ILogger<PathwayAssignmentFunction> logger,
+public class PathwayEnrollmentFunction(
+  ILogger<PathwayEnrollmentFunction> logger,
   ICrudApiClient crudApiClient,
   ITokenService tokenService)
 {
-  [Function("GetPathwayAssignmentById")]
-  public async Task<IActionResult> GetPathwayAssignmentById(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req,
-    string assignmentId)
+  [Function("GetPathwayEnrollmentById")]
+  public async Task<IActionResult> GetPathwayEnrollmentById(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrollments/{enrollmentid}")] HttpRequestData req,
+    string enrollmentId)
   {
     try
     {
@@ -36,17 +36,17 @@ public class PathwayAssignmentFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
-      if (pathwayAssignment == null)
+      var pathwayEnrollment = await crudApiClient.GetPathwayEnrollmentByIdAsync(nhsNumber, enrollmentId);
+      if (pathwayEnrollment == null)
       {
-        logger.LogError("Failed to find pathway assignment for Request {@Request}",
-          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+        logger.LogError("Failed to find pathway enrollment for Request {@Request}",
+          new { NhsNumber = nhsNumber, EnrollmentId = enrollmentId });
         return new NotFoundResult();
       }
 
-      logger.LogInformation("Found pathway assignment for Request {@Request}",
-        new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
-      return new OkObjectResult(pathwayAssignment);
+      logger.LogInformation("Found pathway enrollment for Request {@Request}",
+        new { NhsNumber = nhsNumber, EnrollmentId = enrollmentId });
+      return new OkObjectResult(pathwayEnrollment);
     }
     catch (Exception ex)
     {
