@@ -49,7 +49,7 @@ public class PathwayTypeAssignmentFunctions
     if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
 
     var pathwayTypeAssignments = await _dbContext.PathwayTypeAssignments
-      .Where(p => p.Participant.NHSNumber == nhsNumber && p.AssignmentId == assignmentId)
+      .Where(p => p.Participant.NHSNumber == nhsNumber && p.EnrollmentId == assignmentId)
       .FirstOrDefaultAsync();
 
     if (pathwayTypeAssignments == null) return new NotFoundObjectResult("Did not find any assignments");
