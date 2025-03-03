@@ -15,7 +15,7 @@ export default async function Header({
             <Link href="/" legacyBehavior>
               <a
                 className="nhsuk-header__link nhsuk-header__link--service"
-                aria-label="Cohort manager overview page"
+                aria-label="Manage your screening homepage"
               >
                 <svg
                   className="nhsuk-logo"
