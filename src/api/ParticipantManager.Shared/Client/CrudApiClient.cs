@@ -47,4 +47,9 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       throw;
     }
   }
+
+  public Task CreateEnrollmentAsync(string nhsNumber)
+  {
+    throw new NotImplementedException();
+  }
 }
