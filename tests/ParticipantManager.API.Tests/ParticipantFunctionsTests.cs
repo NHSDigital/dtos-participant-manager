@@ -160,11 +160,10 @@ public class ParticipantFunctionsTests
     var nhsNumber = "123";
     var assignmentId = Guid.NewGuid();
 
-    var assignmentDetail = new PathwayTypeAssignment
+    var assignmentDetail = new PathwayTypeEnrollment
     {
-      AssignmentId = assignmentId,
+      EnrollmentId = assignmentId,
       ParticipantId = participantId,
-      PathwayId = Guid.NewGuid(),
       AssignmentDate = DateTime.Now,
       LapsedDate = DateTime.Now,
       Status = "test status",
@@ -190,8 +189,8 @@ public class ParticipantFunctionsTests
 
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);
-    var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeAssignment>(result.Value);
-    Assert.Equal(assignmentDetail.AssignmentId, returnedPathwayTypeAssignment.AssignmentId);
+    var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeEnrollment>(result.Value);
+    Assert.Equal(assignmentDetail.EnrollmentId, returnedPathwayTypeAssignment.EnrollmentId);
     Assert.Equal(assignmentDetail.Participant.NHSNumber, returnedPathwayTypeAssignment.Participant.NHSNumber);
   }
 
