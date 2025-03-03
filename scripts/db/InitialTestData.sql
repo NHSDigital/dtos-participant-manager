@@ -7,9 +7,9 @@ VALUES
     ('55555555-5555-5555-5555-555555555555', 'Arnold	OLLEY', '2016-07-21', '9658218903'),
     ('65555555-5555-5555-5555-555555555555', 'Mina LEECH', '1918-09-19', '9658218989');
 
-INSERT INTO PathwayTypeAssignments  (AssignmentId, ParticipantId, PathwayId, AssignmentDate, LapsedDate, Status, NextActionDate, PathwayTypeId, ScreeningName, PathwayName )
+INSERT INTO PathwayTypeEnrollments (EnrollmentId, ParticipantId, PathwayTypeId, EnrollmentDate, LapsedDate, Status, NextActionDate, ScreeningName, PathwayName)
 VALUES
-    ('11111111-1111-1111-1111-111111111112', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111113', '', '', 'Active', '2025-05-17', '11111111-1111-1111-1111-111111111114', 'Breast Screening', 'Breast Screening Routine'),
-    ('11111111-1111-1111-1111-111111111113', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111114', '', '', 'Active', '2026-03-22', '11111111-1111-1111-1111-111111111114', 'Cervical Screening', 'Cervical Screening Routine'),
-    ('11111111-1111-1111-1111-111111111114', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111115', '', '', 'Active', '2025-09-21', '11111111-1111-1111-1111-111111111115', 'Bowel Screening', 'Bowel Screening Routine');
+    ('11111111-1111-1111-1111-111111111112', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111113', '', '', 'Active', '2025-05-17', 'Breast Screening', 'Breast Screening Routine'),
+    ('11111111-1111-1111-1111-111111111113', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111114', '', '', 'Active', '2026-03-22', 'Cervical Screening', 'Cervical Screening Routine'),
+    ('11111111-1111-1111-1111-111111111114', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111115', '', '', 'Active', '2025-09-21', 'Bowel Screening', 'Bowel Screening Routine');
 
