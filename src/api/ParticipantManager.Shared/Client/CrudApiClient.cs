@@ -48,16 +48,18 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task CreateEnrollmentAsync(CreateParticipantDto participantDto)
+  public async Task CreateEnrollmentAsync(CreateParticipantEnrollmentDto participantEnrollmentDto)
   {
     logger.LogInformation("CreateEnrollmentAsync");
     try
     {
       // First create the Participant
-      var response = await httpClient.PostAsJsonAsync($"/api/participants", participantDto);
+      var response = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrollmentDto);
       response.EnsureSuccessStatusCode();
 
       // Then create the enrollment
+      var createEnrollmentResponse = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrollment", participantEnrollmentDto);
+      createEnrollmentResponse.EnsureSuccessStatusCode();
 
     }
     catch (Exception ex)

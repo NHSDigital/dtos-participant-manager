@@ -9,8 +9,8 @@ public class PathwayTypeEnrollment
   public DateTime? LapsedDate { get; set; }
   public required string Status { get; set; }
   public DateTime? NextActionDate { get; set; }
-  public required Participant Participant { get; set; }
-  public required ICollection<Episode> Episodes { get; set; } = [];
+  public Participant Participant { get; set; }
+  public ICollection<Episode> Episodes { get; set; } = [];
   public required string ScreeningName { get; set; }
   public required string PathwayName { get; set; }
 }

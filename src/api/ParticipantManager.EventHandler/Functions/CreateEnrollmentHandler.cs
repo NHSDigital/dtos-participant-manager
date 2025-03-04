@@ -28,7 +28,7 @@ public class CreateEnrollmentHandler
     string serializedEvent = JsonSerializer.Serialize(eventGridEvent);
     _logger.LogInformation(serializedEvent);
 
-    CreateParticipantDto participantDto;
+    CreateParticipantEnrollmentDto participantDto;
 
     try
     {
@@ -37,7 +37,7 @@ public class CreateEnrollmentHandler
         ReferenceHandler = ReferenceHandler.Preserve
       };
 
-      participantDto = JsonSerializer.Deserialize<CreateParticipantDto>(eventGridEvent.Data.ToString(), options);
+      participantDto = JsonSerializer.Deserialize<CreateParticipantEnrollmentDto>(eventGridEvent.Data.ToString(), options);
     }
     catch (Exception ex)
     {
