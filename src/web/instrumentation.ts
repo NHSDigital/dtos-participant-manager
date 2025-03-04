@@ -22,14 +22,6 @@ export async function register() {
       "@opentelemetry/instrumentation-fetch"
     );
 
-    const options = {
-      azureMonitorExporterOptions: {
-        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-      },
-    };
-
-    useAzureMonitor(options);
-
     const sdk = new NodeSDK({
       instrumentations: [
         new HttpInstrumentation(),
@@ -51,5 +43,20 @@ export async function register() {
         .catch((error) => console.log("Error shutting down SDK", error))
         .finally(() => process.exit(0));
     });
+
+    const options = {
+      azureMonitorExporterOptions: {
+        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+      },
+    };
+
+    if (!options.azureMonitorExporterOptions.connectionString) {
+      console.warn(
+        "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
+      );
+      return;
+    }
+
+    useAzureMonitor(options);
   }
 }
