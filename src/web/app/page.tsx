@@ -87,18 +87,18 @@ export default async function Home() {
                 {eligibility?.length ? (
                   eligibility.map((item: EligibilityItem) => {
                     const url = `${createUrlSlug(item.screeningName)}/${
-                      item.assignmentId
+                      item.enrolmentId
                     }`;
                     return (
                       <Card
-                        key={item.assignmentId}
+                        key={item.enrolmentId}
                         title={item.screeningName}
                         url={url}
                       />
                     );
                   })
                 ) : (
-                  <InsetText text="You have no screening assignments." />
+                  <InsetText text="You have no screening enrolments." />
                 )}
 
                 <p>

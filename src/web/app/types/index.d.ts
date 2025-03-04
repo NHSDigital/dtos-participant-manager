@@ -1,17 +1,17 @@
 export interface EligibilityItem {
-  assignmentId: string;
+  enrolmentId: string;
   screeningName: string;
 }
 
-export interface PathwayItem {
-  assignmentId: string;
-  assignmentDate: string;
+export interface EnroledPathwayItem {
+  enrolmentId: string;
+  enrolmentDate: string;
   status: "Active" | "Inactive";
   nextActionDate: string;
   screeningName: string;
-  pathwayName: string;
+  pathwayTypeName: string;
   infoUrl: string;
 }
 
 export type EligibilityResponse = EligibilityItem[];
-export type PathwayResponse = PathwayItem;
+export type PathwayResponse = EnroledPathwayItem;

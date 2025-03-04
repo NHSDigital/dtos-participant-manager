@@ -7,16 +7,16 @@ using ParticipantManager.Shared.Client;
 
 namespace ParticipantManager.Experience.API.Functions;
 
-public class PathwayEnrollmentFunction(
-  ILogger<PathwayEnrollmentFunction> logger,
+public class PathwayEnrolmentFunction(
+  ILogger<PathwayEnrolmentFunction> logger,
   ICrudApiClient crudApiClient,
   ITokenService tokenService)
 {
-  [Function("GetPathwayEnrollmentById")]
-  public async Task<IActionResult> GetPathwayEnrollmentById(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrollments/{enrollmentid}")]
+  [Function("GetPathwayEnrolmentById")]
+  public async Task<IActionResult> GetPathwayEnrolmentById(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrolments/{enrolmentid}")]
     HttpRequestData req,
-    string enrollmentId)
+    string enrolmentId)
   {
     try
     {
@@ -37,17 +37,17 @@ public class PathwayEnrollmentFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayEnrollment = await crudApiClient.GetPathwayEnrollmentByIdAsync(nhsNumber, enrollmentId);
-      if (pathwayEnrollment == null)
+      var pathwayEnrolment = await crudApiClient.GetPathwayEnrolmentByIdAsync(nhsNumber, enrolmentId);
+      if (pathwayEnrolment == null)
       {
-        logger.LogError("Failed to find pathway enrollment for Request {@Request}",
-          new { NhsNumber = nhsNumber, EnrollmentId = enrollmentId });
+        logger.LogError("Failed to find pathway enrolment for Request {@Request}",
+          new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
         return new NotFoundResult();
       }
 
-      logger.LogInformation("Found pathway enrollment for Request {@Request}",
-        new { NhsNumber = nhsNumber, EnrollmentId = enrollmentId });
-      return new OkObjectResult(pathwayEnrollment);
+      logger.LogInformation("Found pathway enrolment for Request {@Request}",
+        new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
+      return new OkObjectResult(pathwayEnrolment);
     }
     catch (Exception ex)
     {

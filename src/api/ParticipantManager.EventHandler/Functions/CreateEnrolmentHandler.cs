@@ -8,18 +8,18 @@ using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.EventHandler.Functions;
 
-public class CreateEnrollmentHandler
+public class CreateEnrolmentHandler
 {
-  private readonly ILogger<CreateEnrollmentHandler> _logger;
+  private readonly ILogger<CreateEnrolmentHandler> _logger;
   private readonly ICrudApiClient _crudApiClient;
 
-  public CreateEnrollmentHandler(ILogger<CreateEnrollmentHandler> logger, ICrudApiClient crudApiClient)
+  public CreateEnrolmentHandler(ILogger<CreateEnrolmentHandler> logger, ICrudApiClient crudApiClient)
   {
     _logger = logger;
     _crudApiClient = crudApiClient;
   }
 
-  [Function("CreateEnrollmentHandler")]
+  [Function("CreateEnrolmentHandler")]
   public void Run([EventGridTrigger] EventGridEvent eventGridEvent)
   {
     _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(),
@@ -28,7 +28,7 @@ public class CreateEnrollmentHandler
     string serializedEvent = JsonSerializer.Serialize(eventGridEvent);
     _logger.LogInformation(serializedEvent);
 
-    CreateParticipantEnrollmentDto participantDto;
+    CreateParticipantEnrolmentDto participantDto;
 
     try
     {
@@ -37,7 +37,7 @@ public class CreateEnrollmentHandler
         ReferenceHandler = ReferenceHandler.Preserve
       };
 
-      participantDto = JsonSerializer.Deserialize<CreateParticipantEnrollmentDto>(eventGridEvent.Data.ToString(), options);
+      participantDto = JsonSerializer.Deserialize<CreateParticipantEnrolmentDto>(eventGridEvent.Data.ToString(), options);
     }
     catch (Exception ex)
     {
@@ -45,6 +45,6 @@ public class CreateEnrollmentHandler
       return;
     }
 
-    _crudApiClient.CreateEnrollmentAsync(participantDto);
+    _crudApiClient.CreateEnrolmentAsync(participantDto);
   }
 }

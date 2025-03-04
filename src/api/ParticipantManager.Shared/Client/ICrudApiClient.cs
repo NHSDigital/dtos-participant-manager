@@ -4,7 +4,7 @@ namespace ParticipantManager.Shared.Client;
 
 public interface ICrudApiClient
 {
-  Task<List<PathwayEnrollmentDTO>?> GetPathwayEnrollmentsAsync(string nhsNumber);
-  Task<EnrolledPathwayDetailsDTO?> GetPathwayEnrollmentByIdAsync(string nhsNumber, string enrollmentId);
-  Task CreateEnrollmentAsync(CreateParticipantEnrollmentDto participantDto);
+  Task<List<PathwayEnrolmentDTO>?> GetPathwayEnrolmentsAsync(string nhsNumber);
+  Task<EnroledPathwayDetailsDTO?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId);
+  Task CreateEnrolmentAsync(CreateParticipantEnrolmentDto participantDto);
 }

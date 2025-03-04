@@ -1,7 +1,7 @@
 namespace ParticipantManager.Shared.DTOs;
 
-public record PathwayEnrollmentDTO
+public record PathwayEnrolmentDTO
 {
-  public string EnrollmentId { get; set; }
+  public string EnrolmentId { get; set; }
   public string ScreeningName { get; set; }
 }

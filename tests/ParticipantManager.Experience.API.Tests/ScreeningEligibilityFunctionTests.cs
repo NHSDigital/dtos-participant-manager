@@ -22,8 +22,8 @@ public class ScreeningEligibilityFunctionTests
   public ScreeningEligibilityFunctionTests()
   {
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrollmentsAsync(It.IsAny<string>()).Result)
-      .Returns(MockListPathwayAssignments);
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<string>()).Result)
+      .Returns(MockListPathwayEnrolments);
     _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
@@ -92,7 +92,7 @@ public class ScreeningEligibilityFunctionTests
     // Assert
 
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayEnrollmentDTO>)response?.Value).Count);
+    Assert.Equal(2, ((List<PathwayEnrolmentDTO>)response?.Value).Count);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -106,18 +106,18 @@ public class ScreeningEligibilityFunctionTests
     return request.Object;
   }
 
-  private List<PathwayEnrollmentDTO> MockListPathwayAssignments()
+  private List<PathwayEnrolmentDTO> MockListPathwayEnrolments()
   {
-    return new List<PathwayEnrollmentDTO>
+    return new List<PathwayEnrolmentDTO>
     {
       new()
       {
-        EnrollmentId = "123",
+        EnrolmentId = "123",
         ScreeningName = "BreastScreening"
       },
       new()
       {
-        EnrollmentId = "1234",
+        EnrolmentId = "1234",
         ScreeningName = "BowelScreening"
       }
     };

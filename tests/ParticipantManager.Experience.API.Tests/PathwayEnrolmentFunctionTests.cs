@@ -12,23 +12,23 @@ using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests;
 
-public class PathwayEnrollmentFunctionTests
+public class PathwayEnrolmentFunctionTests
 {
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
-  private readonly PathwayEnrollmentFunction _function;
-  private readonly Mock<ILogger<PathwayEnrollmentFunction>> _loggerMock;
+  private readonly PathwayEnrolmentFunction _function;
+  private readonly Mock<ILogger<PathwayEnrolmentFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
 
-  public PathwayEnrollmentFunctionTests()
+  public PathwayEnrolmentFunctionTests()
   {
-    _loggerMock = new Mock<ILogger<PathwayEnrollmentFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrollmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
+    _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
       .Returns(MockPathwayDetails);
-    _function = new PathwayEnrollmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
   [Fact]
-  public async Task GetPathwayEnrollmentById_ShouldReturnUnauthorized_IfInvalidToken()
+  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfInvalidToken()
   {
     _mockTokenService
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
@@ -37,14 +37,14 @@ public class PathwayEnrollmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrollmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetPathwayEnrollmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
+  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
   {
     var claims = new List<Claim>
     {
@@ -62,14 +62,14 @@ public class PathwayEnrollmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrollmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetPathwayEnrollmentById_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayEnrolmentById_ShouldReturnOk_WithValidToken()
   {
     var claims = new List<Claim>
     {
@@ -87,12 +87,12 @@ public class PathwayEnrollmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrollmentById(request, "123") as OkObjectResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as OkObjectResult;
 
     // Assert
-    var pathwayEnrollmentDto = (EnrolledPathwayDetailsDTO)response.Value;
+    var pathwayEnrolmentDto = (EnroledPathwayDetailsDTO)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(pathwayEnrollmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+    Assert.Equal(pathwayEnrolmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -107,15 +107,15 @@ public class PathwayEnrollmentFunctionTests
     return request.Object;
   }
 
-  private EnrolledPathwayDetailsDTO MockPathwayDetails()
+  private EnroledPathwayDetailsDTO MockPathwayDetails()
   {
-    return new EnrolledPathwayDetailsDTO
+    return new EnroledPathwayDetailsDTO
     {
-      EnrollmentId = new Guid(),
+      EnrolmentId = new Guid(),
       ScreeningName = "Breast Screening",
       Status = "Active",
-      EnrollmentDate = DateTime.Now,
-      PathwayName = "Breast Screening Regular",
+      EnrolmentDate = DateTime.Now,
+      PathwayTypeName = "Breast Screening Regular",
       NextActionDate = DateTime.Now
     };
   }
