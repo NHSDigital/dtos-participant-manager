@@ -62,7 +62,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
         PropertyNameCaseInsensitive = true
       });
 
-
+      participantEnrolmentDto.ParticipantId = participant.ParticipantId;
 
       // Then create the enrolment
       var createEnrolmentResponse = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", participantEnrolmentDto);

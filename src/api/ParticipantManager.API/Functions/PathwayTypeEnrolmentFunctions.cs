@@ -67,11 +67,11 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation("C# HTTP trigger function CreatePathwayEnrolment processed a request.");
 
-    ParticipantDTO participantDto = new ParticipantDTO();
+    CreateParticipantEnrolmentDto participantEnrolmentDto = new CreateParticipantEnrolmentDto();
 
     try
     {
-      participantDto = await JsonSerializer.DeserializeAsync<ParticipantDTO>(req.Body,
+      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreateParticipantEnrolmentDto>(req.Body,
         new JsonSerializerOptions
         {
           PropertyNameCaseInsensitive = true
@@ -86,14 +86,15 @@ public class PathwayTypeEnrolmentFunctions
     {
       EnrolmentId = Guid.NewGuid(),
       EnrolmentDate = DateTime.UtcNow,
-      ParticipantId = participantDto.ParticipantId,
-      PathwayTypeId = participantDto.PathwayTypeId,
+      ParticipantId = participantEnrolmentDto.ParticipantId,
+      PathwayTypeId = participantEnrolmentDto.PathwayTypeId,
       ScreeningName = "",
-      PathwayTypeName = participantDto?.PathwayTypeName ?? "",
+      PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
       Status = ""
     };
 
     var result = await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
+    await _dbContext.SaveChangesAsync();
 
     return new CreatedResult($"pathwaytypeenrolments/", pathwayTypeEnrolment);
   }

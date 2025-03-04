@@ -2,6 +2,7 @@ namespace ParticipantManager.Shared.DTOs;
 
 public class CreateParticipantEnrolmentDto
 {
+  public Guid ParticipantId { get; set; }
   public string Name { get; set; }
   public DateTime DOB { get; set; }
   public string NHSNumber { get; set; }
