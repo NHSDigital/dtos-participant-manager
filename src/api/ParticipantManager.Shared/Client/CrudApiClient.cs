@@ -57,10 +57,16 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       var response = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
       response.EnsureSuccessStatusCode();
 
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true
+      });
+
+
+
       // Then create the enrolment
       var createEnrolmentResponse = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", participantEnrolmentDto);
       createEnrolmentResponse.EnsureSuccessStatusCode();
-
     }
     catch (Exception ex)
     {

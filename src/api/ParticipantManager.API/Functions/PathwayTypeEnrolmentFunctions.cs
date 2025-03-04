@@ -67,16 +67,15 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation("C# HTTP trigger function CreatePathwayEnrolment processed a request.");
 
-    CreateParticipantEnrolmentDto participantEnrolmentDto = null;
+    ParticipantDTO participantDto = new ParticipantDTO();
 
     try
     {
-      JsonSerializerOptions options = new()
-      {
-        ReferenceHandler = ReferenceHandler.Preserve
-      };
-
-      participantEnrolmentDto = JsonSerializer.Deserialize<CreateParticipantEnrolmentDto>(req.Body.ToString(), options);
+      participantDto = await JsonSerializer.DeserializeAsync<ParticipantDTO>(req.Body,
+        new JsonSerializerOptions
+        {
+          PropertyNameCaseInsensitive = true
+        });
     }
     catch (Exception ex)
     {
@@ -86,8 +85,11 @@ public class PathwayTypeEnrolmentFunctions
     var pathwayTypeEnrolment = new PathwayTypeEnrolment()
     {
       EnrolmentId = Guid.NewGuid(),
+      EnrolmentDate = DateTime.UtcNow,
+      ParticipantId = participantDto.ParticipantId,
+      PathwayTypeId = participantDto.PathwayTypeId,
       ScreeningName = "",
-      PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
+      PathwayTypeName = participantDto?.PathwayTypeName ?? "",
       Status = ""
     };
 
