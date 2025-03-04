@@ -29,7 +29,7 @@
         "subscribers": [
           {
             "name": "ParticipantManagerSubscription",
-            "endpoint": "http://host.docker.internal:6001/runtime/webhooks/EventGrid?functionName=MockProductHandler",
+            "endpoint": "http://host.docker.internal:6001/runtime/webhooks/EventGrid?functionName=CreateEnrolmentHandler",
             "disableValidation": true
           }
         ]

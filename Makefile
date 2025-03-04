@@ -37,7 +37,7 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: azure-login db db-migrations api1 api2 eventHandler web
+all: azure-login db db-migrations api1 api2 event-handler web
 
 # Ensure Azure CLI is logged in
 azure-login:
@@ -103,7 +103,7 @@ else
 endif
 
 # Start Event Handler
-eventHandler:
+event-handler:
 	@echo "Starting Event Handler..."
 ifeq ($(OS), Windows_NT)
 	@cd "$(EVENT_HANDLER_DIR)" && start /B dotnet watch run --port $(EVENT_HANDLER_PORT)
@@ -196,4 +196,4 @@ endif
 
 	@echo "Cleanup completed."
 
-.PHONY: all web api1 api2 eventHandler db stop-db stop
+.PHONY: all web api1 api2 event-handler db stop-db stop
