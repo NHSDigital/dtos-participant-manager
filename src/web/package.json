@@ -1,5 +1,5 @@
 {
-  "name": "dtos-ui-template",
+  "name": "manage-your-screening-ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,7 @@
     "dev:secure": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "test": "pnpm run test:unit",
+    "test": "npm run test:unit",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",
