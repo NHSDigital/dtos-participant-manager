@@ -11,6 +11,9 @@
 test-unit: # Run your unit tests from scripts/test/unit @Testing
 	make _test name="unit"
 
+test-e2e: # Run your end-to-end tests from scripts/test/e2e @Testing
+	make _test name="e2e"
+
 test-lint: # Lint your code from scripts/test/lint @Testing
 	make _test name="lint"
 
