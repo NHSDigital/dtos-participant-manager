@@ -20,9 +20,9 @@ public class CreateEnrolmentHandler
   }
 
   [Function("CreateEnrolmentHandler")]
-  public void Run([EventGridTrigger] EventGridEvent eventGridEvent)
+  public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
   {
-    _logger.LogInformation("Event type: {type}, Event subject: {subject}", eventGridEvent.GetType(),
+    _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
       eventGridEvent.Subject);
 
     string serializedEvent = JsonSerializer.Serialize(eventGridEvent);
@@ -41,10 +41,10 @@ public class CreateEnrolmentHandler
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Unable to deserialize event data to Episode object.");
+      _logger.LogError(ex, "Unable to deserialize event data to CreateParticipantEnrolmentDto.");
       return;
     }
 
-    _crudApiClient.CreateEnrolmentAsync(participantDto);
+    await _crudApiClient.CreateEnrolmentAsync(participantDto);
   }
 }

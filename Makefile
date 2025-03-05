@@ -37,43 +37,7 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: azure-login db db-migrations api1 api2 event-handler web
-
-# Ensure Azure CLI is logged in
-azure-login:
-	@echo "Checking Azure login status..."
-ifeq ($(OS),Windows_NT)
-	@powershell -Command "& { \
-		$$loginAttempt = az account show 2>$$null; \
-		if (-not $$loginAttempt) { \
-			Write-Host 'Logging into Azure...'; \
-			$$loginResult = az login --use-device-code --output json; \
-			if ($$?) { \
-				Start-Sleep -Seconds 2; \
-				$$account = az account show; \
-				if ($$account) { \
-					Write-Host 'Azure login successful.'; \
-				} else { \
-					Write-Error 'Login verification failed'; \
-					exit 1; \
-				} \
-			} else { \
-				Write-Error 'Azure login failed'; \
-				exit 1; \
-			} \
-		} else { \
-			Write-Host 'Already logged into Azure.'; \
-		} \
-	}"
-else
-	@if ! az account show > /dev/null 2>&1; then \
-		echo "Logging into Azure..."; \
-		az login --output none; \
-		echo "Azure login successful."; \
-	else \
-		echo "Already logged into Azure."; \
-	fi
-endif
+all: db db-migrations api1 api2 event-handler web
 
 # Start the Next.js frontend
 web:
@@ -156,7 +120,7 @@ stop:
 
 ifeq ($(OS), Windows_NT)
 	@echo "Stopping dotnet watch windows processes..."
-	@echo "Killing processes on ports $(WEB_PORT), $(API_PORT), and $(EXPERIENCE_PORT)..."
+	@echo "Killing processes on ports $(WEB_PORT), $(API_PORT), $(EVENT_HANDLER_PORT) and $(EXPERIENCE_PORT)..."
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(WEB_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(WEB_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(API_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(API_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
