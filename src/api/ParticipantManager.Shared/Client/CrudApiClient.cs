@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -49,46 +48,73 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task CreateEnrolmentAsync(CreateParticipantEnrolmentDto participantEnrolmentDto)
+  public async Task<ParticipantDTO?> GetParticipantByNhsNumberAsync(string nhsNumber)
   {
-    logger.LogInformation($"Running {nameof(CreateEnrolmentAsync)}");
+    logger.LogInformation($"Running {nameof(GetParticipantByNhsNumberAsync)}");
+
+    var response = await httpClient.GetAsync($"/api/participants?nhsNumber={nhsNumber}");
+    logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { nhsNumber });
+
+    var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+    {
+      PropertyNameCaseInsensitive = true
+    });
+
+    if (participant == null)
+    {
+      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found", new { nhsNumber });
+      return null;
+    }
+
+    logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
+    return participant;
+  }
+
+  public async Task<Guid?> CreateParticipantAsync(ParticipantDTO participantDto)
+  {
+    logger.LogInformation($"Running {nameof(CreateParticipantAsync)}");
 
     try
     {
-      ParticipantDTO? participant;
+      var response = await httpClient.PostAsJsonAsync($"/api/participants", participantDto);
+      response.EnsureSuccessStatusCode();
 
-      var getParticipantResponse = await httpClient.GetAsync($"/api/participants?nhsNumber={participantEnrolmentDto.NHSNumber}");
-      logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { participantEnrolmentDto.NHSNumber });
+      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NHSNumber });
 
-      if (getParticipantResponse.StatusCode != HttpStatusCode.OK)
-      {
-        logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found, creating new participant", new { participantEnrolmentDto.NHSNumber });
-        var createParticipantResponse = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
-        createParticipantResponse.EnsureSuccessStatusCode();
-
-        participant = await createParticipantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
-        {
-          PropertyNameCaseInsensitive = true
-        });
-
-        logger.LogInformation("Participant created: {@Participant}", new { participant!.ParticipantId, participantEnrolmentDto.NHSNumber });
-      }
-
-      participant = await getParticipantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
 
-      participantEnrolmentDto.ParticipantId = participant!.ParticipantId;
-
-      var createEnrolmentResponse = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", participantEnrolmentDto);
-      createEnrolmentResponse.EnsureSuccessStatusCode();
-      logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}", participant.ParticipantId, participantEnrolmentDto.PathwayTypeName);
+      return participant?.ParticipantId;
+    }
+    catch(HttpRequestException ex)
+    {
+      logger.LogError(ex, "Participant with NhsNumber: {@NhsNumber} not created", new { participantDto.NHSNumber });
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Failed to create Enrolment for NhsNumber: {@NhsNumber}, on Pathway: {PathwayName}", new { participantEnrolmentDto.NHSNumber }, participantEnrolmentDto.PathwayTypeName);
-      throw;
+      logger.LogError(ex, $"{nameof(CreateParticipantAsync)} failure in response");
+    }
+
+    return null;
+  }
+
+  public async Task<bool> CreatePathwayEnrolmentAsync(CreatePathwayEnrolmentDto pathwayEnrolmentDto)
+  {
+    logger.LogInformation($"Running {nameof(CreatePathwayEnrolmentAsync)}");
+
+    try
+    {
+      var response = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", pathwayEnrolmentDto);
+      response.EnsureSuccessStatusCode();
+      logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}", pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
+      return true;
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayName}", new { pathwayEnrolmentDto.ParticipantId }, pathwayEnrolmentDto.PathwayTypeName);
+      return false;
     }
   }
 }

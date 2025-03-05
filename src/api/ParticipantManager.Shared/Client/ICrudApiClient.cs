@@ -6,5 +6,7 @@ public interface ICrudApiClient
 {
   Task<List<PathwayEnrolmentDTO>?> GetPathwayEnrolmentsAsync(string nhsNumber);
   Task<EnroledPathwayDetailsDTO?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId);
-  Task CreateEnrolmentAsync(CreateParticipantEnrolmentDto participantDto);
+  Task<ParticipantDTO?> GetParticipantByNhsNumberAsync(string nhsNumber);
+  Task<Guid?> CreateParticipantAsync(ParticipantDTO participantDto);
+  Task<bool> CreatePathwayEnrolmentAsync(CreatePathwayEnrolmentDto pathwayEnrolmentDto);
 }

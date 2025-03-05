@@ -67,11 +67,11 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation("C# HTTP trigger function CreatePathwayEnrolment processed a request.");
 
-    CreateParticipantEnrolmentDto participantEnrolmentDto = new CreateParticipantEnrolmentDto();
+    CreatePathwayEnrolmentDto participantEnrolmentDto = new CreatePathwayEnrolmentDto();
 
     try
     {
-      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreateParticipantEnrolmentDto>(req.Body,
+      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreatePathwayEnrolmentDto>(req.Body,
         new JsonSerializerOptions
         {
           PropertyNameCaseInsensitive = true

@@ -25,10 +25,7 @@ public class CreateEnrolmentHandler
     _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
       eventGridEvent.Subject);
 
-    string serializedEvent = JsonSerializer.Serialize(eventGridEvent);
-    _logger.LogInformation(serializedEvent);
-
-    CreateParticipantEnrolmentDto participantDto;
+    CreatePathwayEnrolmentDto participantDto;
 
     try
     {
@@ -37,7 +34,7 @@ public class CreateEnrolmentHandler
         ReferenceHandler = ReferenceHandler.Preserve
       };
 
-      participantDto = JsonSerializer.Deserialize<CreateParticipantEnrolmentDto>(eventGridEvent.Data.ToString(), options);
+      participantDto = JsonSerializer.Deserialize<CreatePathwayEnrolmentDto>(eventGridEvent.Data.ToString(), options);
     }
     catch (Exception ex)
     {
@@ -45,6 +42,6 @@ public class CreateEnrolmentHandler
       return;
     }
 
-    await _crudApiClient.CreateEnrolmentAsync(participantDto);
+    await _crudApiClient.CreatePathwayEnrolmentAsync(participantDto);
   }
 }
