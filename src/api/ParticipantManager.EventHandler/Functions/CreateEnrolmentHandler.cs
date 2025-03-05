@@ -51,7 +51,8 @@ public class CreateEnrolmentHandler
     {
       ParticipantId = participantId.Value,
       PathwayTypeId = pathwayParticipantDto.PathwayTypeId,
-      PathwayTypeName = pathwayParticipantDto.PathwayTypeName
+      PathwayTypeName = pathwayParticipantDto.PathwayTypeName,
+      ScreeningName = pathwayParticipantDto.ScreeningName
     };
 
     await _crudApiClient.CreatePathwayEnrolmentAsync(pathwayEnrolmentDto);

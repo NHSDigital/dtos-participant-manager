@@ -88,7 +88,7 @@ public class PathwayTypeEnrolmentFunctions
       EnrolmentDate = DateTime.UtcNow,
       ParticipantId = participantEnrolmentDto.ParticipantId,
       PathwayTypeId = participantEnrolmentDto.PathwayTypeId,
-      ScreeningName = "",
+      ScreeningName = participantEnrolmentDto.ScreeningName,
       PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
       Status = ""
     };
