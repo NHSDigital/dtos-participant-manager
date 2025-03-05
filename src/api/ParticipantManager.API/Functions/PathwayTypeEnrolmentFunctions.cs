@@ -93,9 +93,9 @@ public class PathwayTypeEnrolmentFunctions
       Status = ""
     };
 
-    var result = await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
+    await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
     await _dbContext.SaveChangesAsync();
 
-    return new CreatedResult($"pathwaytypeenrolments/", pathwayTypeEnrolment);
+    return new CreatedResult($"pathwaytypeenrolments/{pathwayTypeEnrolment.EnrolmentId}", pathwayTypeEnrolment);
   }
 }

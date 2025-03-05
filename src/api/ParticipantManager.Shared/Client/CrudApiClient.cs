@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -53,11 +54,19 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     logger.LogInformation("CreateEnrolmentAsync");
     try
     {
-      // First create the Participant
-      var response = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
-      response.EnsureSuccessStatusCode();
+      ParticipantDTO participant;
+      HttpResponseMessage participantResponse;
 
-      var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+      participantResponse = await httpClient.GetAsync($"/api/participants?nhsNumber={participantEnrolmentDto.NHSNumber}");
+
+      if (participantResponse.StatusCode != HttpStatusCode.OK)
+      {
+        // First create the Participant
+        participantResponse = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
+        participantResponse.EnsureSuccessStatusCode();
+      }
+
+      participant = await participantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
