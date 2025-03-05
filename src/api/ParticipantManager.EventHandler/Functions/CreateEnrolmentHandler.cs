@@ -25,7 +25,7 @@ public class CreateEnrolmentHandler
     _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
       eventGridEvent.Subject);
 
-    CreatePathwayEnrolmentDto participantDto;
+    CreatePathwayParticipantDto pathwayParticipantDto;
 
     try
     {
@@ -34,14 +34,26 @@ public class CreateEnrolmentHandler
         ReferenceHandler = ReferenceHandler.Preserve
       };
 
-      participantDto = JsonSerializer.Deserialize<CreatePathwayEnrolmentDto>(eventGridEvent.Data.ToString(), options);
+      pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(eventGridEvent.Data.ToString(), options);
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Unable to deserialize event data to CreateParticipantEnrolmentDto.");
       return;
     }
+    var participantDto = await _crudApiClient.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber);
 
-    await _crudApiClient.CreatePathwayEnrolmentAsync(participantDto);
+    var participantId = participantDto == null
+    ? await _crudApiClient.CreateParticipantAsync(pathwayParticipantDto)
+    : participantDto.ParticipantId;
+
+    var pathwayEnrolmentDto = new CreatePathwayEnrolmentDto
+    {
+      ParticipantId = participantId.Value,
+      PathwayTypeId = pathwayParticipantDto.PathwayTypeId,
+      PathwayTypeName = pathwayParticipantDto.PathwayTypeName
+    };
+
+    await _crudApiClient.CreatePathwayEnrolmentAsync(pathwayEnrolmentDto);
   }
 }

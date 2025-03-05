@@ -26,14 +26,6 @@ services:
     #env_file:
       # you can also define environment variables via a file
       #- ./my.env
-  # sqledge:
-  #   container_name: "sqledge"
-  #   image: "mcr.microsoft.com/azure-sql-edge:1.0.7"
-  #   ports:
-  #     - "1433:1433"
-  #   environment:
-  #     ACCEPT_EULA: ${ACCEPT_EULA}
-  #     MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
 
 volumes:
   docker:

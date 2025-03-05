@@ -55,16 +55,16 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     var response = await httpClient.GetAsync($"/api/participants?nhsNumber={nhsNumber}");
     logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { nhsNumber });
 
-    var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    });
-
-    if (participant == null)
+    if (!response.IsSuccessStatusCode)
     {
       logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found", new { nhsNumber });
       return null;
     }
+
+    var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+    {
+      PropertyNameCaseInsensitive = true
+    });
 
     logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
     return participant;
@@ -88,7 +88,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
 
       return participant?.ParticipantId;
     }
-    catch(HttpRequestException ex)
+    catch (HttpRequestException ex)
     {
       logger.LogError(ex, "Participant with NhsNumber: {@NhsNumber} not created", new { participantDto.NHSNumber });
     }
