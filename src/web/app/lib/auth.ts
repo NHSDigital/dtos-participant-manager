@@ -1,4 +1,4 @@
-import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
+import NextAuth, { Profile } from "next-auth";
 import { OAuthConfig } from "next-auth/providers";
 
 // Function to convert PEM to CryptoKey
