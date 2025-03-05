@@ -20,10 +20,15 @@ describe("formatNhsNumber", () => {
 });
 
 describe("formatDate", () => {
-  it("should format the date as 26 February 1993", () => {
-    const input = "1993-02-26T11:53:01.243";
-    const expectedOutput = "26 February 1993";
+  it("should format the date as Month YYYY", () => {
+    const input = "2026-10-12T11:53:01.243";
+    const expectedOutput = "October 2026";
     expect(formatDate(input)).toBe(expectedOutput);
+  });
+
+  it("should handle different months", () => {
+    expect(formatDate("2024-01-05T10:00:00.000")).toBe("January 2024");
+    expect(formatDate("2025-12-25T00:00:00.000")).toBe("December 2025");
   });
 });
 
