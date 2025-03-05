@@ -158,4 +158,9 @@ test-coverage:
 	@echo "Running unit test coverage..."
 	@cd $(WEB_DIR) && npm run test:coverage
 
-.PHONY: all web api1 api2 db stop-db stop test-unit
+# Run E2E tests
+test-e2e:
+	@echo "Running E2E tests..."
+	@cd $(WEB_DIR) && npm run test:e2e
+
+.PHONY: all web api1 api2 db stop-db stop test-unit test-coverage test-e2e
