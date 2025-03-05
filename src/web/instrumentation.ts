@@ -1,15 +1,7 @@
+import { logger } from "@/app/lib/logger";
+
 export async function register() {
-  let isOTelInitialized = false;
-
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    if (isOTelInitialized) {
-      console.warn(
-        "OpenTelemetry is already initialized. Skipping re-initialization."
-      );
-      return;
-    }
-    isOTelInitialized = true;
-
     const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
     const { NodeSDK } = await import("@opentelemetry/sdk-node");
     const { PinoInstrumentation } = await import(
@@ -51,7 +43,7 @@ export async function register() {
     };
 
     if (!options.azureMonitorExporterOptions.connectionString) {
-      console.warn(
+      logger.warn(
         "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
       );
       return;
