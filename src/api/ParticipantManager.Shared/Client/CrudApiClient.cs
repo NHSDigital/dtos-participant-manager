@@ -51,29 +51,35 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
 
   public async Task CreateEnrolmentAsync(CreateParticipantEnrolmentDto participantEnrolmentDto)
   {
-    logger.LogInformation("CreateEnrolmentAsync");
+    logger.LogInformation($"Running {nameof(CreateEnrolmentAsync)}");
+
     try
     {
-      ParticipantDTO participant;
-      HttpResponseMessage participantResponse;
+      ParticipantDTO? participant;
 
-      participantResponse = await httpClient.GetAsync($"/api/participants?nhsNumber={participantEnrolmentDto.NHSNumber}");
+      var getParticipantResponse = await httpClient.GetAsync($"/api/participants?nhsNumber={participantEnrolmentDto.NHSNumber}");
       logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { participantEnrolmentDto.NHSNumber });
 
-      if (participantResponse.StatusCode != HttpStatusCode.OK)
+      if (getParticipantResponse.StatusCode != HttpStatusCode.OK)
       {
-        logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found, new Participant created", participantEnrolmentDto.NHSNumber);
-        participantResponse = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
-        participantResponse.EnsureSuccessStatusCode();
-        logger.LogInformation("Participant created: {Participant}", new { ParticipantId = participantEnrolmentDto.ParticipantId, NHSNumber = participantEnrolmentDto.NHSNumber });
+        logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found, creating new participant", new { participantEnrolmentDto.NHSNumber });
+        var createParticipantResponse = await httpClient.PostAsJsonAsync($"/api/participants", participantEnrolmentDto);
+        createParticipantResponse.EnsureSuccessStatusCode();
+
+        participant = await createParticipantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+        {
+          PropertyNameCaseInsensitive = true
+        });
+
+        logger.LogInformation("Participant created: {@Participant}", new { participant!.ParticipantId, participantEnrolmentDto.NHSNumber });
       }
 
-      participant = await participantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+      participant = await getParticipantResponse.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
 
-      participantEnrolmentDto.ParticipantId = participant.ParticipantId;
+      participantEnrolmentDto.ParticipantId = participant!.ParticipantId;
 
       var createEnrolmentResponse = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", participantEnrolmentDto);
       createEnrolmentResponse.EnsureSuccessStatusCode();
@@ -81,7 +87,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Failed to create Enrolment for NhsNumber: {@NhsNumber}, on Pathway: {PathwayName}", participantEnrolmentDto.NHSNumber, participantEnrolmentDto.PathwayTypeName);
+      logger.LogError(ex, "Failed to create Enrolment for NhsNumber: {@NhsNumber}, on Pathway: {PathwayName}", new { participantEnrolmentDto.NHSNumber }, participantEnrolmentDto.PathwayTypeName);
       throw;
     }
   }
