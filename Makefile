@@ -184,4 +184,14 @@ endif
 
 	@echo "Cleanup completed."
 
-.PHONY: all web api1 api2 db stop-db stop
+# Run unit tests
+test-unit:
+	@echo "Running unit tests..."
+	@cd $(WEB_DIR) && npm run test
+
+# Run unit test coverage
+test-coverage:
+	@echo "Running unit test coverage..."
+	@cd $(WEB_DIR) && npm run test:coverage
+
+.PHONY: all web api1 api2 db stop-db stop test-unit
