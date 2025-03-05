@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `Access denied - ${process.env.SERVICE_NAME}`,
+  title: `Prove who you are to manage your screening - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
@@ -10,14 +10,18 @@ export default async function Page() {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
-            <h1>Access denied</h1>
-            <p>Sorry you don't have access to this service.</p>
-            <p>This may be for the following reasons:</p>
+            <p>You’ll need to prove who you are to see:</p>
             <ul>
-              <li>You do not have P9 identity level</li>
-              <li>...</li>
-              <li>...</li>
+              <li>what screening you are eligible for</li>
+              <li>when your next screening is due</li>
             </ul>
+            <p>
+              Find you about{" "}
+              <a href="https://help.login.nhs.uk/provewhoyouare">
+                how to prove who you are
+              </a>
+              .
+            </p>
           </div>
         </div>
       </main>
