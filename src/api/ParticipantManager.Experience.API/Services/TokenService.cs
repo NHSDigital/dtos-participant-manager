@@ -49,10 +49,10 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         logger.LogInformation("About to validate access token");
         var result = handler.ValidateToken(token, tokenParams, out var securityToken);
         var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
+        if (string.IsNullOrEmpty(votClaim) || !votClaim.StartsWith("P9"))
         {
           throw new SecurityTokenValidationException($"Invalid VOT claim. Expected P9 but was {votClaim}");
         }
-        if (votClaim.StartsWith("P9"))
         return AccessTokenResult.Success(result);
       }
 
