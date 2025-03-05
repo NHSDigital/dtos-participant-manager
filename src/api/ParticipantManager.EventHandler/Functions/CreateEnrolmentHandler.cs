@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -25,22 +24,23 @@ public class CreateEnrolmentHandler
     _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
       eventGridEvent.Subject);
 
-    CreatePathwayParticipantDto pathwayParticipantDto;
+    CreatePathwayParticipantDto? pathwayParticipantDto;
 
     try
     {
-      JsonSerializerOptions options = new()
-      {
-        ReferenceHandler = ReferenceHandler.Preserve
-      };
-
-      pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(eventGridEvent.Data.ToString(), options);
+      pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(eventGridEvent.Data.ToString());
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Unable to deserialize event data to CreateParticipantEnrolmentDto.");
       return;
     }
+
+    if (pathwayParticipantDto == null)
+    {
+      return;
+    }
+
     var participantDto = await _crudApiClient.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber);
 
     var participantId = participantDto == null

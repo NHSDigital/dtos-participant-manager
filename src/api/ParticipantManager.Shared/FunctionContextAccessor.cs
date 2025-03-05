@@ -1,6 +1,6 @@
 using Microsoft.Azure.Functions.Worker;
 
-namespace ParticipantManager.Experience.API;
+namespace ParticipantManager.Shared;
 
 public class FunctionContextAccessor
 {

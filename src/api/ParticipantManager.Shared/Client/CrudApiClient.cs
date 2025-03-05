@@ -100,7 +100,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     return null;
   }
 
-  public async Task<bool> CreatePathwayEnrolmentAsync(CreatePathwayEnrolmentDto pathwayEnrolmentDto)
+  public async Task CreatePathwayEnrolmentAsync(CreatePathwayEnrolmentDto pathwayEnrolmentDto)
   {
     logger.LogInformation($"Running {nameof(CreatePathwayEnrolmentAsync)}");
 
@@ -109,12 +109,10 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       var response = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", pathwayEnrolmentDto);
       response.EnsureSuccessStatusCode();
       logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}", pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
-      return true;
     }
     catch (Exception ex)
     {
       logger.LogError(ex, "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayName}", new { pathwayEnrolmentDto.ParticipantId }, pathwayEnrolmentDto.PathwayTypeName);
-      return false;
     }
   }
 }
