@@ -1,4 +1,4 @@
-import NextAuth, { Profile, User as NextAuthUser } from "next-auth";
+import NextAuth, { Profile } from "next-auth";
 import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedToken } from "@/app/types/auth";

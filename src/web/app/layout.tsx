@@ -1,7 +1,6 @@
-import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import Footer from "@/app/components/footer";
-import "./globals.scss";
+import "@/app/globals.scss";
 
 export default function RootLayout({
   children,

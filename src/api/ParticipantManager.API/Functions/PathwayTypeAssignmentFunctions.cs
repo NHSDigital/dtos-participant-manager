@@ -22,7 +22,7 @@ public class PathwayTypeAssignmentFunctions
 
   [Function("PathwayTypeAssignmentFunctions")]
   public async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "participants/pathwaytypeassignments")]
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "participants/pathwaytypeassignments")]
     HttpRequest req)
   {
     var nhsNumber = req.Query["nhsnumber"].ToString();
@@ -40,7 +40,7 @@ public class PathwayTypeAssignmentFunctions
 
   [Function("GetPathwayAssignmentById")]
   public async Task<IActionResult> GetPathwayAssignmentById(
-    [HttpTrigger(AuthorizationLevel.Function, "get",
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get",
       Route = "participants/pathwaytypeassignments/nhsnumber/{nhsNumber}/assignmentid/{assignmentId:guid}")]
     HttpRequestData req, string nhsNumber, Guid assignmentId)
   {
