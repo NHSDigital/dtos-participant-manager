@@ -3,11 +3,6 @@ import Header from "@/app/components/header";
 import Footer from "@/app/components/footer";
 import "./globals.scss";
 
-export const metadata: Metadata = {
-  title: "UI template",
-  description: "A UI template for Screening services",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -11,19 +11,18 @@ import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
 import Unauthorised from "@/app/components/unauthorised";
 
-
 export async function generateMetadata(): Promise<Metadata> {
   const { auth } = await getAuthConfig();
   const session = await auth();
 
   if (session?.user) {
     return {
-      title: `Bowel screening - ${process.env.SERVICE_NAME}`,
+      title: `Bowel screening - ${process.env.SERVICE_NAME} - NHS`,
     };
   }
 
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME}`,
+    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 

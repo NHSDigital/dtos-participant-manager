@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/app/components/breadcrumb";
 
 export const metadata: Metadata = {
-  title: `Accessibility statement - ${process.env.SERVICE_NAME}`,
+  title: `Accessibility statement - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
