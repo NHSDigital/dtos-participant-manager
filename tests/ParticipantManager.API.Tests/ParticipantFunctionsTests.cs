@@ -185,7 +185,7 @@ public class ParticipantFunctionsTests
     var request = CreateMockHttpRequest(functionContext, null);
 
     // Act
-    var response = await function.GetPathwayEnrolmentById(request, enrolmentId);
+    var response = await function.GetPathwayTypeEnrolmentById(request, enrolmentId);
 
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);

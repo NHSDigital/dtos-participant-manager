@@ -1,6 +1,6 @@
 namespace ParticipantManager.Shared.DTOs;
 
-public class EnrolledPathwayDetailsDTO
+public class EnrolledPathwayDetailsDto
 {
   public Guid EnrolmentId { get; set; }
   public DateTime EnrolmentDate { get; set; }

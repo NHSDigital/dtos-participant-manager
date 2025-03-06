@@ -1,7 +1,4 @@
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -26,11 +23,13 @@ public class PathwayTypeEnrolmentFunctions
     _dbContext = dbContext;
   }
 
-  [Function("PathwayTypeEnrolmentFunctions")]
-  public async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "participants/pathwaytypeenrolments")]
+  [Function("GetPathwayTypeEnrolmentsByNhsNumber")]
+  public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
+    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "pathwaytypeenrolments")]
     HttpRequest req)
   {
+    _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
+
     var nhsNumber = req.Query["nhsnumber"].ToString();
 
     if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
@@ -44,13 +43,13 @@ public class PathwayTypeEnrolmentFunctions
     return new OkObjectResult(pathwayTypeEnrolments);
   }
 
-  [Function("GetPathwayEnrolmentById")]
-  public async Task<IActionResult> GetPathwayEnrolmentById(
+  [Function("GetPathwayTypeEnrolmentById")]
+  public async Task<IActionResult> GetPathwayTypeEnrolmentById(
     [HttpTrigger(AuthorizationLevel.Function, "get",
       Route = "pathwaytypeenrolments/{enrolmentId:guid}")]
     HttpRequestData req, Guid enrolmentId)
   {
-    _logger.LogInformation("C# HTTP trigger function GetPathwayEnrolmentById processed a request.");
+    _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentById)} processed a request.");
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
       .Where(p => p.EnrolmentId == enrolmentId)
@@ -61,17 +60,17 @@ public class PathwayTypeEnrolmentFunctions
     return new OkObjectResult(pathwayTypeEnrolments);
   }
 
-  [Function("CreatePathwayEnrolment")]
-  public async Task<IActionResult> CreatePathwayEnrolment([HttpTrigger(AuthorizationLevel.Function, "post", Route = "participants/pathwayenrolment")]
+  [Function("CreatePathwayTypeEnrolment")]
+  public async Task<IActionResult> CreatePathwayTypeEnrolment([HttpTrigger(AuthorizationLevel.Function, "post", Route = "pathwaytypeenrolment")]
     HttpRequestData req)
   {
-    _logger.LogInformation("C# HTTP trigger function CreatePathwayEnrolment processed a request.");
+    _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
 
-    CreatePathwayEnrolmentDto participantEnrolmentDto = new CreatePathwayEnrolmentDto();
+    CreatePathwayTypeEnrolmentDto participantEnrolmentDto = new CreatePathwayTypeEnrolmentDto();
 
     try
     {
-      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreatePathwayEnrolmentDto>(req.Body,
+      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreatePathwayTypeEnrolmentDto>(req.Body,
         new JsonSerializerOptions
         {
           PropertyNameCaseInsensitive = true

@@ -92,7 +92,7 @@ public class ScreeningEligibilityFunctionTests
     // Assert
 
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayEnrolmentDTO>)response?.Value).Count);
+    Assert.Equal(2, ((List<PathwayEnrolmentDto>)response?.Value).Count);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -106,9 +106,9 @@ public class ScreeningEligibilityFunctionTests
     return request.Object;
   }
 
-  private List<PathwayEnrolmentDTO> MockListPathwayEnrolments()
+  private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
   {
-    return new List<PathwayEnrolmentDTO>
+    return new List<PathwayEnrolmentDto>
     {
       new()
       {

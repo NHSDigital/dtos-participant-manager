@@ -7,14 +7,14 @@ namespace ParticipantManager.Shared.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
-  public async Task<List<PathwayEnrolmentDTO>?> GetPathwayEnrolmentsAsync(string nhsNumber)
+  public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(string nhsNumber)
   {
     logger.LogInformation("GetPathwayEnrolmentsAsync");
     try
     {
       var response = await httpClient.GetAsync($"/api/participants/pathwaytypeenrolments?nhsnumber={nhsNumber}");
       response.EnsureSuccessStatusCode();
-      return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDTO>>(new JsonSerializerOptions
+      return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
@@ -26,17 +26,15 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task<EnrolledPathwayDetailsDTO?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
+  public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
   {
     logger.LogInformation("GetPathwayEnrolmentByIdAsync");
     try
     {
-      var response =
-        await httpClient.GetAsync(
-          $"/api/participants/pathwaytypeenrolments/nhsnumber/{nhsNumber}/enrolmentid/{enrolmentId}");
+      var response = await httpClient.GetAsync($"/api/pathwaytypeenrolments/{enrolmentId}");
       response.EnsureSuccessStatusCode();
 
-      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDTO>(new JsonSerializerOptions
+      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
@@ -48,7 +46,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task<ParticipantDTO?> GetParticipantByNhsNumberAsync(string nhsNumber)
+  public async Task<ParticipantDto?> GetParticipantByNhsNumberAsync(string nhsNumber)
   {
     logger.LogInformation($"Running {nameof(GetParticipantByNhsNumberAsync)}");
 
@@ -61,7 +59,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       return null;
     }
 
-    var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+    var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(new JsonSerializerOptions
     {
       PropertyNameCaseInsensitive = true
     });
@@ -70,7 +68,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     return participant;
   }
 
-  public async Task<Guid?> CreateParticipantAsync(ParticipantDTO participantDto)
+  public async Task<Guid?> CreateParticipantAsync(ParticipantDto participantDto)
   {
     logger.LogInformation($"Running {nameof(CreateParticipantAsync)}");
 
@@ -81,7 +79,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
 
       logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NHSNumber });
 
-      var participant = await response.Content.ReadFromJsonAsync<ParticipantDTO>(new JsonSerializerOptions
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });
@@ -100,19 +98,19 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     return null;
   }
 
-  public async Task CreatePathwayEnrolmentAsync(CreatePathwayEnrolmentDto pathwayEnrolmentDto)
+  public async Task CreatePathwayTypeEnrolmentAsync(CreatePathwayTypeEnrolmentDto pathwayTypeEnrolmentDto)
   {
-    logger.LogInformation($"Running {nameof(CreatePathwayEnrolmentAsync)}");
+    logger.LogInformation($"Running {nameof(CreatePathwayTypeEnrolmentAsync)}");
 
     try
     {
-      var response = await httpClient.PostAsJsonAsync($"/api/participants/pathwayEnrolment", pathwayEnrolmentDto);
+      var response = await httpClient.PostAsJsonAsync($"/api/pathwaytypeenrolment", pathwayTypeEnrolmentDto);
       response.EnsureSuccessStatusCode();
-      logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}", pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
+      logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}", pathwayTypeEnrolmentDto.ParticipantId, pathwayTypeEnrolmentDto.PathwayTypeName);
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayName}", new { pathwayEnrolmentDto.ParticipantId }, pathwayEnrolmentDto.PathwayTypeName);
+      logger.LogError(ex, "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayName}", new { pathwayTypeEnrolmentDto.ParticipantId }, pathwayTypeEnrolmentDto.PathwayTypeName);
     }
   }
 }

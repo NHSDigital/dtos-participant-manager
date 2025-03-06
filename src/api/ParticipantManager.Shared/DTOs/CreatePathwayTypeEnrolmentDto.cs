@@ -1,6 +1,6 @@
 namespace ParticipantManager.Shared.DTOs;
 
-public class CreatePathwayEnrolmentDto
+public class CreatePathwayTypeEnrolmentDto
 {
   public Guid ParticipantId { get; set; }
   public Guid PathwayTypeId { get; set; }

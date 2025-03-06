@@ -1,6 +1,6 @@
 namespace ParticipantManager.Shared.DTOs;
 
-public class ParticipantDTO
+public class ParticipantDto
 {
   public Guid ParticipantId { get; set; }
   public DateTime DOB { get; set; }
