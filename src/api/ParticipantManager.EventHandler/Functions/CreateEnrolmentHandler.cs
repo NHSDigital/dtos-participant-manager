@@ -11,11 +11,13 @@ public class CreateEnrolmentHandler
 {
   private readonly ILogger<CreateEnrolmentHandler> _logger;
   private readonly ICrudApiClient _crudApiClient;
+  private readonly EventGridPublisherClient _eventGridPublisherClient;
 
-  public CreateEnrolmentHandler(ILogger<CreateEnrolmentHandler> logger, ICrudApiClient crudApiClient)
+  public CreateEnrolmentHandler(ILogger<CreateEnrolmentHandler> logger, ICrudApiClient crudApiClient, EventGridPublisherClient eventGridPublisherClient)
   {
     _logger = logger;
     _crudApiClient = crudApiClient;
+    _eventGridPublisherClient = eventGridPublisherClient;
   }
 
   [Function("CreateEnrolmentHandler")]
@@ -55,8 +57,22 @@ public class CreateEnrolmentHandler
       ScreeningName = pathwayParticipantDto.ScreeningName
     };
 
-    await _crudApiClient.CreatePathwayTypeEnrolmentAsync(pathwayEnrolmentDto);
+    var succeeded = await _crudApiClient.CreatePathwayTypeEnrolmentAsync(pathwayEnrolmentDto);
 
+    if (!succeeded)
+    {
+      // Log error
+      return;
+    }
 
+    // Send Event
+    EventGridEvent eventToSend = new EventGridEvent(
+      subject: "PathwayTypeEnrolment",
+      eventType: "Created",
+      dataVersion: "1.0",
+      data: "Test"
+    );
+
+    var result = await _eventGridPublisherClient.SendEventAsync(eventToSend);
   }
 }
