@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Models;
-using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.API.Functions;
 
@@ -68,6 +67,7 @@ public class PathwayTypeEnrolmentFunctions
     _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
 
     PathwayTypeEnrolment pathwayTypeEnrolment;
+    var validationResults = new List<ValidationResult>();
 
     try
     {
@@ -77,31 +77,31 @@ public class PathwayTypeEnrolmentFunctions
           PropertyNameCaseInsensitive = true
         });
 
-
-      // var validationResults = new List<ValidationResult>();
-      // var context = new ValidationContext(participantEnrolmentDto, null, null);
-      // Validator.ValidateObject(participantEnrolmentDto, context, validationResults);
+      var context = new ValidationContext(pathwayTypeEnrolment, null, null);
+      if (!Validator.TryValidateObject(pathwayTypeEnrolment, context, validationResults, true))
+      {
+        var errorMessages = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+        throw new ValidationException($"Failed to validate PathwayTypeEnrolment: {errorMessages}");
+      }
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Unable to deserialize event data to CreateParticipantEnrolmentDto object.");
-      return new BadRequestObjectResult(new List<ValidationResult>());
+      _logger.LogError(ex, "Unable to deserialise/validate PathwayTypeEnrolment object");
+      return new BadRequestObjectResult(validationResults);
     }
 
-    // var pathwayTypeEnrolment = new PathwayTypeEnrolment()
-    // {
-    //   EnrolmentId = Guid.NewGuid(),
-    //   EnrolmentDate = DateTime.UtcNow,
-    //   ParticipantId = participantEnrolmentDto.ParticipantId,
-    //   PathwayTypeId = participantEnrolmentDto.PathwayTypeId,
-    //   ScreeningName = participantEnrolmentDto.ScreeningName,
-    //   PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
-    //   Status = ""
-    // };
+    try
+    {
+      await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
+      await _dbContext.SaveChangesAsync();
 
-    await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
-    await _dbContext.SaveChangesAsync();
-
-    return new CreatedResult($"pathwaytypeenrolments/{pathwayTypeEnrolment.EnrolmentId}", pathwayTypeEnrolment);
+      _logger.LogInformation("Successfully created PathwayTypeEnrolment for Participant", pathwayTypeEnrolment.ParticipantId);
+      return new CreatedResult($"pathwaytypeenrolments/{pathwayTypeEnrolment.EnrolmentId}", pathwayTypeEnrolment);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to save PathwayTypeEnrolment to the database");
+      return new StatusCodeResult(500);
+    }
   }
 }
