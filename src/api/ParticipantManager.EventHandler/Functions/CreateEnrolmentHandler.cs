@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
@@ -61,7 +62,8 @@ public class CreateEnrolmentHandler
 
     if (!succeeded)
     {
-      // Log error
+      _logger.LogError("Failed to create PathwayTypeEnrollment for Participant: {Participant}, PathwayTypeName: {PathwayTypeName}",
+      pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
       return;
     }
 
@@ -74,5 +76,10 @@ public class CreateEnrolmentHandler
     );
 
     var result = await _eventGridPublisherClient.SendEventAsync(eventToSend);
+
+    if (result.Status != (int)HttpStatusCode.OK)
+    {
+      _logger.LogError("Send event has failed, Event details: {SendEvent}", eventToSend);
+    }
   }
 }

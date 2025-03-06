@@ -49,23 +49,30 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
   public async Task<ParticipantDto?> GetParticipantByNhsNumberAsync(string nhsNumber)
   {
     logger.LogInformation($"Running {nameof(GetParticipantByNhsNumberAsync)}");
-
-    var response = await httpClient.GetAsync($"/api/participants?nhsNumber={nhsNumber}");
-    logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { nhsNumber });
-
-    if (!response.IsSuccessStatusCode)
+    try
     {
-      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} not found", new { nhsNumber });
+      var response = await httpClient.GetAsync($"/api/participants?nhsNumber={nhsNumber}");
+      logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { nhsNumber });
+
+      if (!response.IsSuccessStatusCode)
+      {
+        logger.LogError("Participant with NhsNumber: {@NhsNumber} not found", new { nhsNumber });
+        return null;
+      }
+
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true
+      });
+
+      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
+      return participant;
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "{FunctionName} failed to get Participant with {@NhsNumber}", nameof(GetParticipantByNhsNumberAsync), new { nhsNumber });
       return null;
     }
-
-    var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    });
-
-    logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
-    return participant;
   }
 
   public async Task<Guid?> CreateParticipantAsync(ParticipantDto participantDto)
