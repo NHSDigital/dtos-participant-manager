@@ -49,11 +49,11 @@ var host = new HostBuilder()
     {
       if(HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
       {
-        var credentials = new Azure.AzureKeyCredential(Environment.GetEnvironmentVariable("EventGridTopicKey"));
-        return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EventGridTopicUrl")), credentials);
+        var credentials = new Azure.AzureKeyCredential(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_KEY"));
+        return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), credentials);
       }
 
-      return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EventGridTopicUrl")), new ManagedIdentityCredential());
+      return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), new ManagedIdentityCredential());
     });
   })
   .UseSerilog((context, services, loggerConfiguration) =>
