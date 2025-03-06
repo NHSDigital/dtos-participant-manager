@@ -38,7 +38,6 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
       {
         structureProperties.Add(new LogEventProperty(property.Name, new ScalarValue(propertyValue)));
       }
-
     }
 
     result = new StructureValue(structureProperties);
