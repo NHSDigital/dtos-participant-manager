@@ -90,7 +90,7 @@ public class PathwayEnrolmentFunctionTests
     var response = await _function.GetPathwayEnrolmentById(request, "123") as OkObjectResult;
 
     // Assert
-    var pathwayEnrolmentDto = (EnroledPathwayDetailsDTO)response.Value;
+    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDTO)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
     Assert.Equal(pathwayEnrolmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
   }
@@ -107,9 +107,9 @@ public class PathwayEnrolmentFunctionTests
     return request.Object;
   }
 
-  private EnroledPathwayDetailsDTO MockPathwayDetails()
+  private EnrolledPathwayDetailsDTO MockPathwayDetails()
   {
-    return new EnroledPathwayDetailsDTO
+    return new EnrolledPathwayDetailsDTO
     {
       EnrolmentId = new Guid(),
       ScreeningName = "Breast Screening",

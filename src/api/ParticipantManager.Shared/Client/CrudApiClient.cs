@@ -26,7 +26,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task<EnroledPathwayDetailsDTO?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
+  public async Task<EnrolledPathwayDetailsDTO?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
   {
     logger.LogInformation("GetPathwayEnrolmentByIdAsync");
     try
@@ -36,7 +36,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
           $"/api/participants/pathwaytypeenrolments/nhsnumber/{nhsNumber}/enrolmentid/{enrolmentId}");
       response.EnsureSuccessStatusCode();
 
-      return await response.Content.ReadFromJsonAsync<EnroledPathwayDetailsDTO>(new JsonSerializerOptions
+      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDTO>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true
       });

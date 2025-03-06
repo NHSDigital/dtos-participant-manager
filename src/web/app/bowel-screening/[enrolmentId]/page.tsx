@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
-import type { EnroledPathwayItem } from "@/app/types";
+import type { PathwayItem } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
 import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const getPathwayEnrolment = async (
   session: Session | null,
   enrolmentId: string
-): Promise<EnroledPathwayItem | null> => {
+): Promise<PathwayItem | null> => {
   if (!session?.user?.accessToken) {
     console.log("No access token found for pathway enrolment");
     return null;

@@ -3,7 +3,7 @@ export interface EligibilityItem {
   screeningName: string;
 }
 
-export interface EnroledPathwayItem {
+export interface PathwayItem {
   enrolmentId: string;
   enrolmentDate: string;
   status: "Active" | "Inactive";
@@ -14,4 +14,4 @@ export interface EnroledPathwayItem {
 }
 
 export type EligibilityResponse = EligibilityItem[];
-export type PathwayResponse = EnroledPathwayItem;
+export type PathwayResponse = PathwayItem;
