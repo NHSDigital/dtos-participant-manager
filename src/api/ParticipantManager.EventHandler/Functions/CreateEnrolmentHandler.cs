@@ -56,5 +56,7 @@ public class CreateEnrolmentHandler
     };
 
     await _crudApiClient.CreatePathwayTypeEnrolmentAsync(pathwayEnrolmentDto);
+
+
   }
 }

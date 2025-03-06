@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -66,31 +67,37 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
 
-    CreatePathwayTypeEnrolmentDto participantEnrolmentDto = new CreatePathwayTypeEnrolmentDto();
+    PathwayTypeEnrolment pathwayTypeEnrolment;
 
     try
     {
-      participantEnrolmentDto = await JsonSerializer.DeserializeAsync<CreatePathwayTypeEnrolmentDto>(req.Body,
+      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body,
         new JsonSerializerOptions
         {
           PropertyNameCaseInsensitive = true
         });
+
+
+      // var validationResults = new List<ValidationResult>();
+      // var context = new ValidationContext(participantEnrolmentDto, null, null);
+      // Validator.ValidateObject(participantEnrolmentDto, context, validationResults);
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Unable to deserialize event data to CreateParticipantEnrolmentDto object.");
+      return new BadRequestObjectResult(new List<ValidationResult>());
     }
 
-    var pathwayTypeEnrolment = new PathwayTypeEnrolment()
-    {
-      EnrolmentId = Guid.NewGuid(),
-      EnrolmentDate = DateTime.UtcNow,
-      ParticipantId = participantEnrolmentDto.ParticipantId,
-      PathwayTypeId = participantEnrolmentDto.PathwayTypeId,
-      ScreeningName = participantEnrolmentDto.ScreeningName,
-      PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
-      Status = ""
-    };
+    // var pathwayTypeEnrolment = new PathwayTypeEnrolment()
+    // {
+    //   EnrolmentId = Guid.NewGuid(),
+    //   EnrolmentDate = DateTime.UtcNow,
+    //   ParticipantId = participantEnrolmentDto.ParticipantId,
+    //   PathwayTypeId = participantEnrolmentDto.PathwayTypeId,
+    //   ScreeningName = participantEnrolmentDto.ScreeningName,
+    //   PathwayTypeName = participantEnrolmentDto?.PathwayTypeName ?? "",
+    //   Status = ""
+    // };
 
     await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
     await _dbContext.SaveChangesAsync();
