@@ -6,33 +6,28 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Copy only the specific package manager files needed
+COPY package.json ./
+COPY ["package-lock.json", "./"]
 
+# Install dependencies with npm
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY tsconfig.json .
+COPY app/ ./app/
+COPY public/ ./public/
+COPY instrumentation.ts .
+COPY next.config.mjs .
+COPY package.json .
+COPY package-lock.json .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Build the application
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -40,26 +35,30 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED=1
+# Create necessary directories and set up user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    mkdir -p /app/.next/standalone /app/.next/static
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Copy files from builder with secure permissions
+COPY --from=builder --chown=root:root --chmod=444 /app/public ./public
+COPY --from=builder --chown=root:root --chmod=444 /app/.next/standalone ./
+COPY --from=builder --chown=root:root --chmod=444 /app/.next/static ./.next/static
 
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Set execute permissions only where needed
+RUN chown -R root:root /app && \
+    find /app -type d -exec chmod 555 {} + && \
+    find /app -type f -name '*.js' -exec chmod 555 {} + && \
+    find /app -type f -name '*.mjs' -exec chmod 555 {} + && \
+    # Give nextjs user read access to run the application
+    chown -R nextjs:nodejs /app/.next/standalone && \
+    chown -R nextjs:nodejs /app/.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
+
 CMD ["node", "server.js"]
