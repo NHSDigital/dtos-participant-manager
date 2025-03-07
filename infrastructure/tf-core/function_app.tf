@@ -17,7 +17,7 @@ module "functionapp" {
   asp_id                                               = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
   assigned_identity_ids                                = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
   cont_registry_use_mi                                 = var.function_apps.cont_registry_use_mi
-  entra_id_group_ids                                   = each.value.entra_id_group_ids
+  azuread_group_ids                                   = each.value.azuread_group_ids
   function_app_slots                                   = var.function_app_slots
   health_check_path                                    = var.function_apps.health_check_path
   image_name                                           = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
@@ -51,7 +51,7 @@ resource "azuread_group_member" "function_apps" {
   for_each = local.function_app_map
 
   group_object_id  = data.azuread_group.sql_admin_group.object_id
-  member_object_id = each.value.entra_id_group_ids
+  member_object_id = each.value.azuread_group_ids
 }
 
 
@@ -96,7 +96,7 @@ locals {
             } : {}
           )
 
-          entra_id_group_ids = flatten([
+          azuread_group_ids = flatten([
             length(config.db_connection_string) > 0 ? [data.azuread_group.sql_admin_group.object_id] : [],
           ])
 

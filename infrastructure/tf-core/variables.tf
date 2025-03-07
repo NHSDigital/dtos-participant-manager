@@ -190,7 +190,7 @@ variable "function_apps" {
           container_name = string
       })), [])
       db_connection_string      = optional(string, "")
-      entra_id_group_id         = optional(list(string))
+      azuread_group_id          = optional(list(string))
       event_grid_topic_producer = optional(string, "")
       key_vault_url             = optional(string, "")
       app_urls = optional(list(object({
