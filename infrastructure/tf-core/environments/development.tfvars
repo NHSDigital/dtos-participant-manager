@@ -135,8 +135,8 @@ app_service_plan = {
   }
 
   instances = {
-    Default = {}
-    WebApp  = {}
+    FunctionApp = {}
+    WebApp      = {}
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
     # DemographicsService          = {}
@@ -282,7 +282,7 @@ sqlserver = {
   # parman database
   dbs = {
     parman = {
-      db_name_suffix = "ParticipantManagerDB"
+      db_name_suffix = "participant_database"
       collation      = "SQL_Latin1_General_CP1_CI_AS"
       licence_type   = "LicenseIncluded"
       max_gb         = 5
