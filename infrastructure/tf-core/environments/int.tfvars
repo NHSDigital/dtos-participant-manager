@@ -135,8 +135,8 @@ app_service_plan = {
   }
 
   instances = {
-    FunctionApp = {}
-    WebApp      = {}
+    Default = {}
+    WebApp  = {}
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
     # DemographicsService          = {}
@@ -182,14 +182,14 @@ function_apps = {
     ParticipantManager = {
       name_suffix            = "backend-api"
       function_endpoint_name = "ParticipantManager"
-      app_service_plan_key   = "FunctionApp"
+      app_service_plan_key   = "Default"
       db_connection_string   = "ParticipantManagerDatabaseConnectionString"
     }
 
     ParticipantManagerExperience = {
       name_suffix            = "experience-api"
       function_endpoint_name = "ParticipantManagerExperience"
-      app_service_plan_key   = "FunctionApp"
+      app_service_plan_key   = "Default"
       local_urls = {
         CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
       }
