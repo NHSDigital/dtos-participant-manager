@@ -47,13 +47,6 @@ module "functionapp" {
   tags = var.tags
 }
 
-resource "azuread_group_member" "function_apps" {
-  for_each = local.function_app_map
-
-  group_object_id  = data.azuread_group.sql_admin_group.object_id
-  member_object_id = each.value.azuread_group_ids
-}
-
 
 /* -------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
