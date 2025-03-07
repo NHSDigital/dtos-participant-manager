@@ -17,7 +17,7 @@ services:
     networks:
       - backend
 
-    ### ✅ Experience API (Azure Functions in .NET 9) ###
+  ### ✅ Experience API (Azure Functions in .NET 9) ###
   experience-api:
     container_name: "experience-api"
     build:
