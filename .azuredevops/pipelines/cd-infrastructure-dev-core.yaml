@@ -14,7 +14,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 5355ed823cf467148044e7bd40315d98b352ef4c
+      ref: feat/app-services-entra-id-group-memberships
       endpoint: NHSDigital
 
 variables:

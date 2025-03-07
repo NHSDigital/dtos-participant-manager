@@ -17,7 +17,7 @@ module "functionapp" {
   asp_id                                               = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
   assigned_identity_ids                                = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
   cont_registry_use_mi                                 = var.function_apps.cont_registry_use_mi
-  entra_id_group_ids                                   = each.value.entra_id_groups
+  entra_id_group_ids                                   = each.value.entra_id_group_ids
   function_app_slots                                   = var.function_app_slots
   health_check_path                                    = var.function_apps.health_check_path
   image_name                                           = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
