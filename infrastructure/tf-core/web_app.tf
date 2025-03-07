@@ -7,54 +7,37 @@ module "linux_web_app" {
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
-  app_settings = each.value.app_settings
-
+  acr_login_server                                      = data.azurerm_container_registry.acr.login_server
+  acr_mi_client_id                                      = data.azurerm_user_assigned_identity.acr_mi.client_id
+  always_on                                             = var.linux_web_app.always_on
+  app_settings                                          = each.value.app_settings
+  asp_id                                                = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
+  assigned_identity_ids                                 = var.linux_web_app.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+  cont_registry_use_mi                                  = var.linux_web_app.cont_registry_use_mi
+  docker_image_name                                     = "${var.linux_web_app.docker_img_prefix}-${lower(each.value.name_suffix)}:${var.function_apps.docker_env_tag}"
+  health_check_path                                     = var.linux_web_app.health_check_path
+  linux_web_app_slots                                   = var.linux_web_app_slots
   log_analytics_workspace_id                            = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_linux_web_app_enabled_logs = local.monitor_diagnostic_setting_linux_web_app_enabled_logs
   monitor_diagnostic_setting_linux_web_app_metrics      = local.monitor_diagnostic_setting_linux_web_app_metrics
 
-  public_network_access_enabled = var.features.public_network_access_enabled
-  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-webapps"].id
-
-  rbac_role_assignments = each.value.rbac_role_assignments
-
-  asp_id = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
-
-  # Use the storage account assigned identity for the Linux Web Apps:
-  # storage_account_name       = module.storage["webapp-${each.value.region}"].storage_account_name
-  # storage_account_access_key = module.storage["webapp-${each.value.region}"].storage_account_primary_access_key
-  # storage_name               = var.linux_web_app.storage_name
-  # storage_type               = var.linux_web_app.storage_type
-  # share_name                 = var.linux_web_app.share_name
-
-  #To enable health checks for linux web apps
-  health_check_path = var.linux_web_app.health_check_path
-
-  # Use the ACR assigned identity for the Linux Web Apps:
-  cont_registry_use_mi = var.linux_web_app.cont_registry_use_mi
-
-  # Other Linux Web App configuration settings:
-  always_on    = var.linux_web_app.always_on
-  worker_32bit = var.linux_web_app.worker_32bit
-
-  acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
-  acr_login_server = data.azurerm_container_registry.acr.login_server
-
-  # Use the ACR assigned identity for the Linux Web Apps too:
-  assigned_identity_ids = var.linux_web_app.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
-
-  docker_image_name = "${var.linux_web_app.docker_img_prefix}-${lower(each.value.name_suffix)}:${var.function_apps.docker_env_tag}"
-
-  # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region}-app_services"].id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
-    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region].names.subnet}-pep-dmz"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region].names.subnet}-pep-dmz"].id
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  linux_web_app_slots = var.linux_web_app_slots
+  public_network_access_enabled = var.features.public_network_access_enabled
+  rbac_role_assignments         = each.value.rbac_role_assignments
+  # share_name                 = var.linux_web_app.share_name
+  # storage_account_access_key = module.storage["webapp-${each.value.region}"].storage_account_primary_access_key
+  # storage_account_name       = module.storage["webapp-${each.value.region}"].storage_account_name
+  # storage_name               = var.linux_web_app.storage_name
+  # storage_type               = var.linux_web_app.storage_type
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-webapps"].id
+  worker_32bit               = var.linux_web_app.worker_32bit
 
   tags = merge(
     var.tags,
