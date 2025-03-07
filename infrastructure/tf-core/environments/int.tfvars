@@ -182,14 +182,14 @@ function_apps = {
     ParticipantManager = {
       name_suffix            = "backend-api"
       function_endpoint_name = "ParticipantManager"
-      app_service_plan_key   = "Default"
+      app_service_plan_key   = "FunctionApp"
       db_connection_string   = "ParticipantManagerDatabaseConnectionString"
     }
 
     ParticipantManagerExperience = {
       name_suffix            = "experience-api"
       function_endpoint_name = "ParticipantManagerExperience"
-      app_service_plan_key   = "Default"
+      app_service_plan_key   = "FunctionApp"
       local_urls = {
         CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
       }
