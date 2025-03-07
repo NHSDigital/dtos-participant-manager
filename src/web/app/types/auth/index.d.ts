@@ -12,5 +12,7 @@ declare module "next-auth" {
     nhsNumber?: string;
     identityLevel?: string;
     accessToken?: string;
+    expires_at?: number;
+    refreshToken?: string;
   }
 }

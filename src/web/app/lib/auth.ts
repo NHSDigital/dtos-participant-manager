@@ -69,6 +69,7 @@ export async function getAuthConfig() {
   const nhsLoginConfig = await getNhsLoginConfig();
 
   return NextAuth({
+    debug: true,
     providers: [nhsLoginConfig],
     session: {
       strategy: "jwt",
@@ -102,6 +103,8 @@ export async function getAuthConfig() {
           token.nhsNumber = profile.nhs_number;
           token.identityLevel = profile.identity_proofing_level;
           token.accessToken = account?.access_token;
+          token.refreshToken = account?.refresh_token;
+          token.expires_at = account?.expires_at;
         }
         return token;
       },
@@ -115,6 +118,8 @@ export async function getAuthConfig() {
             nhsNumber,
             identityLevel,
             accessToken,
+            refreshToken,
+            expires_at,
           } = token;
 
           Object.assign(session.user, {
@@ -125,6 +130,8 @@ export async function getAuthConfig() {
             nhsNumber,
             identityLevel,
             accessToken,
+            refreshToken,
+            expires_at,
           });
         }
         return session;
@@ -135,6 +142,7 @@ export async function getAuthConfig() {
         const maxAge = 1800; // 30 minutes [Recommended by NHS login]
         const now = Math.floor(Date.now() / 1000);
         session.expires = new Date((now + maxAge) * 1000).toISOString();
+        console.log("Session expires at:", session.user?.expires_at);
       },
     },
     pages: {
