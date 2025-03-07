@@ -51,7 +51,7 @@ resource "azuread_group_member" "function_apps" {
   for_each = local.function_app_map
 
   group_object_id  = data.azuread_group.sql_admin_group.object_id
-  member_object_id = each.value.entra_id_groups
+  member_object_id = each.value.entra_id_group_ids
 }
 
 
