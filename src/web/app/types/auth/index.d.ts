@@ -12,7 +12,10 @@ declare module "next-auth" {
     nhsNumber?: string;
     identityLevel?: string;
     accessToken?: string;
-    expires_at?: number;
+    expiresAt?: number;
     refreshToken?: string;
+  }
+  interface Session {
+    error?: "RefreshTokenError"
   }
 }

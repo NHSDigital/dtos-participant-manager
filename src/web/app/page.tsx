@@ -11,6 +11,7 @@ import InsetText from "@/app/components/insetText";
 import SignInButton from "@/app/components/signInButton";
 import SignOutButton from "@/app/components/signOutButton";
 
+
 export async function generateMetadata(): Promise<Metadata> {
   const { auth } = await getAuthConfig();
   const session = await auth();
@@ -45,6 +46,7 @@ const getEligibility = async (
 export default async function Home() {
   const { auth } = await getAuthConfig();
   const session = await auth();
+
   const eligibility = session?.user ? await getEligibility(session) : null;
 
   return (

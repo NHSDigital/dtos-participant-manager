@@ -49,6 +49,11 @@ export default async function Page(props: {
   const { auth } = await getAuthConfig();
   const session = await auth();
 
+  if (session?.error === "RefreshTokenError") {
+    const { signIn } = await getAuthConfig();
+    await signIn("nhs-login");
+  }
+
   if (!session?.user) return <Unauthorised />;
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];

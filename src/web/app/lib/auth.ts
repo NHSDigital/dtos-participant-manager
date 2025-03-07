@@ -96,7 +96,7 @@ export async function getAuthConfig() {
       },
       async jwt({ token, account, profile }) {
         if (account && profile) {
-          return {
+           return {
             ...token,
             accessToken: account.access_token,
             expiresAt: account.expires_at,
@@ -108,6 +108,7 @@ export async function getAuthConfig() {
           };
         } else if (Date.now() < token.expiresAt * 1000) {
           console.log(`Token is still valid`);
+          console.log(token);
           return token;
         } else {
           try {
@@ -144,6 +145,7 @@ export async function getAuthConfig() {
             };
           } catch (error) {
             console.error("Error refreshing access_token", error);
+            token.error = "RefreshTokenError";
             return token;
           }
         }
@@ -157,7 +159,7 @@ export async function getAuthConfig() {
             identityLevel,
             accessToken,
             refreshToken,
-            expires_at,
+            expiresAt,
           } = token;
 
           Object.assign(session.user, {
@@ -167,18 +169,20 @@ export async function getAuthConfig() {
             identityLevel,
             accessToken,
             refreshToken,
-            expires_at,
+            expiresAt,
           });
         }
+        session.error = token.error;
         return session;
       },
     },
     events: {
-      async session({ session }) {
+      async session({ session, token }) {
         const maxAge = 1800; // 30 minutes [Recommended by NHS login]
         const now = Math.floor(Date.now() / 1000);
         session.expires = new Date((now + maxAge) * 1000).toISOString();
-        console.log("Session expires at:", session.user?.expires_at);
+        console.log("Session - ", session);
+        console.log("Session expires at:", session.user?.expiresAt);
       },
     },
     pages: {
