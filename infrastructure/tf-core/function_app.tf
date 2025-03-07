@@ -97,7 +97,7 @@ locals {
           )
 
           entra_id_group_ids = flatten([
-            length(config.db_connection_string) > 0 ? data.azuread_group.sql_admin_group.object_id : [],
+            length(config.db_connection_string) > 0 ? [data.azuread_group.sql_admin_group.object_id] : [],
           ])
 
           # These RBAC assignments are for the Function Apps only
