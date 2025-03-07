@@ -3,73 +3,57 @@ module "functionapp" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/function-app"
 
-  function_app_name = "${module.regions_config[each.value.region].names.function-app}-${lower(each.value.name_suffix)}"
-
+  function_app_name   = "${module.regions_config[each.value.region].names.function-app}-${lower(each.value.name_suffix)}"
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
-  app_settings = each.value.app_settings
-
+  acr_login_server                                     = data.azurerm_container_registry.acr.login_server
+  acr_mi_client_id                                     = data.azurerm_user_assigned_identity.acr_mi.client_id
+  ai_connstring                                        = data.azurerm_application_insights.ai.connection_string
+  always_on                                            = var.function_apps.always_on
+  app_service_logs_disk_quota_mb                       = var.function_apps.app_service_logs_disk_quota_mb
+  app_service_logs_retention_period_days               = var.function_apps.app_service_logs_retention_period_days
+  app_settings                                         = each.value.app_settings
+  asp_id                                               = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
+  assigned_identity_ids                                = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+  cont_registry_use_mi                                 = var.function_apps.cont_registry_use_mi
+  entra_id_group_ids                                   = each.value.entra_id_groups
+  function_app_slots                                   = var.function_app_slots
+  health_check_path                                    = var.function_apps.health_check_path
+  image_name                                           = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
+  image_tag                                            = var.function_apps.docker_env_tag
+  ip_restriction_default_action                        = var.function_apps.ip_restriction_default_action
+  ip_restrictions                                      = each.value.ip_restrictions
   log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
   monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
 
-  public_network_access_enabled = length(keys(each.value.ip_restrictions)) > 0 ? true : var.features.public_network_access_enabled
-
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
-
-  # rbac_role_assignments = local.rbac_role_assignments[each.value.region]
-  rbac_role_assignments = each.value.rbac_role_assignments
-
-  asp_id = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
-
-  # Use the storage account assigned identity for the Function Apps:
-  storage_account_name          = module.storage["fnapp-${each.value.region}"].storage_account_name
-  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region}"].storage_account_primary_access_key
-  storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
-
-  # Connection string for Application Insights:
-  ai_connstring = data.azurerm_application_insights.ai.connection_string
-
-  # Use the ACR assigned identity for the Function Apps:
-  cont_registry_use_mi = var.function_apps.cont_registry_use_mi
-
-  # Other Function App configuration settings:
-  always_on    = var.function_apps.always_on
-  worker_32bit = var.function_apps.worker_32bit
-
-  acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
-  acr_login_server = data.azurerm_container_registry.acr.login_server
-
-  # Use the ACR assigned identity for the Function Apps too:
-  assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
-
-  image_tag  = var.function_apps.docker_env_tag
-  image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
-
-  # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region}-app_services"].id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
-    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region].names.subnet}-pep"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region].names.subnet}-pep"].id
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  ip_restrictions               = each.value.ip_restrictions
-  ip_restriction_default_action = var.function_apps.ip_restriction_default_action
-
-  function_app_slots = var.function_app_slots
-
-  # To enable health checks for function apps
-  health_check_path = var.function_apps.health_check_path
-
-  # To enable app service log for function apps
-  app_service_logs_retention_period_days = var.function_apps.app_service_logs_retention_period_days
-  app_service_logs_disk_quota_mb         = var.function_apps.app_service_logs_disk_quota_mb
+  public_network_access_enabled = length(keys(each.value.ip_restrictions)) > 0 ? true : var.features.public_network_access_enabled
+  rbac_role_assignments         = each.value.rbac_role_assignments
+  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region}"].storage_account_primary_access_key
+  storage_account_name          = module.storage["fnapp-${each.value.region}"].storage_account_name
+  storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
+  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
+  worker_32bit                  = var.function_apps.worker_32bit
 
   tags = var.tags
 }
+
+resource "azuread_group_member" "function_apps" {
+  for_each = local.function_app_map
+
+  group_object_id  = data.azuread_group.sql_admin_group.object_id
+  member_object_id = each.value.entra_id_groups
+}
+
 
 /* -------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
@@ -111,6 +95,10 @@ locals {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.parman.db_name_suffix}"
             } : {}
           )
+
+          entra_id_group_ids = flatten([
+            length(config.db_connection_string) > 0 ? data.azuread_group.sql_admin_group.object_id : [],
+          ])
 
           # These RBAC assignments are for the Function Apps only
           rbac_role_assignments = flatten([
