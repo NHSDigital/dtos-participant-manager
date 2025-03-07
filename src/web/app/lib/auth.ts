@@ -94,27 +94,65 @@ export async function getAuthConfig() {
 
         return isValidToken;
       },
-      async jwt({ token, user, profile, account }) {
-        if (user && profile) {
-          token.name = `${profile.given_name} ${profile.family_name}`;
-          token.firstName = profile.given_name;
-          token.lastName = profile.family_name;
-          token.dob = profile.birthdate;
-          token.nhsNumber = profile.nhs_number;
-          token.identityLevel = profile.identity_proofing_level;
-          token.accessToken = account?.access_token;
-          token.refreshToken = account?.refresh_token;
-          token.expires_at = account?.expires_at;
+      async jwt({ token, account, profile }) {
+        if (account && profile) {
+          return {
+            ...token,
+            accessToken: account.access_token,
+            expiresAt: account.expires_at,
+            refreshToken: account.refresh_token,
+            firstName: profile.given_name,
+            lastName: profile.family_name,
+            nhsNumber: profile.nhs_number,
+            identityLevel: profile.identity_proofing_level,
+          };
+        } else if (Date.now() < token.expiresAt * 1000) {
+          console.log(`Token is still valid`);
+          return token;
+        } else {
+          try {
+            const response = await fetch(
+              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
+              {
+                method: "POST",
+                body: new URLSearchParams({
+                  client_id: process.env.AUTH_NHSLOGIN_CLIENT_ID!,
+                  client_secret: process.env.AUTH_NHSLOGIN_CLIENT_SECRET!,
+                  grant_type: "refresh_token",
+                  refresh_token: token.refresh_token as string,
+                }),
+              }
+            );
+
+            const tokensOrError = await response.json();
+
+            if (!response.ok) throw tokensOrError;
+
+            const newTokens = tokensOrError as {
+              accessToken: string;
+              expiresIn: number;
+              refreshToken?: string;
+            };
+
+            return {
+              ...token,
+              accessToken: newTokens.accessToken,
+              expiresAt: Math.floor(Date.now() / 1000 + newTokens.expiresIn),
+              refreshToken: newTokens.refreshToken
+                ? newTokens.refreshToken
+                : token.refreshToken,
+            };
+          } catch (error) {
+            console.error("Error refreshing access_token", error);
+            return token;
+          }
         }
-        return token;
       },
       async session({ session, token }) {
         if (session.user) {
           const {
-            name,
             firstName,
             lastName,
-            dob,
             nhsNumber,
             identityLevel,
             accessToken,
@@ -123,10 +161,8 @@ export async function getAuthConfig() {
           } = token;
 
           Object.assign(session.user, {
-            name,
             firstName,
             lastName,
-            dob,
             nhsNumber,
             identityLevel,
             accessToken,
