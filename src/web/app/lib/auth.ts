@@ -147,16 +147,6 @@ export async function getAuthConfig() {
             identityLevel: profile.identity_proofing_level,
           };
         } else if (Date.now() == token.expiresAt * 1000) {
-<<<<<<< Updated upstream
-          console.log(`Token is still valid`);
-          console.log(token);
-          return token;
-        } else {
-          try {
-            console.log("original token:" + token);
-            console.log("body client_id:" + process.env.AUTH_NHSLOGIN_CLIENT_ID);
-            console.log("body client_secret:" + process.env.AUTH_NHSLOGIN_CLIENT_SECRET);
-=======
           return token;
         } else {
           try {
@@ -170,7 +160,6 @@ export async function getAuthConfig() {
               client_assertion: clientAssertion,
             };
 
->>>>>>> Stashed changes
             const response = await fetch(
               `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
               {
