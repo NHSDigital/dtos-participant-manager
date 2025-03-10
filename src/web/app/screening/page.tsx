@@ -52,7 +52,7 @@ export default async function Page(props: {
 
   if (session?.error === "RefreshTokenError") {
     const { signIn } = await getAuthConfig();
-    await signIn("nhs-login");
+    //await signIn("nhs-login");
   }
 
   if (!session?.user) return <Unauthorised />;
