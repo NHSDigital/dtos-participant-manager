@@ -11,11 +11,13 @@ import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils"
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 
-
+const fetchSession = async () => {
+  const { auth } = await getAuthConfig();
+  return auth();
+};
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { auth } = await getAuthConfig();
-  const session = await auth();
+  const session = await fetchSession();
 
   console.log("generateMetadata");
 
@@ -49,10 +51,10 @@ const getEligibility = async (
 export default async function Page(props: {
   params: Promise<{ assignmentId: string }>;
 }) {
-  const { auth, signOut } = await getAuthConfig();
-  const session = await auth();
+  const session = await fetchSession();
 
   if (session?.error === "RefreshTokenError") {
+    const { signOut } = await getAuthConfig();
     await signOut();
   }
 
