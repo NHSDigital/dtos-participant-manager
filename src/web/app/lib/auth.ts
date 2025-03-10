@@ -5,6 +5,7 @@ import { DecodedToken } from "@/app/types/auth";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
+  console.log("pemToPrivateKey");
   const pem = process.env.AUTH_NHSLOGIN_CLIENT_SECRET;
 
   if (!pem) {
