@@ -106,12 +106,15 @@ export async function getAuthConfig() {
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
           };
-        } else if (Date.now() < token.expiresAt * 1000) {
+        } else if (Date.now() == token.expiresAt * 1000) {
           console.log(`Token is still valid`);
           console.log(token);
           return token;
         } else {
           try {
+            console.log("original token:" + token);
+            console.log("body client_id:" + process.env.AUTH_NHSLOGIN_CLIENT_ID);
+            console.log("body client_secret:" + process.env.AUTH_NHSLOGIN_CLIENT_SECRET);
             const response = await fetch(
               `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
               {
@@ -124,8 +127,10 @@ export async function getAuthConfig() {
                 }),
               }
             );
+            console.log(response);
 
             const tokensOrError = await response.json();
+            console.log(tokensOrError);
 
             if (!response.ok) throw tokensOrError;
 
