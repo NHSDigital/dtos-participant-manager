@@ -17,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const { auth } = await getAuthConfig();
   const session = await auth();
 
+  console.log("generateMetadata");
+
   if (session?.user) {
     return {
       title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
@@ -47,18 +49,16 @@ const getEligibility = async (
 export default async function Page(props: {
   params: Promise<{ assignmentId: string }>;
 }) {
-  const { auth } = await getAuthConfig();
+  const { auth, signOut } = await getAuthConfig();
   const session = await auth();
 
   if (session?.error === "RefreshTokenError") {
-    const { signOut } = await getAuthConfig();
     await signOut();
   }
 
   if (!session?.user) return <Unauthorised />;
 
   const eligibility = session?.user ? await getEligibility(session) : null;
-
 
   return (
           <main className="nhsuk-main-wrapper" id="maincontent" role="main">

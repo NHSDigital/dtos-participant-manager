@@ -109,6 +109,8 @@ async function generateClientAssertion(): Promise<string> {
 export async function getAuthConfig() {
   const nhsLoginConfig = await getNhsLoginConfig();
 
+  console.log("getAuthConfig");
+
   return NextAuth({
     debug: true,
     providers: [nhsLoginConfig],
