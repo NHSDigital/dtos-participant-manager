@@ -11,24 +11,11 @@ import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils"
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 
-const fetchSession = async () => {
-  const { auth } = await getAuthConfig();
-  return auth();
-};
+ let cachedSession: Session | null = null;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const session = await fetchSession();
-
-  console.log("generateMetadata");
-
-  if (session?.user) {
-    return {
-      title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
-    };
-  }
-
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
+    title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 
@@ -51,16 +38,17 @@ const getEligibility = async (
 export default async function Page(props: {
   params: Promise<{ assignmentId: string }>;
 }) {
-  const session = await fetchSession();
+  const { auth } = await getAuthConfig();
+  let cachedSession = await auth();
 
-  if (session?.error === "RefreshTokenError") {
+  if (cachedSession?.error === "RefreshTokenError") {
     const { signOut } = await getAuthConfig();
     await signOut();
   }
 
-  if (!session?.user) return <Unauthorised />;
+  if (!cachedSession?.user) return <Unauthorised />;
 
-  const eligibility = session?.user ? await getEligibility(session) : null;
+  const eligibility = cachedSession?.user ? await getEligibility(cachedSession) : null;
 
   return (
           <main className="nhsuk-main-wrapper" id="maincontent" role="main">
@@ -94,8 +82,8 @@ export default async function Page(props: {
                 </p>
                 <hr />
                 <p>
-                  Logged in as {session.user.firstName} {session.user.lastName}{" "}
-                  ({session.user.nhsNumber})
+                  Logged in as {cachedSession.user.firstName} {cachedSession.user.lastName}{" "}
+                  ({cachedSession.user.nhsNumber})
                 </p>
                 <SignOutButton />
               </div>

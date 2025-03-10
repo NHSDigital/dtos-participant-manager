@@ -3,6 +3,8 @@ import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedToken } from "@/app/types/auth";
 
+
+
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
   console.log("pemToPrivateKey");
@@ -146,7 +148,7 @@ export async function getAuthConfig() {
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
           };
-        } else if (Date.now() == token.expiresAt * 1000) {
+        } else if (Date.now() < token.expiresAt * 1000) {
           return token;
         } else {
           try {
