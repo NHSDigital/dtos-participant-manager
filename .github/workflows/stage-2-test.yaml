@@ -41,15 +41,28 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v4
         with:
-          submodules: 'true'
+          submodules: "true"
       - name: "Setup dotnet"
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: "9.x"
       - name: "Run unit test suite"
         run: |
           make test-unit
       - name: "Save the result of fast test suite"
+        run: |
+          echo "Nothing to save"
+  test-e2e:
+    name: "End-to-end tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run end-to-end test suite"
+        run: |
+          make test-e2e
+      - name: "Save the result of end-to-end test suite"
         run: |
           echo "Nothing to save"
   test-lint:
