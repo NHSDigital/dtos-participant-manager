@@ -7,7 +7,7 @@ export default function SignInButton() {
       action={async () => {
         "use server";
         const { signIn } = await getAuthConfig();
-        await signIn("nhs-login");
+        await signIn("nhs-login", { redirectTo: '/screening' });
       }}
     >
       <button
