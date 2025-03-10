@@ -33,14 +33,12 @@ async function pemToPrivateKey(): Promise<CryptoKey | null> {
 }
 
 // Function to retrieve the client private key dynamically
-async function getClientPrivateKey(): Promise<CryptoKey | null> {
-  return await pemToPrivateKey();
-}
+// async function getClientPrivateKey(): Promise<CryptoKey | null> {
+//   return await pemToPrivateKey();
+// }
 
 // Function to configure NHS Login dynamically
 async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
-  const clientPrivateKey = await getClientPrivateKey();
-
   return {
     id: "nhs-login",
     name: "NHS login authentication",
@@ -59,14 +57,13 @@ async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
       userinfo_signed_response_alg: "RS512",
     },
     token: {
-      clientPrivateKey: clientPrivateKey,
+      clientPrivateKey: await pemToPrivateKey(),
     },
     checks: [],
   };
 }
 
-async function generateClientAssertion(): Promise<string> {
-  const privateKey = await pemToPrivateKey();
+async function generateClientAssertion(privateKey): Promise<string> {
   if (!privateKey) throw new Error("Failed to load private key");
 
   const now = Math.floor(Date.now() / 1000);
@@ -153,7 +150,7 @@ export async function getAuthConfig() {
           return token;
         } else {
           try {
-            const clientAssertion = await generateClientAssertion();
+            const clientAssertion = await generateClientAssertion(await pemToPrivateKey());
 
             const requestBody = {
               grant_type: "refresh_token",
