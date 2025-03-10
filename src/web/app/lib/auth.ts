@@ -64,6 +64,46 @@ async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
   };
 }
 
+async function generateClientAssertion(): Promise<string> {
+  const privateKey = await pemToPrivateKey();
+  if (!privateKey) throw new Error("Failed to load private key");
+
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: process.env.AUTH_NHSLOGIN_CLIENT_ID,
+    sub: process.env.AUTH_NHSLOGIN_CLIENT_ID,
+    aud: `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
+    jti: crypto.randomUUID(),
+    exp: now + 300, // 5 minutes from now
+    iat: now,
+  };
+
+  // Create the JWT header
+  const header = { alg: "RS512", typ: "JWT" };
+
+  // Encode header and payload
+  const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
+    "base64url"
+  );
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+    "base64url"
+  );
+
+  // Create signature input
+  const signatureInput = `${encodedHeader}.${encodedPayload}`;
+
+  // Sign the input
+  const signature = await crypto.subtle.sign(
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-512" },
+    privateKey,
+    new TextEncoder().encode(signatureInput)
+  );
+
+  // Encode signature and create final JWT
+  const encodedSignature = Buffer.from(signature).toString("base64url");
+  return `${signatureInput}.${encodedSignature}`;
+}
+
 // Function to initialize NextAuth dynamically
 export async function getAuthConfig() {
   const nhsLoginConfig = await getNhsLoginConfig();
@@ -96,7 +136,7 @@ export async function getAuthConfig() {
       },
       async jwt({ token, account, profile }) {
         if (account && profile) {
-           return {
+          return {
             ...token,
             accessToken: account.access_token,
             expiresAt: account.expires_at,
@@ -107,6 +147,7 @@ export async function getAuthConfig() {
             identityLevel: profile.identity_proofing_level,
           };
         } else if (Date.now() == token.expiresAt * 1000) {
+<<<<<<< Updated upstream
           console.log(`Token is still valid`);
           console.log(token);
           return token;
@@ -115,16 +156,26 @@ export async function getAuthConfig() {
             console.log("original token:" + token);
             console.log("body client_id:" + process.env.AUTH_NHSLOGIN_CLIENT_ID);
             console.log("body client_secret:" + process.env.AUTH_NHSLOGIN_CLIENT_SECRET);
+=======
+          return token;
+        } else {
+          try {
+            const clientAssertion = await generateClientAssertion();
+
+            const requestBody = {
+              grant_type: "refresh_token",
+              refresh_token: token.refreshToken as string,
+              client_assertion_type:
+                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+              client_assertion: clientAssertion,
+            };
+
+>>>>>>> Stashed changes
             const response = await fetch(
               `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
               {
                 method: "POST",
-                body: new URLSearchParams({
-                  client_id: process.env.AUTH_NHSLOGIN_CLIENT_ID!,
-                  client_secret: process.env.AUTH_NHSLOGIN_CLIENT_SECRET!,
-                  grant_type: "refresh_token",
-                  refresh_token: token.refresh_token as string,
-                }),
+                body: new URLSearchParams(requestBody),
               }
             );
             console.log(response);
@@ -135,15 +186,15 @@ export async function getAuthConfig() {
             if (!response.ok) throw tokensOrError;
 
             const newTokens = tokensOrError as {
-              accessToken: string;
-              expiresIn: number;
+              access_token: string;
+              expires_in: number;
               refreshToken?: string;
             };
 
             return {
               ...token,
-              accessToken: newTokens.accessToken,
-              expiresAt: Math.floor(Date.now() / 1000 + newTokens.expiresIn),
+              accessToken: newTokens.access_token,
+              expiresAt: Math.floor(Date.now() / 1000 + newTokens.expires_in),
               refreshToken: newTokens.refreshToken
                 ? newTokens.refreshToken
                 : token.refreshToken,
@@ -186,8 +237,6 @@ export async function getAuthConfig() {
         const maxAge = 1800; // 30 minutes [Recommended by NHS login]
         const now = Math.floor(Date.now() / 1000);
         session.expires = new Date((now + maxAge) * 1000).toISOString();
-        console.log("Session - ", session);
-        console.log("Session expires at:", session.user?.expiresAt);
       },
     },
     pages: {
