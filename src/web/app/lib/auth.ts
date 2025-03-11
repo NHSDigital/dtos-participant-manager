@@ -141,7 +141,6 @@ export async function getAuthConfig() {
             identityLevel: profile.identity_proofing_level,
           };
         } else if (Date.now() < (token.expiresAt as number) * 1000) {
-          token.error = "RefreshTokenError";
           return token;
         } else {
           try {
@@ -184,8 +183,8 @@ export async function getAuthConfig() {
             };
           } catch (error) {
             logger.error("Error refreshing access_token", error);
-            token.error = "RefreshTokenError";
-            return token;
+            //Returning null here, which effectively blats the session.
+            return null;
           }
         }
       },
