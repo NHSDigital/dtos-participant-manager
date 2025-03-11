@@ -2,16 +2,16 @@ import NextAuth, { Profile } from "next-auth";
 import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedToken } from "@/app/types/auth";
-
-
+import { logger } from "./logger";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
-  console.log("pemToPrivateKey");
   const pem = process.env.AUTH_NHSLOGIN_CLIENT_SECRET;
 
   if (!pem) {
-    console.warn("Could not get secret from Azure Key Vault");
+    logger.error(
+      "No secret environment variable passed in AUTH_NHSLOGIN_CLIENT_SECRET"
+    );
     return null;
   }
 
@@ -33,11 +33,6 @@ async function pemToPrivateKey(): Promise<CryptoKey | null> {
     ["sign"]
   );
 }
-
-// Function to retrieve the client private key dynamically
-// async function getClientPrivateKey(): Promise<CryptoKey | null> {
-//   return await pemToPrivateKey();
-// }
 
 // Function to configure NHS Login dynamically
 async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
@@ -61,11 +56,12 @@ async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
     token: {
       clientPrivateKey: await pemToPrivateKey(),
     },
-    checks: [],
   };
 }
 
-async function generateClientAssertion(privateKey): Promise<string> {
+async function generateClientAssertion(
+  privateKey: CryptoKey | null
+): Promise<string> {
   if (!privateKey) throw new Error("Failed to load private key");
 
   const now = Math.floor(Date.now() / 1000);
@@ -107,11 +103,7 @@ async function generateClientAssertion(privateKey): Promise<string> {
 // Function to initialize NextAuth dynamically
 export async function getAuthConfig() {
   const nhsLoginConfig = await getNhsLoginConfig();
-
-  console.log("getAuthConfig");
-
   return NextAuth({
-    debug: true,
     providers: [nhsLoginConfig],
     session: {
       strategy: "jwt",
@@ -148,12 +140,14 @@ export async function getAuthConfig() {
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
           };
-        } else if (Date.now() < token.expiresAt * 1000) {
+        } else if (Date.now() < (token.expiresAt as number) * 1000) {
           return token;
         } else {
           try {
-            const clientAssertion = await generateClientAssertion(await pemToPrivateKey());
-
+            logger.info("Attempting to retrieve new access token");
+            const clientAssertion = await generateClientAssertion(
+              await pemToPrivateKey()
+            );
             const requestBody = {
               grant_type: "refresh_token",
               refresh_token: token.refreshToken as string,
@@ -169,10 +163,7 @@ export async function getAuthConfig() {
                 body: new URLSearchParams(requestBody),
               }
             );
-            console.log(response);
-
             const tokensOrError = await response.json();
-            console.log(tokensOrError);
 
             if (!response.ok) throw tokensOrError;
 
@@ -191,7 +182,7 @@ export async function getAuthConfig() {
                 : token.refreshToken,
             };
           } catch (error) {
-            console.error("Error refreshing access_token", error);
+            logger.error("Error refreshing access_token", error);
             token.error = "RefreshTokenError";
             return token;
           }
@@ -219,7 +210,7 @@ export async function getAuthConfig() {
             expiresAt,
           });
         }
-        session.error = token.error;
+        session.error = token.error as "RefreshTokenError" | undefined;
         return session;
       },
     },

@@ -8,10 +8,8 @@ import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
 import Unauthorised from "@/app/components/unauthorised";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
-import { createUrlSlug } from "@/app/lib/utils"
+import { createUrlSlug } from "@/app/lib/utils";
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
-
- let cachedSession: Session | null = null;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -39,49 +37,50 @@ export default async function Page(props: {
   params: Promise<{ assignmentId: string }>;
 }) {
   const { auth } = await getAuthConfig();
-  let cachedSession = await auth();
+  const session = await auth();
 
-  if (!cachedSession?.user) return <Unauthorised />;
+  if (!session?.user) return <Unauthorised />;
 
-  const eligibility = cachedSession?.user ? await getEligibility(cachedSession) : null;
+  const eligibility = session?.user ? await getEligibility(session) : null;
 
   return (
-          <main className="nhsuk-main-wrapper" id="maincontent" role="main">
-            <div className="nhsuk-grid-row">
-              <div className="nhsuk-grid-column-two-thirds">
-                <h1>My screening</h1>
+    <main className="nhsuk-main-wrapper" id="maincontent" role="main">
+      <div className="nhsuk-grid-row">
+        <div className="nhsuk-grid-column-two-thirds">
+          <h1>My screening</h1>
 
-                {eligibility?.length ? (
-                  eligibility.map((item: EligibilityItem) => {
-                    const url = `${createUrlSlug(item.screeningName)}/${
-                      item.assignmentId
-                    }`;
-                    return (
-                      <Card
-                        key={item.assignmentId}
-                        title={item.screeningName}
-                        url={url}
-                      />
-                    );
-                  })
-                ) : (
-                  <InsetText text="You have no screening assignments." />
-                )}
+          {eligibility?.length ? (
+            eligibility.map((item: EligibilityItem) => {
+              const url = `${createUrlSlug(item.screeningName)}/${
+                item.assignmentId
+              }`;
+              return (
+                <Card
+                  key={item.assignmentId}
+                  title={item.screeningName}
+                  url={url}
+                />
+              );
+            })
+          ) : (
+            <InsetText text="You have no screening assignments." />
+          )}
 
-                <p>
-                  Find out more information about{" "}
-                  <a href="https://www.nhs.uk/conditions/nhs-screening/">
-                    other screening done by the NHS
-                  </a>
-                  .
-                </p>
-                <hr />
-                <p>
-                  Logged in as {cachedSession.user.firstName} {cachedSession.user.lastName}{" "}
-                  ({cachedSession.user.nhsNumber})
-                </p>
-                <SignOutButton />
-              </div>
-            </div>
-          </main>
-      )}
+          <p>
+            Find out more information about{" "}
+            <a href="https://www.nhs.uk/conditions/nhs-screening/">
+              other screening done by the NHS
+            </a>
+            .
+          </p>
+          <hr />
+          <p>
+            Logged in as {session.user.firstName} {session.user.lastName} (
+            {session.user.nhsNumber})
+          </p>
+          <SignOutButton />
+        </div>
+      </div>
+    </main>
+  );
+}
