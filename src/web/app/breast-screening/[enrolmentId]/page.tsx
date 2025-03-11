@@ -17,12 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `Breast screening - ${process.env.SERVICE_NAME}`,
+      title: `Breast screening - ${process.env.SERVICE_NAME} - NHS`,
     };
   }
 
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME}`,
+    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 
@@ -67,11 +67,11 @@ export default async function Page(props: {
             <h1>Breast screening</h1>
             {pathwayEnrolment?.nextActionDate ? (
               <InsetText
-                text={`Your next ${pathwayEnrolment.screeningName} invitation will be approximately`}
+                text={`Your next ${pathwayEnrolment.screeningName} is due by`}
                 date={pathwayEnrolment.nextActionDate}
               />
             ) : (
-              <InsetText text="You have no upcoming breast screening invitations." />
+              <InsetText text={`You have no upcoming invitations.`} />
             )}
             {pathwayEnrolment?.infoUrl && (
               <Card

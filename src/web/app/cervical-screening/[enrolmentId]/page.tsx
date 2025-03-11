@@ -17,12 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `Cervical screening - ${process.env.SERVICE_NAME}`,
+      title: `Cervical screening - ${process.env.SERVICE_NAME} - NHS`,
     };
   }
 
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME}`,
+    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 

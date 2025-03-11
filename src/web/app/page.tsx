@@ -17,12 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `My screening - ${process.env.SERVICE_NAME}`,
+      title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
     };
   }
 
   return {
-    title: `${process.env.SERVICE_NAME}`,
+    title: `${process.env.SERVICE_NAME} - NHS`,
   };
 }
 
@@ -54,17 +54,11 @@ export default async function Home() {
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-two-thirds">
               <h1>{process.env.SERVICE_NAME}</h1>
-              <p>Use this service to do something.</p>
-              <p>You can use this service if you:</p>
+              <p>Use this service to see:</p>
               <ul>
-                <li>live in England</li>
-                <li>need to get a thing</li>
-                <li>need to change a thing</li>
+                <li>what screening you are eligible for</li>
+                <li>when your next appointment is due</li>
               </ul>
-
-              <h2>Before you start</h2>
-
-              <p>We'll ask you for: ...</p>
 
               <SignInButton />
 
