@@ -10,11 +10,9 @@ import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: `Bowel screening - ${process.env.SERVICE_NAME} - NHS`,
-  };
-}
+export const metadata: Metadata = {
+  title: `Bowel screening -- ${process.env.SERVICE_NAME} - NHS`,
+};
 
 const getPathwayAssignment = async (
   session: Session | null,
@@ -34,7 +32,7 @@ const getPathwayAssignment = async (
 };
 
 export default async function Page(props: {
-  params: Promise<{ assignmentId: string }>;
+  readonly params: Promise<{ readonly assignmentId: string }>;
 }) {
   const { auth } = await getAuthConfig();
   const session = await auth();

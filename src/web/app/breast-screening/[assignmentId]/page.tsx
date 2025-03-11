@@ -10,11 +10,9 @@ import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: `Breast screening - ${process.env.SERVICE_NAME} - NHS`,
-  };
-}
+export const metadata: Metadata = {
+  title: `Breast screening -- ${process.env.SERVICE_NAME} - NHS`,
+};
 
 const getPathwayAssignment = async (
   session: Session | null,

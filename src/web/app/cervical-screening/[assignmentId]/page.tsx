@@ -9,22 +9,10 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
-import Unauthorised from "@/app/components/unauthorised";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { auth } = await getAuthConfig();
-  const session = await auth();
-
-  if (session?.user) {
-    return {
-      title: `Cervical screening - ${process.env.SERVICE_NAME} - NHS`,
-    };
-  }
-
-  return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
-  };
-}
+export const metadata: Metadata = {
+  title: `Cervical screening -- ${process.env.SERVICE_NAME} - NHS`,
+};
 
 const getPathwayAssignment = async (
   session: Session | null,
@@ -54,8 +42,6 @@ export default async function Page(props: {
     await signIn("nhs-login");
   }
 
-  if (!session?.user) return <Unauthorised />;
-
   const breadcrumbItems = [{ label: "Home", url: "/Screening" }];
   const params = await props.params;
   const assignmentId = params.assignmentId;
@@ -84,7 +70,7 @@ export default async function Page(props: {
                 url={pathwayAssignment.infoUrl}
               />
             )}
-            {session.user && (
+            {session?.user && (
               <>
                 <hr />
                 <p>

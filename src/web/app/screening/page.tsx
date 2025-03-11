@@ -68,12 +68,16 @@ export default async function Page() {
             </a>
             .
           </p>
-          <hr />
-          <p>
-            Logged in as {session.user.firstName} {session.user.lastName} (
-            {session.user.nhsNumber})
-          </p>
-          <SignOutButton />
+          {session?.user && (
+            <>
+              <hr />
+              <p>
+                Logged in as {session.user?.firstName} {session.user?.lastName}{" "}
+                ({session.user?.nhsNumber})
+              </p>
+              <SignOutButton />
+            </>
+          )}
         </div>
       </div>
     </main>
