@@ -12,17 +12,8 @@ import SignOutButton from "@/app/components/signOutButton";
 import Unauthorised from "@/app/components/unauthorised";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { auth } = await getAuthConfig();
-  const session = await auth();
-
-  if (session?.user) {
-    return {
-      title: `Bowel screening - ${process.env.SERVICE_NAME} - NHS`,
-    };
-  }
-
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
+    title: `Bowel screening - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 
@@ -48,14 +39,6 @@ export default async function Page(props: {
 }) {
   const { auth } = await getAuthConfig();
   const session = await auth();
-
-  if (session?.error === "RefreshTokenError") {
-    const { signIn } = await getAuthConfig();
-    await signIn("nhs-login");
-  }
-
-  if (!session?.user) return <Unauthorised />;
-
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const params = await props.params;
   const assignmentId = params.assignmentId;
@@ -84,12 +67,12 @@ export default async function Page(props: {
                 url={pathwayAssignment.infoUrl}
               />
             )}
-            {session.user && (
+            {session?.user && (
               <>
                 <hr />
                 <p>
-                  Logged in as {session.user?.firstName}{" "}
-                  {session.user?.lastName} ({session.user?.nhsNumber})
+                  Logged in as {session?.user?.firstName}{" "}
+                  {session?.user?.lastName} ({session?.user?.nhsNumber})
                 </p>
                 <SignOutButton />
               </>

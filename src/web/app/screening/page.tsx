@@ -41,11 +41,6 @@ export default async function Page(props: {
   const { auth } = await getAuthConfig();
   let cachedSession = await auth();
 
-  if (cachedSession?.error === "RefreshTokenError") {
-    const { signOut } = await getAuthConfig();
-    await signOut();
-  }
-
   if (!cachedSession?.user) return <Unauthorised />;
 
   const eligibility = cachedSession?.user ? await getEligibility(cachedSession) : null;

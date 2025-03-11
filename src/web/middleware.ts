@@ -7,14 +7,14 @@ export async function middleware(request: NextRequest) {
   const isAuthenticated = session?.user;
 
   // If the user is authenticated, continue as normal
-  if (isAuthenticated) {
-    return NextResponse.redirect(new URL("/screening", request.url));
+  if (!session) {
+    return NextResponse.redirect(new URL("/access-denied", request.url));
   }
 
-  // Redirect to login page if not authenticated
-  return NextResponse.next();
+  return NextResponse.next(); // Allow request to continue
+
 }
 
 export const config = {
-  matcher: "/",
+  matcher: ["/bowel-screening/:path*", "/breast-screening/:path*", "/cervical-screening/:path*" , "/screening/:path*"], // Define protected routes,
 };
