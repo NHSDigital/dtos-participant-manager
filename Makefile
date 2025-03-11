@@ -43,7 +43,7 @@ all: db db-migrations api1 api2 event-handler web
 infra: db db-migrations
 	@echo "Infrastructure is up and running."
 
-application: api1 api2 web
+application: api1 api2 event-handler web
 
 # Ensure Azure CLI is logged in
 azure-login:
