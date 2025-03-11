@@ -39,6 +39,48 @@ endef
 # Default command (runs everything)
 all: db db-migrations api1 api2 event-handler web
 
+# Infra target to start the database and apply migrations
+infra: db db-migrations
+	@echo "Infrastructure is up and running."
+
+application: api1 api2 web
+
+# Ensure Azure CLI is logged in
+azure-login:
+	@echo "Checking Azure login status..."
+ifeq ($(OS),Windows_NT)
+	@powershell -Command "& { \
+		$$loginAttempt = az account show 2>$$null; \
+		if (-not $$loginAttempt) { \
+			Write-Host 'Logging into Azure...'; \
+			$$loginResult = az login --use-device-code --output json; \
+			if ($$?) { \
+				Start-Sleep -Seconds 2; \
+				$$account = az account show; \
+				if ($$account) { \
+					Write-Host 'Azure login successful.'; \
+				} else { \
+					Write-Error 'Login verification failed'; \
+					exit 1; \
+				} \
+			} else { \
+				Write-Error 'Azure login failed'; \
+				exit 1; \
+			} \
+		} else { \
+			Write-Host 'Already logged into Azure.'; \
+		} \
+	}"
+else
+	@if ! az account show > /dev/null 2>&1; then \
+		echo "Logging into Azure..."; \
+		az login --output none; \
+		echo "Azure login successful."; \
+	else \
+		echo "Already logged into Azure."; \
+	fi
+endif
+
 # Start the Next.js frontend
 web:
 	@echo "Starting Next.js..."
@@ -52,27 +94,27 @@ endif
 api1:
 	@echo "Starting ParticipantManager API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API1_DIR)" && start /B dotnet watch run --port $(API_PORT)
+	@cd "$(API1_DIR)" && start /B dotnet run --port $(API_PORT)
 else
-		cd $(API1_DIR) && dotnet watch run --port $(API_PORT) &
+		cd $(API1_DIR) && dotnet run --port $(API_PORT) &
 endif
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API2_DIR)" && start /B dotnet watch run --port $(EXPERIENCE_PORT)
+	@cd "$(API2_DIR)" && start /B dotnet run --port $(EXPERIENCE_PORT)
 else
-		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
+		cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT) &
 endif
 
 # Start Event Handler
 event-handler:
 	@echo "Starting Event Handler..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(EVENT_HANDLER_DIR)" && start /B dotnet watch run --port $(EVENT_HANDLER_PORT)
+	@cd "$(EVENT_HANDLER_DIR)" && start /B dotnet run --port $(EVENT_HANDLER_PORT)
 else
-		cd $(EVENT_HANDLER_DIR) && dotnet watch run --port $(EVENT_HANDLER_PORT) &
+		cd $(EVENT_HANDLER_DIR) && dotnet run --port $(EVENT_HANDLER_PORT) &
 endif
 
 
@@ -151,13 +193,6 @@ else
 endif
 
 # Stop the SQL Server container
-
-ifeq ($(OS), Windows_NT)
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>nul || exit 0
-else
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
-endif
-
 	@echo "Cleanup completed."
 
 .PHONY: all web api1 api2 event-handler db stop-db stop
