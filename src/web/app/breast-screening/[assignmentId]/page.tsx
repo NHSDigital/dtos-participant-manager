@@ -9,20 +9,10 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
-import Unauthorised from "@/app/components/unauthorised";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { auth } = await getAuthConfig();
-  const session = await auth();
-
-  if (session?.user) {
-    return {
-      title: `Breast screening - ${process.env.SERVICE_NAME} - NHS`,
-    };
-  }
-
   return {
-    title: `You are not authorised to view this page - ${process.env.SERVICE_NAME} - NHS`,
+    title: `Breast screening - ${process.env.SERVICE_NAME} - NHS`,
   };
 }
 
@@ -48,13 +38,6 @@ export default async function Page(props: {
 }) {
   const { auth } = await getAuthConfig();
   const session = await auth();
-
-  if (session?.error === "RefreshTokenError") {
-    const { signIn } = await getAuthConfig();
-    await signIn("nhs-login");
-  }
-
-  if (!session?.user) return <Unauthorised />;
 
   const breadcrumbItems = [{ label: "Home", url: "/Screening" }];
   const params = await props.params;
@@ -84,7 +67,7 @@ export default async function Page(props: {
                 url={pathwayAssignment.infoUrl}
               />
             )}
-            {session.user && (
+            {session?.user && (
               <>
                 <hr />
                 <p>
