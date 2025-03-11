@@ -56,7 +56,7 @@ export default async function Page(props: {
 
   if (!session?.user) return <Unauthorised />;
 
-  const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const breadcrumbItems = [{ label: "Home", url: "/Screening" }];
   const params = await props.params;
   const assignmentId = params.assignmentId;
   const pathwayAssignment = session?.user

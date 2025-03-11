@@ -39,7 +39,7 @@ export default async function Page(props: {
 }) {
   const { auth } = await getAuthConfig();
   const session = await auth();
-  const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const breadcrumbItems = [{ label: "Home", url: "/Screening" }];
   const params = await props.params;
   const assignmentId = params.assignmentId;
   const pathwayAssignment = session?.user
