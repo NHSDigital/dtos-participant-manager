@@ -2,13 +2,13 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
+import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
-import Card from "@/app/components/card";
-import InsetText from "@/app/components/insetText";
-import SignOutButton from "@/app/components/signOutButton";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils";
-import type { EligibilityItem, EligibilityResponse } from "@/app/types";
+import Card from "@/app/components/card";
+import InsetText from "@/app/components/insetText";
+import UserProfile from "@/app/components/userProfile";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -69,14 +69,11 @@ export default async function Page() {
             .
           </p>
           {session?.user && (
-            <>
-              <hr />
-              <p>
-                Logged in as {session.user?.firstName} {session.user?.lastName}{" "}
-                ({session.user?.nhsNumber})
-              </p>
-              <SignOutButton />
-            </>
+            <UserProfile
+              firstName={session.user?.firstName}
+              lastName={session.user?.lastName}
+              nhsNumber={session.user?.nhsNumber}
+            />
           )}
         </div>
       </div>

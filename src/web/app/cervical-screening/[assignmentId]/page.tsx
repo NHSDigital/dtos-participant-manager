@@ -8,7 +8,7 @@ import { fetchPathwayAssignment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
-import SignOutButton from "@/app/components/signOutButton";
+import UserProfile from "@/app/components/userProfile";
 
 export const metadata: Metadata = {
   title: `Cervical screening -- ${process.env.SERVICE_NAME} - NHS`,
@@ -62,7 +62,7 @@ export default async function Page(props: {
                 date={pathwayAssignment.nextActionDate}
               />
             ) : (
-              <InsetText text="You have no upcoming breast screening invitations." />
+              <InsetText text={`You have no upcoming invitations.`} />
             )}
             {pathwayAssignment?.infoUrl && (
               <Card
@@ -71,14 +71,11 @@ export default async function Page(props: {
               />
             )}
             {session?.user && (
-              <>
-                <hr />
-                <p>
-                  Logged in as {session.user?.firstName}{" "}
-                  {session.user?.lastName} ({session.user?.nhsNumber})
-                </p>
-                <SignOutButton />
-              </>
+              <UserProfile
+                firstName={session.user?.firstName}
+                lastName={session.user?.lastName}
+                nhsNumber={session.user?.nhsNumber}
+              />
             )}
           </div>
         </div>
