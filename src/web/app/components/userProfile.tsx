@@ -1,16 +1,16 @@
 import SignOutButton from "@/app/components/signOutButton";
 
 interface UserProfileProps {
-  firstName?: string;
-  lastName?: string;
-  nhsNumber?: string;
+  readonly firstName?: string;
+  readonly lastName?: string;
+  readonly nhsNumber?: string;
 }
 
 export default async function UserProfile({
   firstName,
   lastName,
   nhsNumber,
-}: UserProfileProps) {
+}: Readonly<UserProfileProps>) {
   return (
     <>
       <hr />

@@ -65,7 +65,7 @@ export default async function Page() {
             Find out more information about{" "}
             <a href="https://www.nhs.uk/conditions/nhs-screening/">
               other screening done by the NHS
-            </a>
+            </a>{" "}
             .
           </p>
           {session?.user && (

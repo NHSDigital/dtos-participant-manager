@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getAuthConfig } from "@/app/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const { auth, signOut } = await getAuthConfig();
+  const { auth } = await getAuthConfig();
   const session = await auth();
 
   if (!session) {

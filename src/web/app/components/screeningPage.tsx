@@ -10,7 +10,6 @@ import UserProfile from "@/app/components/userProfile";
 
 interface ScreeningPageProps {
   screeningType: string;
-  metadataTitle: string;
 }
 
 export const generateMetadata = (screeningType: string): Metadata => ({

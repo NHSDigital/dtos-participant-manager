@@ -4,10 +4,10 @@ import ScreeningPage, {
 
 export const metadata = generateMetadata("Breast");
 
-export default function BreastScreening(props: {
-  params: Promise<{ assignmentId: string }>;
-}) {
-  return (
-    <ScreeningPage metadataTitle={"Breast"} screeningType="Breast" {...props} />
-  );
+interface PageProps {
+  readonly params: Promise<{ readonly assignmentId: string }>;
+}
+
+export default function BreastScreening(props: PageProps) {
+  return <ScreeningPage screeningType="Breast" {...props} />;
 }
