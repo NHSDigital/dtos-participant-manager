@@ -8,8 +8,10 @@ export async function middleware(request: NextRequest) {
   if (!session) {
     return NextResponse.redirect(new URL("/access-denied", request.url));
   }
-  if (session?.error === "RefreshTokenError") {
-    return signOut({ redirectTo: "/" });
+
+  if (session.error === "RefreshTokenError") {
+    await signOut();
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

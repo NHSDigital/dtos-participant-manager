@@ -141,6 +141,7 @@ export async function getAuthConfig() {
             identityLevel: profile.identity_proofing_level,
           };
         } else if (Date.now() < (token.expiresAt as number) * 1000) {
+          token.error = "RefreshTokenError";
           return token;
         } else {
           try {
