@@ -36,7 +36,13 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: azure-login db db-migrations api1 api2 web
+all: db db-migrations api1 api2 web
+
+# Infra target to start the database and apply migrations
+infra: db db-migrations
+	@echo "Infrastructure is up and running."
+
+application: api1 api2 web
 
 # Ensure Azure CLI is logged in
 azure-login:
@@ -87,18 +93,18 @@ endif
 api1:
 	@echo "Starting ParticipantManager API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API1_DIR)" && start /B dotnet watch run --port $(API_PORT)
+	@cd "$(API1_DIR)" && start /B dotnet run --port $(API_PORT)
 else
-		cd $(API1_DIR) && dotnet watch run --port $(API_PORT) &
+		cd $(API1_DIR) && dotnet run --port $(API_PORT) &
 endif
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API2_DIR)" && start /B dotnet watch run --port $(EXPERIENCE_PORT)
+	@cd "$(API2_DIR)" && start /B dotnet run --port $(EXPERIENCE_PORT)
 else
-		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
+		cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT) &
 endif
 
 # Start SQL Server in Podman/Docker
@@ -175,13 +181,6 @@ else
 endif
 
 # Stop the SQL Server container
-
-ifeq ($(OS), Windows_NT)
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>nul || exit 0
-else
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
-endif
-
 	@echo "Cleanup completed."
 
 .PHONY: all web api1 api2 db stop-db stop
