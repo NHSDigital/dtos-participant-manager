@@ -12,7 +12,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     logger.LogInformation("GetPathwayEnrolmentsAsync");
     try
     {
-      var response = await httpClient.GetAsync($"/api/participants/pathwaytypeenrolments?nhsnumber={nhsNumber}");
+      var response = await httpClient.GetAsync($"/api/pathwaytypeenrolments?nhsnumber={nhsNumber}");
       response.EnsureSuccessStatusCode();
       return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(new JsonSerializerOptions
       {
