@@ -9,7 +9,6 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
-import Unauthorised from "@/app/components/unauthorised";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

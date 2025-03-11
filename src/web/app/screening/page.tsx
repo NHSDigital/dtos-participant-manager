@@ -6,7 +6,6 @@ import { getAuthConfig } from "@/app/lib/auth";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
 import SignOutButton from "@/app/components/signOutButton";
-import Unauthorised from "@/app/components/unauthorised";
 import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils";
 import type { EligibilityItem, EligibilityResponse } from "@/app/types";
@@ -33,13 +32,9 @@ const getEligibility = async (
   }
 };
 
-export default async function Page(props: {
-  params: Promise<{ assignmentId: string }>;
-}) {
+export default async function Page() {
   const { auth } = await getAuthConfig();
   const session = await auth();
-
-  if (!session?.user) return <Unauthorised />;
 
   const eligibility = session?.user ? await getEligibility(session) : null;
 
