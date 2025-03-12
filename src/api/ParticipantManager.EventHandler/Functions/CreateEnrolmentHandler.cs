@@ -68,7 +68,7 @@ public class CreateEnrolmentHandler
     }
 
     // Send Event
-    EventGridEvent eventToSend = new EventGridEvent(
+    var eventToSend = new EventGridEvent(
       subject: "PathwayTypeEnrolment",
       eventType: "Created",
       dataVersion: "1.0",
