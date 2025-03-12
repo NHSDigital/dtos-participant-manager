@@ -241,7 +241,7 @@ public class ParticipantFunctionsTests
     // Act
     var response = await function.GetParticipantById(request, Guid.NewGuid());
 
-    // AssertkK
+    // Assert
     var result = Assert.IsType<NotFoundObjectResult>(response);
     Assert.Contains("not found", result.Value.ToString());
   }
