@@ -5,7 +5,7 @@ import ScreeningPage, {
 export const metadata = generateMetadata("Bowel");
 
 interface PageProps {
-  readonly params: Promise<{ readonly assignmentId: string }>;
+  readonly params: Promise<{ readonly enrolmentId: string }>;
 }
 
 export default function BowelScreening(props: PageProps) {
