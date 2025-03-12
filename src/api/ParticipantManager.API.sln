@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.API.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.Experience.API.Tests", "..\..\tests\ParticipantManager.Experience.API.Tests\ParticipantManager.Experience.API.Tests.csproj", "{02964EA0-0B5B-45CA-9A4B-5FA7371E21AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.EventHandler.Tests", "..\..\tests\ParticipantManager.EventHandler.Tests\ParticipantManager.EventHandler.Tests.csproj", "{8f2e9a7d-b3c1-4e6f-9d82-5a7f3e901c2b}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.Shared", "ParticipantManager.Shared\ParticipantManager.Shared.csproj", "{86D08B30-E827-44ED-AA2B-C7EC01222249}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManager.EventHandler", "ParticipantManager.EventHandler\ParticipantManager.EventHandler.csproj", "{04FC3B11-5DBC-4E73-AC05-F6860B6A626D}"

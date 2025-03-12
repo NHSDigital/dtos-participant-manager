@@ -16,7 +16,7 @@ namespace ParticipantManager.API.Tests;
 
 public class ParticipantFunctionsTests
 {
-  private ServiceProvider CreateServiceProvider(string databaseName)
+  private static ServiceProvider CreateServiceProvider(string databaseName)
   {
     var services = new ServiceCollection();
 
@@ -35,7 +35,7 @@ public class ParticipantFunctionsTests
     return services.BuildServiceProvider();
   }
 
-  private HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
+  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
   {
     var json = JsonSerializer.Serialize(body);
     var byteArray = Encoding.UTF8.GetBytes(json);
@@ -46,7 +46,7 @@ public class ParticipantFunctionsTests
     return mockRequest.Object;
   }
 
-  private HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
+  private static HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
   {
     var requestUrl = new Uri($"http://localhost/api/participants?{queryString}");
     var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
@@ -241,7 +241,7 @@ public class ParticipantFunctionsTests
     // Act
     var response = await function.GetParticipantById(request, Guid.NewGuid());
 
-    // Assert
+    // AssertkK
     var result = Assert.IsType<NotFoundObjectResult>(response);
     Assert.Contains("not found", result.Value.ToString());
   }
