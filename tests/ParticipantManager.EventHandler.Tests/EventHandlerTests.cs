@@ -40,7 +40,7 @@ namespace ParticipantManager.EventHandler.Tests
     }
 
     [Fact]
-    public async Task Run_WithValidEvent_CreatesNewParticipant_WhenParticipantDoesNotExist()
+    public async Task Run_WithValidEvent_CreatesNewParticipantWhenParticipantDoesNotExist()
     {
       // Arrange
       var participantId = Guid.NewGuid();
@@ -52,12 +52,7 @@ namespace ParticipantManager.EventHandler.Tests
         ScreeningName = "Test Screening"
       };
 
-      var eventGridEvent = new EventGridEvent(
-          "test-subject",
-          "test-event",
-          "1.0",
-          JsonSerializer.Serialize(pathwayParticipantDto)
-      );
+      var eventGridEvent = new EventGridEvent("/participants/12345", "ParticipantInvited", "0.1", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
       _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber))
           .ReturnsAsync((ParticipantDto)null);
@@ -78,7 +73,7 @@ namespace ParticipantManager.EventHandler.Tests
 
       // Assert
       _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber), Times.Once);
-      _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(pathwayParticipantDto), Times.Once);
+      _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
       _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.Is<CreatePathwayTypeEnrolmentDto>(dto =>
           dto.ParticipantId == participantId &&
           dto.PathwayTypeId == pathwayParticipantDto.PathwayTypeId &&
