@@ -1,41 +1,16 @@
-export const dynamic = "force-dynamic";
-
 import type { Metadata } from "next";
-import type { Session } from "next-auth";
-import type { EligibilityItem, EligibilityResponse } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
-import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
-import { createUrlSlug } from "@/app/lib/utils";
-import Card from "@/app/components/card";
-import InsetText from "@/app/components/insetText";
+import { getEligibility } from "@/app/lib/getEligibility";
+import ScreeningList from "@/app/components/screeningList";
 import UserProfile from "@/app/components/userProfile";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
-  };
-}
-
-const getEligibility = async (
-  session: Session | null
-): Promise<EligibilityResponse | null> => {
-  if (!session?.user?.accessToken) {
-    console.log("No access token found for eligibility");
-    return null;
-  }
-
-  try {
-    return await fetchPatientScreeningEligibility(session.user.accessToken);
-  } catch (error) {
-    console.error("Failed to get eligibility data:", error);
-    return null;
-  }
+export const metadata: Metadata = {
+  title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
   const { auth } = await getAuthConfig();
   const session = await auth();
-
   const eligibility = session?.user ? await getEligibility(session) : null;
 
   return (
@@ -44,22 +19,7 @@ export default async function Page() {
         <div className="nhsuk-grid-column-two-thirds">
           <h1>My screening</h1>
 
-          {eligibility?.length ? (
-            eligibility.map((item: EligibilityItem) => {
-              const url = `${createUrlSlug(item.screeningName)}/${
-                item.assignmentId
-              }`;
-              return (
-                <Card
-                  key={item.assignmentId}
-                  title={item.screeningName}
-                  url={url}
-                />
-              );
-            })
-          ) : (
-            <InsetText text="You have no screening assignments." />
-          )}
+          <ScreeningList eligibility={eligibility} />
 
           <p>
             Find out more information about{" "}
