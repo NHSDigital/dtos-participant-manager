@@ -39,6 +39,7 @@ public class PathwayTypeEnrolmentFunctions
       .ToListAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
+    //WP - This is never null, Where clause will return an empty collection, Decision - Change to 200 and change == null to .Any or Count??
 
     return new OkObjectResult(pathwayTypeEnrolments);
   }

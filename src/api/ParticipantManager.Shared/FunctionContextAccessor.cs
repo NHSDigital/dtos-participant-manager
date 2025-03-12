@@ -23,7 +23,7 @@ public class FunctionContextAccessor
     }
   }
 
-  private class FunctionContextRedirect
+  private sealed class FunctionContextRedirect
   {
     public FunctionContext HeldContext;
   }

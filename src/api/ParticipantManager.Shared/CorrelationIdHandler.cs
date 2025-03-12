@@ -14,10 +14,11 @@ public class CorrelationIdHandler : DelegatingHandler
   {
     var context = _functionContextAccessor.FunctionContext;
 
-    if (context != null && context.Items.TryGetValue("X-Correlation-ID", out var correlationId) &&
-        correlationId is string correlationValue)
-      if (!request.Headers.Contains("X-Correlation-ID"))
-        request.Headers.Add("X-Correlation-ID", correlationValue);
+    if (context != null && context.Items.TryGetValue("X-Correlation-ID", out var correlationId)
+        && correlationId is string correlationValue && !request.Headers.Contains("X-Correlation-ID"))
+    {
+      request.Headers.Add("X-Correlation-ID", correlationValue);
+    }
 
     return await base.SendAsync(request, cancellationToken);
   }
