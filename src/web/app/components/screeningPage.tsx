@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
-import { fetchPathwayAssignment } from "@/app/lib/fetchPatientData";
+import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
@@ -26,7 +26,7 @@ const getPathwayAssignment = async (
   }
 
   try {
-    return await fetchPathwayAssignment(session.user.accessToken, assignmentId);
+    return await fetchPathwayEnrolment(session.user.accessToken, assignmentId);
   } catch (error) {
     console.error("Failed to get pathway assignment data:", error);
     return null;
