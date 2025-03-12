@@ -22,6 +22,7 @@ COPY tsconfig.json .
 COPY app/ ./app/
 COPY public/ ./public/
 COPY instrumentation.ts .
+COPY middleware.ts .
 COPY next.config.mjs .
 COPY package.json .
 COPY package-lock.json .
