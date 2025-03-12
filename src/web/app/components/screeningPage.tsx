@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
-import { fetchPathwayAssignment } from "@/app/lib/fetchPatientData";
+import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
@@ -16,19 +16,19 @@ export const generateMetadata = (screeningType: string): Metadata => ({
   title: `${screeningType} screening - ${process.env.SERVICE_NAME} - NHS`,
 });
 
-const getPathwayAssignment = async (
+const getPathwayEnrolment = async (
   session: Session | null,
-  assignmentId: string
+  enrolmentId: string
 ): Promise<PathwayItem | null> => {
   if (!session?.user?.accessToken) {
-    console.log("No access token found for pathway assignment");
+    console.log("No access token found for pathway enrolment");
     return null;
   }
 
   try {
-    return await fetchPathwayAssignment(session.user.accessToken, assignmentId);
+    return await fetchPathwayEnrolment(session.user.accessToken, enrolmentId);
   } catch (error) {
-    console.error("Failed to get pathway assignment data:", error);
+    console.error("Failed to get pathway enrolment data:", error);
     return null;
   }
 };
@@ -36,14 +36,14 @@ const getPathwayAssignment = async (
 export default async function ScreeningPage({
   screeningType,
   params,
-}: ScreeningPageProps & { params: Promise<{ assignmentId: string }> }) {
+}: ScreeningPageProps & { params: Promise<{ enrolmentId: string }> }) {
   const { auth } = await getAuthConfig();
   const session = await auth();
   const breadcrumbItems = [{ label: "Home", url: "/screening" }];
   const resolvedParams = await params;
-  const assignmentId = resolvedParams.assignmentId;
-  const pathwayAssignment = session?.user
-    ? await getPathwayAssignment(session, assignmentId)
+  const enrolmentId = resolvedParams.enrolmentId;
+  const pathwayEnrolment = session?.user
+    ? await getPathwayEnrolment(session, enrolmentId)
     : null;
 
   return (
@@ -53,18 +53,18 @@ export default async function ScreeningPage({
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
             <h1>{screeningType} screening</h1>
-            {pathwayAssignment?.nextActionDate ? (
+            {pathwayEnrolment?.nextActionDate ? (
               <InsetText
-                text={`Your next ${pathwayAssignment.screeningName} is due by`}
-                date={pathwayAssignment.nextActionDate}
+                text={`Your next ${pathwayEnrolment.screeningName} is due by`}
+                date={pathwayEnrolment.nextActionDate}
               />
             ) : (
               <InsetText text="You have no upcoming invitations." />
             )}
-            {pathwayAssignment?.infoUrl && (
+            {pathwayEnrolment?.infoUrl && (
               <Card
-                title={`About ${pathwayAssignment.screeningName}`}
-                url={pathwayAssignment.infoUrl}
+                title={`About ${pathwayEnrolment.screeningName}`}
+                url={pathwayEnrolment.infoUrl}
               />
             )}
             {session?.user && (

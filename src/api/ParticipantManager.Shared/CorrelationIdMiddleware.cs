@@ -3,12 +3,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
 
-namespace ParticipantManager.Experience.API;
+namespace ParticipantManager.Shared;
 
 public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
 {
-  private readonly FunctionContextAccessor _functionContextAccessor;
   private const string CorrelationIdHeader = "X-Correlation-ID";
+  private readonly FunctionContextAccessor _functionContextAccessor;
 
   public CorrelationIdMiddleware(FunctionContextAccessor contextAccessor)
   {
@@ -36,7 +36,7 @@ public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
     }
     else
     {
-      string correlationId = Guid.NewGuid().ToString();
+      var correlationId = Guid.NewGuid().ToString();
       logger.LogInformation("Generated correlation ID as headers were missing: {CorrelationId}", correlationId);
       context.Items[CorrelationIdHeader] = correlationId;
     }

@@ -280,3 +280,8 @@ __pycache__/
 
 .env
 *.pem
+
+# Azurite
+__azurite*.json
+__blobstorage__
+__queuestorage__

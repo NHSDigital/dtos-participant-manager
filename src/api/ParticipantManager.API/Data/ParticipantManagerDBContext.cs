@@ -11,7 +11,7 @@ public class ParticipantManagerDbContext : DbContext
   }
 
   public DbSet<Participant> Participants { get; set; }
-  public DbSet<PathwayTypeAssignment> PathwayTypeAssignments { get; set; }
+  public DbSet<PathwayTypeEnrolment> PathwayTypeEnrolments { get; set; }
   public DbSet<Episode> Episodes { get; set; }
   public DbSet<Encounter> Encounters { get; set; }
 
@@ -19,7 +19,7 @@ public class ParticipantManagerDbContext : DbContext
   {
     // Configure relationships, keys, etc.
     modelBuilder.Entity<Participant>().HasKey(p => p.ParticipantId);
-    modelBuilder.Entity<PathwayTypeAssignment>().HasKey(pa => pa.AssignmentId);
+    modelBuilder.Entity<PathwayTypeEnrolment>().HasKey(pa => pa.EnrolmentId);
     modelBuilder.Entity<Episode>().HasKey(e => e.EpisodeId);
     modelBuilder.Entity<Encounter>().HasKey(en => en.EncounterId);
   }

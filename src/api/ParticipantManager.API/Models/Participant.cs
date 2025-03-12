@@ -17,5 +17,5 @@ public class Participant
   [RegularExpression(@"^\d{10}$", ErrorMessage = "NHS Number must be exactly 10 digits.")]
   public string NHSNumber { get; set; }
 
-  public ICollection<PathwayTypeAssignment> PathwayTypeAssignments { get; set; } = new List<PathwayTypeAssignment>();
+  public ICollection<PathwayTypeEnrolment> PathwayTypeEnrolments { get; set; } = new List<PathwayTypeEnrolment>();
 }

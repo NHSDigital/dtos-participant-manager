@@ -5,30 +5,30 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ParticipantManager.Experience.API.Client;
-using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
+using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests;
 
-public class PathwayAssignmentFunctionTests
+public class PathwayEnrolmentFunctionTests
 {
   private readonly Mock<ICrudApiClient> _crudApiClient = new();
-  private readonly PathwayAssignmentFunction _function;
-  private readonly Mock<ILogger<PathwayAssignmentFunction>> _loggerMock;
+  private readonly PathwayEnrolmentFunction _function;
+  private readonly Mock<ILogger<PathwayEnrolmentFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
 
-  public PathwayAssignmentFunctionTests()
+  public PathwayEnrolmentFunctionTests()
   {
-    _loggerMock = new Mock<ILogger<PathwayAssignmentFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
+    _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
       .Returns(MockPathwayDetails);
-    _function = new PathwayAssignmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
   [Fact]
-  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfInvalidToken()
+  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfInvalidToken()
   {
     _mockTokenService
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
@@ -37,14 +37,14 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetPathwayAssignmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
+  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
   {
     var claims = new List<Claim>
     {
@@ -62,14 +62,14 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetPathwayAssignmentById_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayEnrolmentById_ShouldReturnOk_WithValidToken()
   {
     var claims = new List<Claim>
     {
@@ -87,12 +87,12 @@ public class PathwayAssignmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayAssignmentById(request, "123") as OkObjectResult;
+    var response = await _function.GetPathwayEnrolmentById(request, "123") as OkObjectResult;
 
     // Assert
-    var pathwayAssignmentDto = (AssignedPathwayDetailsDTO)response.Value;
+    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(pathwayAssignmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+    Assert.Equal(pathwayEnrolmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -107,15 +107,15 @@ public class PathwayAssignmentFunctionTests
     return request.Object;
   }
 
-  private AssignedPathwayDetailsDTO MockPathwayDetails()
+  private EnrolledPathwayDetailsDto MockPathwayDetails()
   {
-    return new AssignedPathwayDetailsDTO
+    return new EnrolledPathwayDetailsDto
     {
-      AssignmentId = new Guid(),
+      EnrolmentId = new Guid(),
       ScreeningName = "Breast Screening",
       Status = "Active",
-      AssignmentDate = DateTime.Now,
-      PathwayName = "Breast Screening Regular",
+      EnrolmentDate = DateTime.Now,
+      PathwayTypeName = "Breast Screening Regular",
       NextActionDate = DateTime.Now
     };
   }

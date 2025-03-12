@@ -16,7 +16,7 @@ namespace ParticipantManager.API.Tests;
 
 public class ParticipantFunctionsTests
 {
-  private ServiceProvider CreateServiceProvider(string databaseName)
+  private static ServiceProvider CreateServiceProvider(string databaseName)
   {
     var services = new ServiceCollection();
 
@@ -35,7 +35,7 @@ public class ParticipantFunctionsTests
     return services.BuildServiceProvider();
   }
 
-  private HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
+  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
   {
     var json = JsonSerializer.Serialize(body);
     var byteArray = Encoding.UTF8.GetBytes(json);
@@ -46,7 +46,7 @@ public class ParticipantFunctionsTests
     return mockRequest.Object;
   }
 
-  private HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
+  private static HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
   {
     var requestUrl = new Uri($"http://localhost/api/participants?{queryString}");
     var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
@@ -145,33 +145,32 @@ public class ParticipantFunctionsTests
   }
 
   [Fact]
-  public async Task GetAssignmentDetailsById_ShouldAssignmentDetails_WhenValidIdProvided()
+  public async Task GetEnrolmentDetailsById_ShouldEnrolmentDetails_WhenValidIdProvided()
   {
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<PathwayTypeAssignmentFunctions>>();
+    var logger = new Mock<ILogger<PathwayTypeEnrolmentFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new PathwayTypeAssignmentFunctions(logger.Object, dbContext);
+    var function = new PathwayTypeEnrolmentFunctions(logger.Object, dbContext);
 
     var participantId = Guid.NewGuid();
 
     var nhsNumber = "123";
-    var assignmentId = Guid.NewGuid();
+    var enrolmentId = Guid.NewGuid();
 
-    var assignmentDetail = new PathwayTypeAssignment
+    var enrolmentDetail = new PathwayTypeEnrolment
     {
-      AssignmentId = assignmentId,
+      EnrolmentId = enrolmentId,
       ParticipantId = participantId,
-      PathwayId = Guid.NewGuid(),
-      AssignmentDate = DateTime.Now,
+      EnrolmentDate = DateTime.Now,
       LapsedDate = DateTime.Now,
       Status = "test status",
       NextActionDate = DateTime.Now,
       PathwayTypeId = Guid.NewGuid(),
       ScreeningName = "test screening name",
-      PathwayName = "test pathway name",
+      PathwayTypeName = "test pathway name",
       Participant = new Participant
       {
         Name = "test Name",
@@ -180,19 +179,19 @@ public class ParticipantFunctionsTests
       Episodes = []
     };
 
-    dbContext.PathwayTypeAssignments.Add(assignmentDetail);
+    dbContext.PathwayTypeEnrolments.Add(enrolmentDetail);
     await dbContext.SaveChangesAsync();
 
     var request = CreateMockHttpRequest(functionContext, null);
 
     // Act
-    var response = await function.GetPathwayAssignmentById(request, nhsNumber, assignmentId);
+    var response = await function.GetPathwayTypeEnrolmentById(request, enrolmentId);
 
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);
-    var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeAssignment>(result.Value);
-    Assert.Equal(assignmentDetail.AssignmentId, returnedPathwayTypeAssignment.AssignmentId);
-    Assert.Equal(assignmentDetail.Participant.NHSNumber, returnedPathwayTypeAssignment.Participant.NHSNumber);
+    var returnedPathwayTypeEnrolment = Assert.IsType<PathwayTypeEnrolment>(result.Value);
+    Assert.Equal(enrolmentDetail.EnrolmentId, returnedPathwayTypeEnrolment.EnrolmentId);
+    Assert.Equal(enrolmentDetail.Participant.NHSNumber, returnedPathwayTypeEnrolment.Participant.NHSNumber);
   }
 
   [Fact]

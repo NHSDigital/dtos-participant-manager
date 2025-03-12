@@ -2,20 +2,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
 
 namespace ParticipantManager.Experience.API.Functions;
 
-public class PathwayAssignmentFunction(
-  ILogger<PathwayAssignmentFunction> logger,
+public class PathwayEnrolmentFunction(
+  ILogger<PathwayEnrolmentFunction> logger,
   ICrudApiClient crudApiClient,
   ITokenService tokenService)
 {
-  [Function("GetPathwayAssignmentById")]
-  public async Task<IActionResult> GetPathwayAssignmentById(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayassignments/{assignmentid}")] HttpRequestData req,
-    string assignmentId)
+  [Function("GetPathwayEnrolmentById")]
+  public async Task<IActionResult> GetPathwayEnrolmentById(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrolments/{enrolmentid}")]
+    HttpRequestData req,
+    string enrolmentId)
   {
     try
     {
@@ -36,17 +37,17 @@ public class PathwayAssignmentFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayAssignment = await crudApiClient.GetPathwayAssignmentByIdAsync(nhsNumber, assignmentId);
-      if (pathwayAssignment == null)
+      var pathwayEnrolment = await crudApiClient.GetPathwayEnrolmentByIdAsync(nhsNumber, enrolmentId);
+      if (pathwayEnrolment == null)
       {
-        logger.LogError("Failed to find pathway assignment for Request {@Request}",
-          new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
+        logger.LogError("Failed to find pathway enrolment for Request {@Request}",
+          new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
         return new NotFoundResult();
       }
 
-      logger.LogInformation("Found pathway assignment for Request {@Request}",
-        new { NhsNumber = nhsNumber, AssignmentId = assignmentId });
-      return new OkObjectResult(pathwayAssignment);
+      logger.LogInformation("Found pathway enrolment for Request {@Request}",
+        new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
+      return new OkObjectResult(pathwayEnrolment);
     }
     catch (Exception ex)
     {

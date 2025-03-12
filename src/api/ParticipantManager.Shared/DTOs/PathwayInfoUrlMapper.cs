@@ -1,4 +1,4 @@
-namespace ParticipantManager.Experience.API;
+namespace ParticipantManager.Shared.DTOs;
 
 public static class PathwayInfoUrlMapper
 {
