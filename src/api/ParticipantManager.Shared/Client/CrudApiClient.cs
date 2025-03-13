@@ -111,7 +111,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
 
   public async Task<bool> CreatePathwayTypeEnrolmentAsync(CreatePathwayTypeEnrolmentDto pathwayTypeEnrolmentDto)
   {
-    logger.LogInformation($"Running {nameof(CreatePathwayTypeEnrolmentAsync)}...");
+    logger.LogInformation($"Running {nameof(CreatePathwayTypeEnrolmentAsync)}");
 
     try
     {
