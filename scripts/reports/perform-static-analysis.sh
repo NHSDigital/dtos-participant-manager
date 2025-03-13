@@ -27,8 +27,10 @@ function main() {
   cd "$(git rev-parse --show-toplevel)"
 
   if command -v sonar-scanner > /dev/null 2>&1 && ! is-arg-true "${FORCE_USE_DOCKER:-false}"; then
+    echo "Native scan"
     run-sonar-scanner-natively
   else
+    echo "Docker scan"
     run-sonar-scanner-in-docker
   fi
 }
