@@ -16,7 +16,9 @@ declare module "next-auth" {
     accessToken?: string;
     expiresAt?: number;
     refreshToken?: string;
+    participantId?: string;
   }
+
   interface Session {
     error?: "RefreshTokenError"
   }

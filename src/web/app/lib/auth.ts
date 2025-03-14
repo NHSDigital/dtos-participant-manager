@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedToken } from "@/app/types/auth";
 import { logger } from "./logger";
+import { fetchParticipantId } from "./fetchPatientData";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
@@ -129,7 +130,9 @@ export async function getAuthConfig() {
         return isValidToken;
       },
       async jwt({ token, account, profile }) {
-        if (account && profile) {
+        if (account && profile && account.access_token) {
+          var participantId = await fetchParticipantId(account.access_token)
+
           return {
             ...token,
             accessToken: account.access_token,
@@ -139,6 +142,7 @@ export async function getAuthConfig() {
             lastName: profile.family_name,
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
+            participantId: participantId,
           };
         } else if (Date.now() < (token.expiresAt as number) * 1000) {
           return token;
@@ -198,6 +202,7 @@ export async function getAuthConfig() {
             accessToken,
             refreshToken,
             expiresAt,
+            participantId,
           } = token;
 
           Object.assign(session.user, {
@@ -208,6 +213,7 @@ export async function getAuthConfig() {
             accessToken,
             refreshToken,
             expiresAt,
+            participantId,
           });
         }
         session.error = token.error as "RefreshTokenError" | undefined;
