@@ -1,5 +1,6 @@
 import { EligibilityResponse, PathwayResponse } from "@/app/types";
 import { logger } from "@/app/lib/logger";
+import type { Session } from "next-auth";
 
 export async function fetchPatientScreeningEligibility(
   accessToken: string
@@ -44,7 +45,7 @@ export async function fetchPatientScreeningEligibility(
 }
 
 export async function fetchPathwayEnrolment(
-  accessToken: string,
+  session: Session,
   enrolmentId: string
 ): Promise<PathwayResponse> {
   const correlationId = crypto.randomUUID();
@@ -52,10 +53,11 @@ export async function fetchPathwayEnrolment(
   try {
     const url = `${process.env.EXPERIENCE_API_URL}/api/pathwayenrolments/${enrolmentId}`;
     logger.info({ url, correlationId }, "Making pathway API request");
+    logger.info(`WARREN userId: ${session.user?.id}`);
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: "Bearer " + accessToken,
+        Authorization: "Bearer " + session,
         "X-Correlation-ID": correlationId,
       },
     });
