@@ -8,7 +8,6 @@ import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
-import UserProfile from "@/app/components/userProfile";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -68,13 +67,6 @@ export default async function Page() {
             </a>{" "}
             .
           </p>
-          {session?.user && (
-            <UserProfile
-              firstName={session.user?.firstName}
-              lastName={session.user?.lastName}
-              nhsNumber={session.user?.nhsNumber}
-            />
-          )}
         </div>
       </div>
     </main>
