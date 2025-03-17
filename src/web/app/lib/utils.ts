@@ -26,9 +26,10 @@ export const formatCompactDate = (dateString: string): string => {
 
 export function createUrlSlug(text: string): string {
   return text
+    .trim()
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^\w-]+/g, "")
-    .replace(/--+/g, "-")
-    .trim();
+    .replace(/^-+|-+$/g, "")
+    .replace(/--+/g, "-");
 }
