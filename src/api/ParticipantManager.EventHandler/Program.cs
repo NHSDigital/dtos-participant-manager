@@ -13,6 +13,7 @@ using Serilog;
 using Serilog.Enrichers.Sensitive;
 using Serilog.Formatting.Compact;
 
+
 var appInsightsConnectionString =
   Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
 
