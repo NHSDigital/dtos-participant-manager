@@ -17,6 +17,7 @@ var appInsightsConnectionString =
 var databaseConnectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
 
 
+
 var host = new HostBuilder()
   .ConfigureFunctionsWebApplication()
   .ConfigureServices((context, services) =>
