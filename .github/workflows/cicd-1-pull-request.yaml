@@ -105,7 +105,7 @@ jobs:
 #    needs: [metadata, commit-stage, test-stage].
 
     needs: [metadata, commit-stage]
-    uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@fix/DTOSS-7928-remove-compromised-GH-Action
+    uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@main
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: ./compose.yaml
