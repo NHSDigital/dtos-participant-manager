@@ -10,7 +10,8 @@ namespace ParticipantManager.Experience.API.Functions;
 public class GetParticipantIdFunction(
   ILogger<GetParticipantIdFunction> logger,
   ICrudApiClient crudApiClient,
-  ITokenService tokenService)
+  ITokenService tokenService,
+  IFeatureFlagClient featureFlagClient)
 {
   [Function("GetParticipantId")]
   public async Task<IActionResult> GetParticipantId(
@@ -44,9 +45,10 @@ public class GetParticipantIdFunction(
         return new NotFoundObjectResult("Unable to find participant");
       }
 
-      bool featureFlag= bool.Parse(Environment.GetEnvironmentVariable("FEATURE_FLAG"));
+      var enabled = await featureFlagClient.IsFeatureEnabled("mays_mvp");
 
-      if (featureFlag) {
+      if (!enabled)
+      {
         return new ForbidResult();
       }
 

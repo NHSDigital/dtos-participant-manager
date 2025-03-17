@@ -10,7 +10,8 @@ namespace ParticipantManager.Experience.API.Functions;
 public class PathwayEnrolmentFunction(
   ILogger<PathwayEnrolmentFunction> logger,
   ICrudApiClient crudApiClient,
-  ITokenService tokenService)
+  ITokenService tokenService,
+  IFeatureFlagClient featureFlagClient)
 {
   [Function("GetPathwayEnrolmentById")]
   public async Task<IActionResult> GetPathwayEnrolmentById(
@@ -44,9 +45,10 @@ public class PathwayEnrolmentFunction(
         return new NotFoundResult();
       }
 
-      bool featureFlag= bool.Parse(Environment.GetEnvironmentVariable("FEATURE_FLAG"));
+      var enabled = await featureFlagClient.IsFeatureEnabled("mays_mvp");
 
-      if (featureFlag) {
+      if (!enabled)
+      {
         return new ForbidResult();
       }
 
