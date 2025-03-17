@@ -11,9 +11,20 @@ public class FeatureFlagClient : IFeatureFlagClient
     _flagsmithClient = new(Environment.GetEnvironmentVariable("FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"));
   }
 
-  public async Task<bool> IsFeatureEnabled(string featureName)
+  public async Task<bool> IsFeatureEnabledForParticipant(string featureName, Guid participantId)
   {
-    var flags = await _flagsmithClient.GetEnvironmentFlags();
-    return await flags.IsFeatureEnabled(featureName);
+    var identifier = participantId.ToString();
+    var traitKey = "participant_id";
+    var traitList = new List<ITrait> { new Trait(traitKey, participantId) };
+
+    var flags = await _flagsmithClient.GetIdentityFlags(identifier, traitList);
+    var allowedParticipantIds = await flags.GetFeatureValue(featureName);
+
+    if (allowedParticipantIds.Contains(participantId.ToString()))
+    {
+      return true;
+    }
+
+    return false;
   }
 }

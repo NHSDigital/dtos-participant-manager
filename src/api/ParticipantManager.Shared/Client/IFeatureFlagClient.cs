@@ -2,5 +2,5 @@ namespace ParticipantManager.Shared.Client;
 
 public interface IFeatureFlagClient
 {
-  Task<bool> IsFeatureEnabled(string featureName);
+  Task<bool> IsFeatureEnabledForParticipant(string featureName, Guid participantId);
 }

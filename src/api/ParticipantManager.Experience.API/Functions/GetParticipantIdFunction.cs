@@ -45,7 +45,7 @@ public class GetParticipantIdFunction(
         return new NotFoundObjectResult("Unable to find participant");
       }
 
-      var enabled = await featureFlagClient.IsFeatureEnabled("mays_mvp");
+      var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participant.ParticipantId);
 
       if (!enabled)
       {

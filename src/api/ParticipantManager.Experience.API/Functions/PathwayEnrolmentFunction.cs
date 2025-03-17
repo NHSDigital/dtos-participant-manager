@@ -16,7 +16,7 @@ public class PathwayEnrolmentFunction(
   [Function("GetPathwayEnrolmentById")]
   public async Task<IActionResult> GetPathwayEnrolmentById(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId}/pathwayenrolments/{enrolmentid}")]
-    HttpRequestData req, string participantId, string enrolmentId)
+    HttpRequestData req, Guid participantId, string enrolmentId)
   {
     try
     {
@@ -45,7 +45,7 @@ public class PathwayEnrolmentFunction(
         return new NotFoundResult();
       }
 
-      var enabled = await featureFlagClient.IsFeatureEnabled("mays_mvp");
+      var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
 
       if (!enabled)
       {
