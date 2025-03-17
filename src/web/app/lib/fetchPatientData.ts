@@ -51,13 +51,14 @@ export async function fetchPathwayEnrolment(
   const correlationId = crypto.randomUUID();
 
   try {
-    const url = `${process.env.EXPERIENCE_API_URL}/api/pathwayenrolments/${enrolmentId}`;
+    const participantId = session.user?.participantId;
+    const url = `${process.env.EXPERIENCE_API_URL}/api/participants/${participantId}/pathwayenrolments/${enrolmentId}`;
     logger.info({ url, correlationId }, "Making pathway API request");
     logger.info(`session.user.participantId: ${session.user?.participantId}`);
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: "Bearer " + session,
+        Authorization: "Bearer " + session.user?.accessToken,
         "X-Correlation-ID": correlationId,
       },
     });

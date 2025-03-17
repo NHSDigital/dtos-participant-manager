@@ -44,6 +44,12 @@ public class GetParticipantIdFunction(
         return new NotFoundObjectResult("Unable to find participant");
       }
 
+      bool featureFlag= bool.Parse(Environment.GetEnvironmentVariable("FEATURE_FLAG"));
+
+      if (featureFlag) {
+        return new ForbidResult();
+      }
+
       logger.LogInformation("Found participant for NhsNumber: {@NhsNumber}",
         new { NhsNumber = nhsNumber });
       return new OkObjectResult(participant.ParticipantId);

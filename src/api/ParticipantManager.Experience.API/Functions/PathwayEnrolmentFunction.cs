@@ -14,9 +14,8 @@ public class PathwayEnrolmentFunction(
 {
   [Function("GetPathwayEnrolmentById")]
   public async Task<IActionResult> GetPathwayEnrolmentById(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwayenrolments/{enrolmentid}")]
-    HttpRequestData req,
-    string enrolmentId)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId}/pathwayenrolments/{enrolmentid}")]
+    HttpRequestData req, string participantId, string enrolmentId)
   {
     try
     {
@@ -43,6 +42,12 @@ public class PathwayEnrolmentFunction(
         logger.LogError("Failed to find pathway enrolment for Request {@Request}",
           new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
         return new NotFoundResult();
+      }
+
+      bool featureFlag= bool.Parse(Environment.GetEnvironmentVariable("FEATURE_FLAG"));
+
+      if (featureFlag) {
+        return new ForbidResult();
       }
 
       logger.LogInformation("Found pathway enrolment for Request {@Request}",
