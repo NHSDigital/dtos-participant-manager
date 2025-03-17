@@ -10,12 +10,13 @@ namespace ParticipantManager.Experience.API.Functions;
 public class ScreeningEligibilityFunction(
   ILogger<ScreeningEligibilityFunction> logger,
   ICrudApiClient crudApiClient,
-  ITokenService tokenService)
+  ITokenService tokenService,
+  IFeatureFlagClient featureFlagClient)
 {
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")]
-    HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+    HttpRequestData req, string participantId)
   {
     try
     {
@@ -27,12 +28,9 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      logger.LogInformation("Access token is valid, looking for NHS Number");
-
-      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-      if (string.IsNullOrEmpty(nhsNumber))
+      if (string.IsNullOrEmpty(participantId.ToString()))
       {
-        logger.LogError("Access token doesn't contain NHS number");
+        logger.LogError("Access token doesn't contain ParticipantId");
         return new UnauthorizedResult();
       }
 
@@ -42,6 +40,13 @@ public class ScreeningEligibilityFunction(
         logger.LogError("Failed to find pathway enrolments for NhsNumber: {@NhsNumber}",
           new { NhsNumber = nhsNumber });
         return new NotFoundObjectResult("Unable to find pathway enrolments");
+      }
+
+      var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
+
+      if (!enabled)
+      {
+        return new ForbidResult();
       }
 
       logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}",
