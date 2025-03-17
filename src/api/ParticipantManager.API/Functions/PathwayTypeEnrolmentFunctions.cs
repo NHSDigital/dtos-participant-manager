@@ -30,12 +30,12 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
 
-    var nhsNumber = req.Query["nhsnumber"].ToString();
+    var participantId = req.Query["participantId"].ToString();
 
-    if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
+    if (string.IsNullOrEmpty(participantId)) return new BadRequestObjectResult("Missing ParticipantId");
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
-      .Where(p => p.Participant.NHSNumber == nhsNumber)
+      .Where(p => p.ParticipantId == Guid.Parse(participantId))
       .ToListAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");

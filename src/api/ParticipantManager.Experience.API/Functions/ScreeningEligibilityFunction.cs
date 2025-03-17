@@ -16,7 +16,7 @@ public class ScreeningEligibilityFunction(
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
-    HttpRequestData req, string participantId)
+    HttpRequestData req, Guid participantId)
   {
     try
     {
@@ -28,18 +28,32 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
+      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      if (string.IsNullOrEmpty(nhsNumber))
+      {
+        logger.LogError("Access token doesn't contain NHS number");
+        return new UnauthorizedResult();
+      }
+
       if (string.IsNullOrEmpty(participantId.ToString()))
       {
         logger.LogError("Access token doesn't contain ParticipantId");
         return new UnauthorizedResult();
       }
 
-      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(nhsNumber);
+      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
       if (pathwayEnrolments == null)
       {
-        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@NhsNumber}",
-          new { NhsNumber = nhsNumber });
+        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@ParticipantId}",
+          new { ParticipantId = participantId });
         return new NotFoundObjectResult("Unable to find pathway enrolments");
+      }
+
+      //Check that logged in user has access to participant
+      if (pathwayEnrolments.FirstOrDefault().NhsNumber != nhsNumber.ToString()){
+        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
+          new { ParticipantId = participantId });
+        return new UnauthorizedResult();
       }
 
       var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);

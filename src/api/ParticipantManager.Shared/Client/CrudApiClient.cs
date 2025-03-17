@@ -7,10 +7,10 @@ namespace ParticipantManager.Shared.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
-  public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(string nhsNumber)
+  public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(Guid participantId)
   {
     logger.LogInformation("GetPathwayEnrolmentsAsync");
-    var url = $"/api/pathwaytypeenrolments?nhsnumber={nhsNumber}";
+    var url = $"/api/pathwaytypeenrolments?participantId={participantId}";
 
     try
     {
