@@ -18,13 +18,7 @@ public class FeatureFlagClient : IFeatureFlagClient
     var traitList = new List<ITrait> { new Trait(traitKey, participantId) };
 
     var flags = await _flagsmithClient.GetIdentityFlags(identifier, traitList);
-    var allowedParticipantIds = await flags.GetFeatureValue(featureName);
 
-    if (allowedParticipantIds.Contains(participantId.ToString()))
-    {
-      return true;
-    }
-
-    return false;
+    return await flags.IsFeatureEnabled(featureName);
   }
 }
