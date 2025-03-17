@@ -17,7 +17,7 @@ services:
     networks:
       - backend
 
-    ### ✅ Experience API (Azure Functions in .NET 9) ###
+  ### ✅ Experience API (Azure Functions in .NET 9) ###
   experience-api:
     container_name: "experience-api"
     build:
@@ -31,6 +31,23 @@ services:
       AzureWebJobsSecretStorageType: "files"
     ports:
       - "${EXPERIENCE_PORT}:80"
+    networks:
+      - backend
+
+    ### ✅ Event Handler (Azure Functions in .NET 9) ###
+  event-handler:
+    container_name: "event-handler"
+    build:
+      context: ./src/api
+      dockerfile: ParticipantManager.EventHandler/Dockerfile
+    platform: linux/amd64
+    restart: always
+    environment:
+      FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
+      AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
+      AzureWebJobsSecretStorageType: "files"
+    ports:
+      - "${EVENT_HANDLER_PORT}:80"
     networks:
       - backend
 

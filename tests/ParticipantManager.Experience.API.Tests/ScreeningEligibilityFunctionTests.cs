@@ -5,10 +5,10 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ParticipantManager.Experience.API.Client;
-using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
+using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests;
 
@@ -22,8 +22,8 @@ public class ScreeningEligibilityFunctionTests
   public ScreeningEligibilityFunctionTests()
   {
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result)
-      .Returns(MockListPathwayAssignments);
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<string>()).Result)
+      .Returns(MockListPathwayEnrolments);
     _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
   }
 
@@ -92,7 +92,7 @@ public class ScreeningEligibilityFunctionTests
     // Assert
 
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayAssignmentDTO>)response?.Value).Count);
+    Assert.Equal(2, ((List<PathwayEnrolmentDto>)response?.Value).Count);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -106,18 +106,18 @@ public class ScreeningEligibilityFunctionTests
     return request.Object;
   }
 
-  private List<PathwayAssignmentDTO> MockListPathwayAssignments()
+  private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
   {
-    return new List<PathwayAssignmentDTO>
+    return new List<PathwayEnrolmentDto>
     {
       new()
       {
-        AssignmentId = "123",
+        EnrolmentId = "123",
         ScreeningName = "BreastScreening"
       },
       new()
       {
-        AssignmentId = "1234",
+        EnrolmentId = "1234",
         ScreeningName = "BowelScreening"
       }
     };

@@ -19,12 +19,6 @@ $button-shadow-size: 4px;
   display: inline-flex;
   gap: 16px;
 
-  &span {
-    @include mq($until: desktop) {
-      @include visually-hidden();
-    }
-  }
-
   &:hover {
     background-color: $app-login-button-hover-color;
   }

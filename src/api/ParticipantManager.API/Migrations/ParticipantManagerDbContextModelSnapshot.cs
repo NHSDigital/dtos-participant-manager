@@ -51,10 +51,10 @@ namespace ParticipantManager.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AssignmentId")
+                    b.Property<Guid>("EnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PathwayTypeAssignmentAssignmentId")
+                    b.Property<Guid>("PathwayTypeEnrolmentEnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PathwayVersion")
@@ -67,7 +67,7 @@ namespace ParticipantManager.API.Migrations
 
                     b.HasKey("EpisodeId");
 
-                    b.HasIndex("PathwayTypeAssignmentAssignmentId");
+                    b.HasIndex("PathwayTypeEnrolmentEnrolmentId");
 
                     b.ToTable("Episodes");
                 });
@@ -95,13 +95,13 @@ namespace ParticipantManager.API.Migrations
                     b.ToTable("Participants");
                 });
 
-            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeAssignment", b =>
+            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeEnrolment", b =>
                 {
-                    b.Property<Guid>("AssignmentId")
+                    b.Property<Guid>("EnrolmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("AssignmentDate")
+                    b.Property<DateTime>("EnrolmentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("LapsedDate")
@@ -113,15 +113,12 @@ namespace ParticipantManager.API.Migrations
                     b.Property<Guid>("ParticipantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PathwayId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PathwayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("PathwayTypeId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PathwayTypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ScreeningName")
                         .IsRequired()
@@ -131,11 +128,11 @@ namespace ParticipantManager.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AssignmentId");
+                    b.HasKey("EnrolmentId");
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("PathwayTypeAssignments");
+                    b.ToTable("PathwayTypeEnrolments");
                 });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
@@ -149,19 +146,19 @@ namespace ParticipantManager.API.Migrations
 
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
-                    b.HasOne("ParticipantManager.API.Models.PathwayTypeAssignment", "PathwayTypeAssignment")
+                    b.HasOne("ParticipantManager.API.Models.PathwayTypeEnrolment", "PathwayTypeEnrolment")
                         .WithMany("Episodes")
-                        .HasForeignKey("PathwayTypeAssignmentAssignmentId")
+                        .HasForeignKey("PathwayTypeEnrolmentEnrolmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PathwayTypeAssignment");
+                    b.Navigation("PathwayTypeEnrolment");
                 });
 
-            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeAssignment", b =>
+            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeEnrolment", b =>
                 {
                     b.HasOne("ParticipantManager.API.Models.Participant", "Participant")
-                        .WithMany("PathwayTypeAssignments")
+                        .WithMany("PathwayTypeEnrolments")
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -176,10 +173,10 @@ namespace ParticipantManager.API.Migrations
 
             modelBuilder.Entity("ParticipantManager.API.Models.Participant", b =>
                 {
-                    b.Navigation("PathwayTypeAssignments");
+                    b.Navigation("PathwayTypeEnrolments");
                 });
 
-            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeAssignment", b =>
+            modelBuilder.Entity("ParticipantManager.API.Models.PathwayTypeEnrolment", b =>
                 {
                     b.Navigation("Episodes");
                 });

@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using ParticipantManager.Experience.API.Client;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
 
 namespace ParticipantManager.Experience.API.Functions;
 
@@ -14,7 +14,8 @@ public class ScreeningEligibilityFunction(
 {
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")] HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")]
+    HttpRequestData req)
   {
     try
     {
@@ -35,17 +36,17 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayAssignments = await crudApiClient.GetPathwayAssignmentsAsync(nhsNumber);
-      if (pathwayAssignments == null)
+      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(nhsNumber);
+      if (pathwayEnrolments == null)
       {
-        logger.LogError("Failed to find pathway assignments for NhsNumber: {@NhsNumber}",
+        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@NhsNumber}",
           new { NhsNumber = nhsNumber });
-        return new NotFoundObjectResult("Unable to find pathway assignments");
+        return new NotFoundObjectResult("Unable to find pathway enrolments");
       }
 
-      logger.LogInformation("Found pathway assignments for NhsNumber: {@NhsNumber}",
+      logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}",
         new { NhsNumber = nhsNumber });
-      return new OkObjectResult(pathwayAssignments);
+      return new OkObjectResult(pathwayEnrolments);
     }
     catch (Exception ex)
     {

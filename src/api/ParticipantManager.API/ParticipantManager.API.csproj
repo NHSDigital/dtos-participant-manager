@@ -43,9 +43,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
+    <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ParticipantManager.Shared\ParticipantManager.Shared.csproj" />
+    <ProjectReference Include="..\ParticipantManager.Shared\ParticipantManager.Shared.csproj"/>
   </ItemGroup>
 </Project>
