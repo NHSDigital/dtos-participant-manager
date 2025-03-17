@@ -3,17 +3,17 @@ import { logger } from "@/app/lib/logger";
 import type { Session } from "next-auth";
 
 export async function fetchPatientScreeningEligibility(
-  accessToken: string
+  session: Session
 ): Promise<EligibilityResponse> {
   const correlationId = crypto.randomUUID();
 
   try {
-    const url = `${process.env.EXPERIENCE_API_URL}/api/eligibility`;
+    const url = `${process.env.EXPERIENCE_API_URL}/api/participant/${session.user?.participantId}/eligibility`;
     logger.info({ url, correlationId }, "Making eligibility API request");
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: "Bearer " + accessToken,
+        Authorization: "Bearer " + session.user?.accessToken,
         "X-Correlation-ID": correlationId,
       },
     });

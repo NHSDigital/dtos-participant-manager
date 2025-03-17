@@ -50,7 +50,8 @@ public class ScreeningEligibilityFunction(
       }
 
       //Check that logged in user has access to participant
-      if (pathwayEnrolments.FirstOrDefault().NhsNumber != nhsNumber.ToString()){
+      if (pathwayEnrolments.FirstOrDefault().NhsNumber != nhsNumber.ToString())
+      {
         logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
           new { ParticipantId = participantId });
         return new UnauthorizedResult();
