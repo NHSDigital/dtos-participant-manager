@@ -28,10 +28,10 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
+  public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(Guid participantId, string enrolmentId)
   {
     logger.LogInformation("GetPathwayEnrolmentByIdAsync");
-    var url = $"/api/pathwaytypeenrolments/{enrolmentId}";
+    var url = $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}";
 
     try
     {

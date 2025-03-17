@@ -37,12 +37,19 @@ public class PathwayEnrolmentFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayEnrolment = await crudApiClient.GetPathwayEnrolmentByIdAsync(nhsNumber, enrolmentId);
+      var pathwayEnrolment = await crudApiClient.GetPathwayEnrolmentByIdAsync(participantId, enrolmentId);
       if (pathwayEnrolment == null)
       {
         logger.LogError("Failed to find pathway enrolment for Request {@Request}",
           new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
         return new NotFoundResult();
+      }
+
+      if (pathwayEnrolment.NhsNumber != nhsNumber.ToString())
+      {
+        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
+          new { ParticipantId = participantId });
+        return new UnauthorizedResult();
       }
 
       var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
