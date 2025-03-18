@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
 import Header from "@/app/components/header";
 import Footer from "@/app/components/footer";
-import "./globals.scss";
-
-export const metadata: Metadata = {
-  title: "UI template",
-  description: "A UI template for Screening services",
-};
+import "@/app/globals.scss";
 
 export default function RootLayout({
   children,

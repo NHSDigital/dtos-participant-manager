@@ -10,7 +10,7 @@ features = {
 }
 
 tags = {
-  Project = "Service-Insights"
+  Project = "Participant-Manager"
 }
 
 regions = {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/app/components/breadcrumb";
 
 export const metadata: Metadata = {
-  title: `Accessibility statement - ${process.env.SERVICE_NAME}`,
+  title: `Cookie policy - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
@@ -14,7 +14,7 @@ export default async function Page() {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
-            <h1>Cookies on {process.env.SERVICE_NAME}</h1>
+            <h1>Cookie policy</h1>
             <h2>What are cookies?</h2>
             <p>
               Cookies are files saved on your phone, tablet or computer when you
