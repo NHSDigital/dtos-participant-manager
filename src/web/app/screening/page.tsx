@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getAuthConfig } from "@/app/lib/auth";
 import { getEligibility } from "@/app/lib/getEligibility";
 import ScreeningList from "@/app/components/screeningList";
-import UserProfile from "@/app/components/userProfile";
 
 export const metadata: Metadata = {
   title: `My screening - ${process.env.SERVICE_NAME} - NHS`,
@@ -28,13 +27,6 @@ export default async function Page() {
             </a>{" "}
             .
           </p>
-          {session?.user && (
-            <UserProfile
-              firstName={session.user?.firstName}
-              lastName={session.user?.lastName}
-              nhsNumber={session.user?.nhsNumber}
-            />
-          )}
         </div>
       </div>
     </main>

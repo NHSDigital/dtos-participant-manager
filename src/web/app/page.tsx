@@ -6,7 +6,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-
   return (
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">
       <div className="nhsuk-grid-row">
