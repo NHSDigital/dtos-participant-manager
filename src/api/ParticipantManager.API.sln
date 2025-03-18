@@ -123,7 +123,7 @@ Global
     {9577B108-A5AE-4079-9C07-599B04F04CDD}.Release|x64.Build.0 = Release|Any CPU
     {9577B108-A5AE-4079-9C07-599B04F04CDD}.Release|x86.ActiveCfg = Release|Any CPU
     {9577B108-A5AE-4079-9C07-599B04F04CDD}.Release|x86.Build.0 = Release|Any CPU
-	EndGlobalSection
+  EndGlobalSection
   GlobalSection(SolutionProperties) = preSolution
       HideSolutionNode = FALSE
   EndGlobalSection
