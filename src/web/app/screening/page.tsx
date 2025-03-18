@@ -8,7 +8,6 @@ import { fetchPatientScreeningEligibility } from "@/app/lib/fetchPatientData";
 import { createUrlSlug } from "@/app/lib/utils";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
-import UserProfile from "@/app/components/userProfile";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -25,7 +24,7 @@ const getEligibility = async (
   }
 
   try {
-    return await fetchPatientScreeningEligibility(session.user.accessToken);
+    return await fetchPatientScreeningEligibility(session);
   } catch (error) {
     console.error("Failed to get eligibility data:", error);
     return null;
@@ -47,18 +46,18 @@ export default async function Page() {
           {eligibility?.length ? (
             eligibility.map((item: EligibilityItem) => {
               const url = `${createUrlSlug(item.screeningName)}/${
-                item.assignmentId
+                item.enrolmentId
               }`;
               return (
                 <Card
-                  key={item.assignmentId}
+                  key={item.enrolmentId}
                   title={item.screeningName}
                   url={url}
                 />
               );
             })
           ) : (
-            <InsetText text="You have no screening assignments." />
+            <InsetText text="You have no screening enrolments." />
           )}
 
           <p>
@@ -68,13 +67,6 @@ export default async function Page() {
             </a>{" "}
             .
           </p>
-          {session?.user && (
-            <UserProfile
-              firstName={session.user?.firstName}
-              lastName={session.user?.lastName}
-              nhsNumber={session.user?.nhsNumber}
-            />
-          )}
         </div>
       </div>
     </main>

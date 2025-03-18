@@ -5,10 +5,10 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using ParticipantManager.Experience.API.Client;
-using ParticipantManager.Experience.API.DTOs;
 using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
+using ParticipantManager.Shared.Client;
+using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests;
 
@@ -18,13 +18,14 @@ public class ScreeningEligibilityFunctionTests
   private readonly ScreeningEligibilityFunction _function;
   private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
+  private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
 
   public ScreeningEligibilityFunctionTests()
   {
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayAssignmentsAsync(It.IsAny<string>()).Result)
-      .Returns(MockListPathwayAssignments);
-    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result)
+      .Returns(MockListPathwayEnrolments);
+    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object );
   }
 
   [Fact]
@@ -37,7 +38,7 @@ public class ScreeningEligibilityFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -62,7 +63,7 @@ public class ScreeningEligibilityFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -84,15 +85,18 @@ public class ScreeningEligibilityFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
+
+
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as OkObjectResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as OkObjectResult;
 
     // Assert
 
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayAssignmentDTO>)response?.Value).Count);
+    Assert.Equal(2, ((List<PathwayEnrolmentDto>)response?.Value).Count);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -106,19 +110,25 @@ public class ScreeningEligibilityFunctionTests
     return request.Object;
   }
 
-  private List<PathwayAssignmentDTO> MockListPathwayAssignments()
+  private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
   {
-    return new List<PathwayAssignmentDTO>
+    return new List<PathwayEnrolmentDto>
     {
       new()
       {
-        AssignmentId = "123",
-        ScreeningName = "BreastScreening"
+        EnrolmentId = "123",
+        ScreeningName = "BreastScreening",
+        Participant = new ParticipantDto {
+        NhsNumber = "12345678",
+        }
       },
       new()
       {
-        AssignmentId = "1234",
-        ScreeningName = "BowelScreening"
+        EnrolmentId = "1234",
+        ScreeningName = "BowelScreening",
+        Participant = new ParticipantDto {
+        NhsNumber = "12345678",
+        }
       }
     };
   }

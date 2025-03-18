@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedToken } from "@/app/types/auth";
 import { logger } from "./logger";
+import { fetchParticipantId } from "./fetchPatientData";
 
 // Function to convert PEM to CryptoKey
 async function pemToPrivateKey(): Promise<CryptoKey | null> {
@@ -129,7 +130,25 @@ export async function getAuthConfig() {
         return isValidToken;
       },
       async jwt({ token, account, profile }) {
-        if (account && profile) {
+        if (account?.access_token) {
+          try {
+            const response = await fetch(
+              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${account.access_token}`,
+                },
+              }
+            );
+            profile = await response.json();
+          } catch (error) {
+            logger.error("Error fetching userinfo:", error);
+          }
+        }
+        if (account && profile && account.access_token) {
+          const participantId = await fetchParticipantId(account.access_token);
+
           return {
             ...token,
             accessToken: account.access_token,
@@ -137,8 +156,10 @@ export async function getAuthConfig() {
             refreshToken: account.refresh_token,
             firstName: profile.given_name,
             lastName: profile.family_name,
+            birthDate: profile.birthdate,
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
+            participantId: participantId,
           };
         } else if (Date.now() < (token.expiresAt as number) * 1000) {
           return token;
@@ -198,6 +219,7 @@ export async function getAuthConfig() {
             accessToken,
             refreshToken,
             expiresAt,
+            participantId,
           } = token;
 
           Object.assign(session.user, {
@@ -208,6 +230,7 @@ export async function getAuthConfig() {
             accessToken,
             refreshToken,
             expiresAt,
+            participantId,
           });
         }
         session.error = token.error as "RefreshTokenError" | undefined;
@@ -223,7 +246,8 @@ export async function getAuthConfig() {
     },
     pages: {
       signIn: "/",
-      error: "/access-denied",
+      signOut: "/",
+      error: "/error",
     },
   });
 }
