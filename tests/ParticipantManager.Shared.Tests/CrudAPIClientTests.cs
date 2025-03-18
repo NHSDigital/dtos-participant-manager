@@ -32,7 +32,7 @@ public class CrudApiClientTests
     var participantId = Guid.NewGuid();
     var expectedEnrolments = new List<PathwayEnrolmentDto>
     {
-      new PathwayEnrolmentDto { Id = Guid.NewGuid(), PathwayTypeName = "Test Pathway" }
+      new PathwayEnrolmentDto { EnrolmentId = Guid.NewGuid(), ScreeningName = "Test Pathway" }
     };
 
     _mockHttpMessageHandler.SetupRequest(HttpMethod.Get, $"/api/pathwaytypeenrolments?participantId={participantId}")
