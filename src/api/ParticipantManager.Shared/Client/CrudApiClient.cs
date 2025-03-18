@@ -38,6 +38,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       var response = await httpClient.GetAsync(url);
       response.EnsureSuccessStatusCode();
 
+
       return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true

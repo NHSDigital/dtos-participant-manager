@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ParticipantManager.Shared.DTOs;
 
 public class EnrolledPathwayDetailsDto
@@ -9,5 +11,6 @@ public class EnrolledPathwayDetailsDto
   public string ScreeningName { get; set; }
   public string PathwayTypeName { get; set; }
   public string InfoUrl => PathwayInfoUrlMapper.GetUrl(PathwayTypeName);
+  [JsonPropertyName("Participant.NhsNumber")]
   public string NhsNumber {get; set;}
 }
