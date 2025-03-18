@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <RootNamespace>ParticipantManager.Shared</RootNamespace>
+        <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +30,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\api\ParticipantManager.Shared\ParticipantManager.Shared.csproj" />
+      <ProjectReference Include="..\..\src\api\ParticipantManager.API\ParticipantManager.API.csproj" />
     </ItemGroup>
 
 </Project>
