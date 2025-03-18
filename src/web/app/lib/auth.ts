@@ -129,6 +129,18 @@ export async function getAuthConfig() {
         return isValidToken;
       },
       async jwt({ token, account, profile }) {
+        if (account?.access_token) {
+          const response = await fetch(
+            `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${account.access_token}`,
+              },
+            }
+          );
+          profile = await response.json();
+        }
         if (account && profile) {
           return {
             ...token,
@@ -137,6 +149,7 @@ export async function getAuthConfig() {
             refreshToken: account.refresh_token,
             firstName: profile.given_name,
             lastName: profile.family_name,
+            birthDate: profile.birthdate,
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
           };
