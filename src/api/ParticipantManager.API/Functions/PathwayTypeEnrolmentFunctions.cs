@@ -23,7 +23,7 @@ public class PathwayTypeEnrolmentFunctions
     _dbContext = dbContext;
   }
 
-  [Function("GetPathwayTypeEnrolmentsByNhsNumber")]
+  [Function("GetPathwayTypeEnrolmentsByParticipantId")]
   public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
     [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "pathwaytypeenrolments")]
     HttpRequest req)
@@ -36,7 +36,19 @@ public class PathwayTypeEnrolmentFunctions
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
       .Where(p => p.ParticipantId == Guid.Parse(participantId))
-      // .Select(p => new { EnrolmentId = p.EnrolmentId, ScreeningName = p.ScreeningName, NhsNumber = p.Participant.NhsNumber })
+      .Select(p => new PathwayTypeEnrolment(){
+        EnrolmentId = p.EnrolmentId,
+        EnrolmentDate = p.EnrolmentDate,
+        PathwayTypeName = p.PathwayTypeName,
+        ScreeningName = p.ScreeningName,
+        PathwayTypeId = p.PathwayTypeId,
+        Status = p.Status,
+        LapsedDate = p.LapsedDate,
+        NextActionDate = p.NextActionDate,
+        Episodes = p.Episodes,
+        ParticipantId = p.ParticipantId,
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+      })
       .ToListAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
