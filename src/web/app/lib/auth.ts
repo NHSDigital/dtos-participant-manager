@@ -130,16 +130,20 @@ export async function getAuthConfig() {
       },
       async jwt({ token, account, profile }) {
         if (account?.access_token) {
-          const response = await fetch(
-            `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${account.access_token}`,
-              },
-            }
-          );
-          profile = await response.json();
+          try {
+            const response = await fetch(
+              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${account.access_token}`,
+                },
+              }
+            );
+            profile = await response.json();
+          } catch (error) {
+            logger.error("Error fetching userinfo:", error);
+          }
         }
         if (account && profile) {
           return {
