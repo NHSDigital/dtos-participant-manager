@@ -58,6 +58,14 @@ export default async function Header({
                 {session.user.firstName} {session.user.lastName}
               </li>
               <li className={styles["nhsuk-header__account-item"]}>
+                <a
+                  href={process.env.AUTH_NHS_LOGIN_SETTINGS_URL}
+                  className={styles["nhsuk-header__account-link"]}
+                >
+                  Account and settings
+                </a>
+              </li>
+              <li className={styles["nhsuk-header__account-item"]}>
                 <form
                   className={styles["nhsuk-header__account-form"]}
                   action={async () => {
