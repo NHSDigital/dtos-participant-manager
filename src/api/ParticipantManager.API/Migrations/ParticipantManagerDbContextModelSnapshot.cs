@@ -81,7 +81,7 @@ namespace ParticipantManager.API.Migrations
                     b.Property<DateTime>("DOB")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NhsNumber")
+                    b.Property<string>("NHSNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
