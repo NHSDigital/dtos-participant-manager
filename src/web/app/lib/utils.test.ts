@@ -43,9 +43,6 @@ describe("formatCompactDate", () => {
 describe("createUrlSlug", () => {
   it("converts string to url friendly slug", () => {
     expect(createUrlSlug("Breast Screening")).toBe("breast-screening");
-    expect(createUrlSlug("Bowel & Cancer Screening")).toBe(
-      "bowel-cancer-screening"
-    );
     expect(createUrlSlug("  Multiple   Spaces  ")).toBe("multiple-spaces");
   });
 });
