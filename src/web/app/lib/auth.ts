@@ -240,6 +240,7 @@ export async function getAuthConfig() {
     },
     pages: {
       signIn: "/",
+      signOut: "/",
       error: "/error",
     },
   });
