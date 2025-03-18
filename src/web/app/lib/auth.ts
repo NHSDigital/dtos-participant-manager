@@ -130,8 +130,24 @@ export async function getAuthConfig() {
         return isValidToken;
       },
       async jwt({ token, account, profile }) {
+        if (account?.access_token) {
+          try {
+            const response = await fetch(
+              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${account.access_token}`,
+                },
+              }
+            );
+            profile = await response.json();
+          } catch (error) {
+            logger.error("Error fetching userinfo:", error);
+          }
+        }
         if (account && profile && account.access_token) {
-          var participantId = await fetchParticipantId(account.access_token)
+          const participantId = await fetchParticipantId(account.access_token);
 
           return {
             ...token,
@@ -140,6 +156,7 @@ export async function getAuthConfig() {
             refreshToken: account.refresh_token,
             firstName: profile.given_name,
             lastName: profile.family_name,
+            birthDate: profile.birthdate,
             nhsNumber: profile.nhs_number,
             identityLevel: profile.identity_proofing_level,
             participantId: participantId,
@@ -229,7 +246,8 @@ export async function getAuthConfig() {
     },
     pages: {
       signIn: "/",
-      error: "/access-denied",
+      signOut: "/",
+      error: "/error",
     },
   });
 }
