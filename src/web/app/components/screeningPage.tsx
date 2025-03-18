@@ -26,7 +26,7 @@ const getPathwayEnrolment = async (
   }
 
   try {
-    return await fetchPathwayEnrolment(session.user.accessToken, enrolmentId);
+    return await fetchPathwayEnrolment(session, enrolmentId);
   } catch (error) {
     console.error("Failed to get pathway enrolment data:", error);
     return null;

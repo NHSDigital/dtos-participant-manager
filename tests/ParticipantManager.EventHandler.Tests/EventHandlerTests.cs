@@ -35,7 +35,7 @@ public class CreateEnrolmentHandlerTests
     var participantId = Guid.NewGuid();
     var pathwayParticipantDto = new CreatePathwayParticipantDto
     {
-      NHSNumber = "1234567890",
+      NhsNumber = "1234567890",
       PathwayTypeId = Guid.NewGuid(),
       PathwayTypeName = "Test Pathway",
       ScreeningName = "Test Screening"
@@ -44,7 +44,7 @@ public class CreateEnrolmentHandlerTests
     var eventGridEvent = new EventGridEvent("/participants/12345", "ParticipantInvited", "0.1", pathwayParticipantDto,
       typeof(CreatePathwayParticipantDto));
 
-    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber))
+    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
@@ -62,7 +62,7 @@ public class CreateEnrolmentHandlerTests
     await _handler.Run(eventGridEvent);
 
     // Assert
-    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber), Times.Once);
+    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.Is<CreatePathwayTypeEnrolmentDto>(dto =>
       dto.ParticipantId == participantId &&
@@ -80,7 +80,7 @@ public class CreateEnrolmentHandlerTests
     var participantId = Guid.NewGuid();
     var pathwayParticipantDto = new CreatePathwayParticipantDto
     {
-      NHSNumber = "1234567890",
+      NhsNumber = "1234567890",
       PathwayTypeId = Guid.NewGuid(),
       PathwayTypeName = "Test Pathway",
       ScreeningName = "Test Screening"
@@ -99,7 +99,7 @@ public class CreateEnrolmentHandlerTests
       typeof(CreatePathwayParticipantDto)
     );
 
-    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber))
+    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync(existingParticipant);
 
     _mockCrudApiClient.Setup(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()))
@@ -114,7 +114,7 @@ public class CreateEnrolmentHandlerTests
     await _handler.Run(eventGridEvent);
 
     // Assert
-    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber), Times.Once);
+    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.Is<CreatePathwayTypeEnrolmentDto>(dto =>
       dto.ParticipantId == participantId &&
@@ -176,7 +176,7 @@ public class CreateEnrolmentHandlerTests
     var participantId = Guid.NewGuid();
     var pathwayParticipantDto = new CreatePathwayParticipantDto
     {
-      NHSNumber = "1234567890",
+      NhsNumber = "1234567890",
       PathwayTypeId = Guid.NewGuid(),
       PathwayTypeName = "Test Pathway",
       ScreeningName = "Test Screening"
@@ -190,7 +190,7 @@ public class CreateEnrolmentHandlerTests
       typeof(CreatePathwayParticipantDto)
     );
 
-    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber))
+    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
@@ -203,7 +203,7 @@ public class CreateEnrolmentHandlerTests
     await _handler.Run(eventGridEvent);
 
     // Assert
-    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber), Times.Once);
+    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Once);
@@ -217,7 +217,7 @@ public class CreateEnrolmentHandlerTests
     var participantId = Guid.NewGuid();
     var pathwayParticipantDto = new CreatePathwayParticipantDto
     {
-      NHSNumber = "1234567890",
+      NhsNumber = "1234567890",
       PathwayTypeId = Guid.NewGuid(),
       PathwayTypeName = "Test Pathway",
       ScreeningName = "Test Screening"
@@ -231,7 +231,7 @@ public class CreateEnrolmentHandlerTests
       typeof(CreatePathwayParticipantDto)
     );
 
-    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber))
+    _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
@@ -249,7 +249,7 @@ public class CreateEnrolmentHandlerTests
     await _handler.Run(eventGridEvent);
 
     // Assert
-    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber), Times.Once);
+    _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Once);

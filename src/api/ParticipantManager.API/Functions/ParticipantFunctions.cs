@@ -49,19 +49,19 @@ public class ParticipantFunctions
 
       // Check if a Participant with the same NHS Number already exists
       var existingParticipant = await _dbContext.Participants
-        .FirstOrDefaultAsync(p => p.NHSNumber == participant.NHSNumber);
+        .FirstOrDefaultAsync(p => p.NhsNumber == participant.NhsNumber);
 
       if (existingParticipant != null)
       {
         _logger.LogError("Attempted to create a duplicate Participant with NHS Number: {@NhsNumber}",
-          new { NhsNumber = participant.NHSNumber });
+          new { NhsNumber = participant.NhsNumber });
         return new ConflictObjectResult(new { message = "A Participant with this NHS Number already exists." });
       }
 
       _dbContext.Participants.Add(participant);
       await _dbContext.SaveChangesAsync();
       _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}",
-        new { NhsNumber = participant.NHSNumber, participant.ParticipantId });
+        new { NhsNumber = participant.NhsNumber, participant.ParticipantId });
       return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
     }
     catch (Exception ex)
@@ -109,7 +109,7 @@ public class ParticipantFunctions
     }
 
     var participant = await _dbContext.Participants
-      .FirstOrDefaultAsync(p => p.NHSNumber == nhsNumber);
+      .FirstOrDefaultAsync(p => p.NhsNumber == nhsNumber);
 
     if (participant == null)
     {

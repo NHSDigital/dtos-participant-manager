@@ -9,4 +9,5 @@ public class EnrolledPathwayDetailsDto
   public string ScreeningName { get; set; }
   public string PathwayTypeName { get; set; }
   public string InfoUrl => PathwayInfoUrlMapper.GetUrl(PathwayTypeName);
+  public ParticipantDto Participant { get; set; }
 }
