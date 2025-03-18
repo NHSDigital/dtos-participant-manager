@@ -7,10 +7,10 @@ namespace ParticipantManager.Shared.Client;
 
 public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
 {
-  public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(string nhsNumber)
+  public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(Guid participantId)
   {
     logger.LogInformation("GetPathwayEnrolmentsAsync");
-    var url = $"/api/pathwaytypeenrolments?nhsnumber={nhsNumber}";
+    var url = $"/api/pathwaytypeenrolments?participantId={participantId}";
 
     try
     {
@@ -28,15 +28,16 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
   }
 
-  public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(string nhsNumber, string enrolmentId)
+  public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(Guid participantId, Guid enrolmentId)
   {
     logger.LogInformation("GetPathwayEnrolmentByIdAsync");
-    var url = $"/api/pathwaytypeenrolments/{enrolmentId}";
+    var url = $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}";
 
     try
     {
       var response = await httpClient.GetAsync(url);
       response.EnsureSuccessStatusCode();
+
 
       return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(new JsonSerializerOptions
       {
@@ -88,7 +89,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       var response = await httpClient.PostAsJsonAsync($"/api/participants", participantDto);
       response.EnsureSuccessStatusCode();
 
-      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NHSNumber });
+      logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NhsNumber });
 
       var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(new JsonSerializerOptions
       {
@@ -99,7 +100,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     }
     catch (HttpRequestException ex)
     {
-      logger.LogError(ex, "Participant with NhsNumber: {@NhsNumber} not created", new { participantDto.NHSNumber });
+      logger.LogError(ex, "Participant with NhsNumber: {@NhsNumber} not created", new { participantDto.NhsNumber });
     }
     catch (Exception ex)
     {

@@ -23,23 +23,35 @@ public class PathwayTypeEnrolmentFunctions
     _dbContext = dbContext;
   }
 
-  [Function("GetPathwayTypeEnrolmentsByNhsNumber")]
+  [Function("GetPathwayTypeEnrolmentsByParticipantId")]
   public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
     [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "pathwaytypeenrolments")]
     HttpRequest req)
   {
     _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
 
-    var nhsNumber = req.Query["nhsnumber"].ToString();
+    var participantId = req.Query["participantId"].ToString();
 
-    if (string.IsNullOrEmpty(nhsNumber)) return new BadRequestObjectResult("Missing NHS Number");
+    if (string.IsNullOrEmpty(participantId)) return new BadRequestObjectResult("Missing ParticipantId");
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
-      .Where(p => p.Participant.NHSNumber == nhsNumber)
+      .Where(p => p.ParticipantId == Guid.Parse(participantId))
+      .Select(p => new PathwayTypeEnrolment(){
+        EnrolmentId = p.EnrolmentId,
+        EnrolmentDate = p.EnrolmentDate,
+        PathwayTypeName = p.PathwayTypeName,
+        ScreeningName = p.ScreeningName,
+        PathwayTypeId = p.PathwayTypeId,
+        Status = p.Status,
+        LapsedDate = p.LapsedDate,
+        NextActionDate = p.NextActionDate,
+        Episodes = p.Episodes,
+        ParticipantId = p.ParticipantId,
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+      })
       .ToListAsync();
 
-    if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
-    //WP - This is never null, Where clause will return an empty collection, Decision - Change to 200 and change == null to .Any or Count??
+    if (pathwayTypeEnrolments.Count == 0) return new NotFoundObjectResult("Did not find any enrolments");
 
     return new OkObjectResult(pathwayTypeEnrolments);
   }
@@ -47,14 +59,27 @@ public class PathwayTypeEnrolmentFunctions
   [Function("GetPathwayTypeEnrolmentById")]
   public async Task<IActionResult> GetPathwayTypeEnrolmentById(
     [HttpTrigger(AuthorizationLevel.Function, "get",
-      Route = "pathwaytypeenrolments/{enrolmentId:guid}")]
-    HttpRequestData req, Guid enrolmentId)
+      Route = "participants/{participantId:guid}/pathwaytypeenrolments/{enrolmentId:guid}")]
+    HttpRequestData req, Guid participantId, Guid enrolmentId)
   {
     _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentById)} processed a request.");
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
-      .Where(p => p.EnrolmentId == enrolmentId)
-      .FirstOrDefaultAsync();
+      .Where(p => p.EnrolmentId == enrolmentId && p.ParticipantId == participantId)
+      .Select(p => new PathwayTypeEnrolment()
+      {
+        EnrolmentId = p.EnrolmentId,
+        EnrolmentDate = p.EnrolmentDate,
+        PathwayTypeName = p.PathwayTypeName,
+        ScreeningName = p.ScreeningName,
+        PathwayTypeId = p.PathwayTypeId,
+        Status = p.Status,
+        LapsedDate = p.LapsedDate,
+        NextActionDate = p.NextActionDate,
+        Episodes = p.Episodes,
+        ParticipantId = p.ParticipantId,
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+      }).FirstOrDefaultAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
 

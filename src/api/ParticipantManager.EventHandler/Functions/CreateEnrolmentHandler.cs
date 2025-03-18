@@ -44,7 +44,7 @@ public class CreateEnrolmentHandler
       return;
     }
 
-    var participantDto = await _crudApiClient.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NHSNumber);
+    var participantDto = await _crudApiClient.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber);
 
     var participantId = participantDto == null
     ? await _crudApiClient.CreateParticipantAsync(pathwayParticipantDto)

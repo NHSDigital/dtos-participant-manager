@@ -18,13 +18,14 @@ public class PathwayEnrolmentFunctionTests
   private readonly PathwayEnrolmentFunction _function;
   private readonly Mock<ILogger<PathwayEnrolmentFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
+  private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
 
   public PathwayEnrolmentFunctionTests()
   {
     _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<string>(), It.IsAny<string>()).Result)
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
       .Returns(MockPathwayDetails);
-    _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
   }
 
   [Fact]
@@ -37,7 +38,7 @@ public class PathwayEnrolmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -62,7 +63,7 @@ public class PathwayEnrolmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request, "123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -84,10 +85,12 @@ public class PathwayEnrolmentFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
+
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request, "123") as OkObjectResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
 
     // Assert
     var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
@@ -116,7 +119,10 @@ public class PathwayEnrolmentFunctionTests
       Status = "Active",
       EnrolmentDate = DateTime.Now,
       PathwayTypeName = "Breast Screening Regular",
-      NextActionDate = DateTime.Now
+      NextActionDate = DateTime.Now,
+      Participant = new ParticipantDto {
+        NhsNumber = "12345678"
+      }
     };
   }
 }

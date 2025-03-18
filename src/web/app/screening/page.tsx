@@ -24,7 +24,7 @@ const getEligibility = async (
   }
 
   try {
-    return await fetchPatientScreeningEligibility(session.user.accessToken);
+    return await fetchPatientScreeningEligibility(session);
   } catch (error) {
     console.error("Failed to get eligibility data:", error);
     return null;

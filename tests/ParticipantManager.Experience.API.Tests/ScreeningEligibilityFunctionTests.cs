@@ -18,13 +18,14 @@ public class ScreeningEligibilityFunctionTests
   private readonly ScreeningEligibilityFunction _function;
   private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
+  private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
 
   public ScreeningEligibilityFunctionTests()
   {
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<string>()).Result)
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result)
       .Returns(MockListPathwayEnrolments);
-    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object);
+    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object );
   }
 
   [Fact]
@@ -37,7 +38,7 @@ public class ScreeningEligibilityFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -62,7 +63,7 @@ public class ScreeningEligibilityFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as UnauthorizedResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -84,10 +85,13 @@ public class ScreeningEligibilityFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Success(principal)); // ✅ Return a valid result
 
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
+
+
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetParticipantEligibility(request) as OkObjectResult;
+    var response = await _function.GetParticipantEligibility(request, new Guid()) as OkObjectResult;
 
     // Assert
 
@@ -113,12 +117,18 @@ public class ScreeningEligibilityFunctionTests
       new()
       {
         EnrolmentId = "123",
-        ScreeningName = "BreastScreening"
+        ScreeningName = "BreastScreening",
+        Participant = new ParticipantDto {
+        NhsNumber = "12345678",
+        }
       },
       new()
       {
         EnrolmentId = "1234",
-        ScreeningName = "BowelScreening"
+        ScreeningName = "BowelScreening",
+        Participant = new ParticipantDto {
+        NhsNumber = "12345678",
+        }
       }
     };
   }
