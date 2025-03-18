@@ -23,7 +23,7 @@ public class PathwayEnrolmentFunctionTests
   public PathwayEnrolmentFunctionTests()
   {
     _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<string>()).Result)
+    _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
       .Returns(MockPathwayDetails);
     _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
   }
@@ -38,7 +38,7 @@ public class PathwayEnrolmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request,  new Guid(), "1234") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -63,7 +63,7 @@ public class PathwayEnrolmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request, new Guid(),"123") as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -90,7 +90,7 @@ public class PathwayEnrolmentFunctionTests
     var request = CreateHttpRequest("");
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(request,  new Guid(), "1234") as OkObjectResult;
+    var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
 
     // Assert
     var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
@@ -120,7 +120,9 @@ public class PathwayEnrolmentFunctionTests
       EnrolmentDate = DateTime.Now,
       PathwayTypeName = "Breast Screening Regular",
       NextActionDate = DateTime.Now,
-      NhsNumber = "12345678",
+      Participant = new ParticipantDto {
+        NhsNumber = "12345678"
+      }
     };
   }
 }

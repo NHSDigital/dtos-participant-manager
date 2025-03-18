@@ -118,13 +118,17 @@ public class ScreeningEligibilityFunctionTests
       {
         EnrolmentId = "123",
         ScreeningName = "BreastScreening",
+        Participant = new ParticipantDto {
         NhsNumber = "12345678",
+        }
       },
       new()
       {
         EnrolmentId = "1234",
         ScreeningName = "BowelScreening",
+        Participant = new ParticipantDto {
         NhsNumber = "12345678",
+        }
       }
     };
   }

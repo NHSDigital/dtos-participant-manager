@@ -16,7 +16,7 @@ public class PathwayEnrolmentFunction(
   [Function("GetPathwayEnrolmentById")]
   public async Task<IActionResult> GetPathwayEnrolmentById(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId}/pathwayenrolments/{enrolmentid}")]
-    HttpRequestData req, Guid participantId, string enrolmentId)
+    HttpRequestData req, Guid participantId, Guid enrolmentId)
   {
     try
     {
@@ -45,7 +45,7 @@ public class PathwayEnrolmentFunction(
         return new NotFoundResult();
       }
 
-      if (pathwayEnrolment.NhsNumber != nhsNumber.ToString())
+      if (pathwayEnrolment.Participant.NhsNumber != nhsNumber.ToString())
       {
         logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
           new { ParticipantId = participantId });

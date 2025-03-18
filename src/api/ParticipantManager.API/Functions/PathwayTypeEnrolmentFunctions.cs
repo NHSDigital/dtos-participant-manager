@@ -55,7 +55,6 @@ public class PathwayTypeEnrolmentFunctions
 
     var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
       .Where(p => p.EnrolmentId == enrolmentId && p.ParticipantId == participantId)
-      .Select(p => new { EnrolmentId = p.EnrolmentId, EnrolmentDate = p.EnrolmentDate, Status = p.Status, NextActionDate = p.NextActionDate, ScreeningName = p.ScreeningName, PathwayTypeName = p.PathwayTypeName,})
       .FirstOrDefaultAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
