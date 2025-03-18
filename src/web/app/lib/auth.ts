@@ -240,7 +240,7 @@ export async function getAuthConfig() {
     },
     pages: {
       signIn: "/",
-      error: "/access-denied",
+      error: "/error",
     },
   });
 }
