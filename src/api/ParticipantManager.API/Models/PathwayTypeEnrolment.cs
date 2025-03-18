@@ -29,4 +29,5 @@ public class PathwayTypeEnrolment
 
   [Required]
   public required string PathwayTypeName { get; set; }
+
 }

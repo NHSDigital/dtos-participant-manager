@@ -70,7 +70,7 @@ public class ParticipantFunctionsTests
     {
       Name = "Jane Doe",
       DOB = DateTime.Parse("1985-05-15"),
-      NHSNumber = "1395608539"
+      NhsNumber = "1395608539"
     };
 
     var request = CreateMockHttpRequest(functionContext, participant);
@@ -79,7 +79,7 @@ public class ParticipantFunctionsTests
     var response = await fun.CreateParticipant(request) as CreatedResult;
 
     Assert.Equal(StatusCodes.Status201Created, response?.StatusCode);
-    Assert.Contains(dbContext.Participants, p => p.NHSNumber == "1395608539");
+    Assert.Contains(dbContext.Participants, p => p.NhsNumber == "1395608539");
   }
 
   [Fact]
@@ -98,7 +98,7 @@ public class ParticipantFunctionsTests
     {
       Name = "Jane Doe",
       DOB = DateTime.Parse("1985-05-15"),
-      NHSNumber = "1395608539"
+      NhsNumber = "1395608539"
     };
 
     // Create data in database directly
@@ -127,7 +127,7 @@ public class ParticipantFunctionsTests
     {
       Name = "John Doe",
       DOB = DateTime.Parse("1980-01-01"),
-      NHSNumber = "1234567890"
+      NhsNumber = "1234567890"
     };
 
     dbContext.Participants.Add(participant);
@@ -155,15 +155,10 @@ public class ParticipantFunctionsTests
 
     var function = new PathwayTypeEnrolmentFunctions(logger.Object, dbContext);
 
-    var participantId = Guid.NewGuid();
-
     var nhsNumber = "123";
-    var enrolmentId = Guid.NewGuid();
 
     var enrolmentDetail = new PathwayTypeEnrolment
     {
-      EnrolmentId = enrolmentId,
-      ParticipantId = participantId,
       EnrolmentDate = DateTime.Now,
       LapsedDate = DateTime.Now,
       Status = "test status",
@@ -174,7 +169,7 @@ public class ParticipantFunctionsTests
       Participant = new Participant
       {
         Name = "test Name",
-        NHSNumber = nhsNumber
+        NhsNumber = nhsNumber
       },
       Episodes = []
     };
@@ -182,16 +177,19 @@ public class ParticipantFunctionsTests
     dbContext.PathwayTypeEnrolments.Add(enrolmentDetail);
     await dbContext.SaveChangesAsync();
 
+    var participantId = enrolmentDetail.ParticipantId;
+    var enrolmentId = enrolmentDetail.EnrolmentId;
+
     var request = CreateMockHttpRequest(functionContext, null);
 
     // Act
-    var response = await function.GetPathwayTypeEnrolmentById(request, enrolmentId);
+    var response = await function.GetPathwayTypeEnrolmentById(request, participantId, enrolmentId);
 
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);
     var returnedPathwayTypeEnrolment = Assert.IsType<PathwayTypeEnrolment>(result.Value);
     Assert.Equal(enrolmentDetail.EnrolmentId, returnedPathwayTypeEnrolment.EnrolmentId);
-    Assert.Equal(enrolmentDetail.Participant.NHSNumber, returnedPathwayTypeEnrolment.Participant.NHSNumber);
+    Assert.Equal(enrolmentDetail.Participant.NhsNumber, returnedPathwayTypeEnrolment.Participant.NhsNumber);
   }
 
   [Fact]
@@ -209,7 +207,7 @@ public class ParticipantFunctionsTests
     {
       Name = "Jane Doe",
       DOB = DateTime.Parse("1990-06-15"),
-      NHSNumber = "9876543210"
+      NhsNumber = "9876543210"
     };
 
     dbContext.Participants.Add(participant);
@@ -223,7 +221,7 @@ public class ParticipantFunctionsTests
     // Assert
     var result = Assert.IsType<OkObjectResult>(response);
     var returnedParticipant = Assert.IsType<Participant>(result.Value);
-    Assert.Equal(participant.NHSNumber, returnedParticipant.NHSNumber);
+    Assert.Equal(participant.NhsNumber, returnedParticipant.NhsNumber);
   }
 
   [Fact]
