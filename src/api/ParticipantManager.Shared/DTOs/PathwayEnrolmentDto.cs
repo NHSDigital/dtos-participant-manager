@@ -6,6 +6,5 @@ public record PathwayEnrolmentDto
 {
   public string EnrolmentId { get; set; }
   public string ScreeningName { get; set; }
-  [JsonPropertyName("Participant.NhsNumber")]
-  public string NhsNumber { get; set; }
+  public ParticipantDto Participant { get; set; }
 }

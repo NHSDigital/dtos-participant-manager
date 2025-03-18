@@ -59,7 +59,7 @@ public class CrudApiClientTests
     Assert.NotNull(result);
     Assert.Single(result);
     Assert.Equal("test screening name", result[0].ScreeningName);
-    Assert.Equal("1234567890", result[0].NhsNumber);
+    Assert.Equal("1234567890", result[0].Participant.NHSNumber);
   }
 }
 
