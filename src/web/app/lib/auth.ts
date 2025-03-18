@@ -147,7 +147,7 @@ export async function getAuthConfig() {
           }
         }
         if (account && profile && account.access_token) {
-          var participantId = await fetchParticipantId(account.access_token);
+          const participantId = await fetchParticipantId(account.access_token);
 
           return {
             ...token,
