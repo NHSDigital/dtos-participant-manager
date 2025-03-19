@@ -138,7 +138,7 @@ public class ParticipantFunctionsTests
     // Assert
     Assert.IsType(expectedResultType, response);
     var result = (ObjectResult)response;
-    Assert.Contains(expectedMessage, result.Value.ToString());
+    Assert.Contains(expectedMessage, result.Value?.ToString());
   }
 
   [Theory]
@@ -155,7 +155,7 @@ public class ParticipantFunctionsTests
     // Assert
     Assert.IsType(expectedResultType, response);
     var result = (ObjectResult)response;
-    Assert.Contains(expectedMessage, result.Value.ToString());
+    Assert.Contains(expectedMessage, result.Value?.ToString());
   }
 
   [Theory]
@@ -184,7 +184,7 @@ public class ParticipantFunctionsTests
 
     // Assert
     var result = Assert.IsType<BadRequestObjectResult>(response);
-    Assert.IsAssignableFrom(expectedValidationResultType, result.Value);
+    Assert.IsType(expectedValidationResultType, result.Value);
   }
 
   [Fact]
@@ -202,7 +202,7 @@ public class ParticipantFunctionsTests
     // Assert
     var result = Assert.IsType<ConflictObjectResult>(response);
     Assert.Equal(StatusCodes.Status409Conflict, result.StatusCode);
-    Assert.Contains("A Participant with this NHS Number already exists.", result.Value.ToString());
+    Assert.Contains("A Participant with this NHS Number already exists.", result.Value?.ToString());
   }
 
   [Fact]
@@ -217,6 +217,7 @@ public class ParticipantFunctionsTests
 
     // Assert
     var result = Assert.IsType<NotFoundObjectResult>(response);
-    Assert.Contains("not found", result.Value.ToString());
+    Assert.NotNull(result);
+    Assert.Contains("not found", result.Value?.ToString());
   }
 }
