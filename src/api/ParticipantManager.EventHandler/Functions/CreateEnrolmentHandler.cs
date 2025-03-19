@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public class CreateEnrolmentHandler
   }
 
   [Function("CreateEnrolmentHandler")]
-  public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
+  public async Task Run([EventGridTrigger] CloudEvent eventGridEvent)
   {
     _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
       eventGridEvent.Subject);
