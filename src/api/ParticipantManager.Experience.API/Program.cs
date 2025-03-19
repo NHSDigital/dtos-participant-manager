@@ -54,6 +54,7 @@ var host = new HostBuilder()
     });
 
     services.AddSingleton<ITokenService, TokenService>();
+    services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
     services.AddAuthorization();
   })
   .UseSerilog((context, services, loggerConfiguration) =>

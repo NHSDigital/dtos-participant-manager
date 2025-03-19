@@ -10,12 +10,13 @@ namespace ParticipantManager.Experience.API.Functions;
 public class ScreeningEligibilityFunction(
   ILogger<ScreeningEligibilityFunction> logger,
   ICrudApiClient crudApiClient,
-  ITokenService tokenService)
+  ITokenService tokenService,
+  IFeatureFlagClient featureFlagClient)
 {
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "eligibility")]
-    HttpRequestData req)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+    HttpRequestData req, Guid participantId)
   {
     try
     {
@@ -27,8 +28,6 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      logger.LogInformation("Access token is valid, looking for NHS Number");
-
       var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
       if (string.IsNullOrEmpty(nhsNumber))
       {
@@ -36,12 +35,33 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(nhsNumber);
+      if (string.IsNullOrEmpty(participantId.ToString()))
+      {
+        logger.LogError("Access token doesn't contain ParticipantId");
+        return new UnauthorizedResult();
+      }
+
+      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
       if (pathwayEnrolments == null)
       {
-        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@NhsNumber}",
-          new { NhsNumber = nhsNumber });
+        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@ParticipantId}",
+          new { ParticipantId = participantId });
         return new NotFoundObjectResult("Unable to find pathway enrolments");
+      }
+
+      //Check that logged in user has access to participant
+      if (pathwayEnrolments.FirstOrDefault().Participant.NhsNumber != nhsNumber.ToString())
+      {
+        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
+          new { ParticipantId = participantId });
+        return new UnauthorizedResult();
+      }
+
+      var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
+
+      if (!enabled)
+      {
+        return new ForbidResult();
       }
 
       logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}",

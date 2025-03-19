@@ -1,6 +1,6 @@
 services:
   azureventgridsimulator:
-    image: pmcilreavy/azureeventgridsimulator:latest
+    image: acrukshubdevparman.azurecr.io/azureeventgridsimulator:latest
     container_name: azureeventgridsimulator-dev
     ports:
       # add a port mapping for each topic in the settings file

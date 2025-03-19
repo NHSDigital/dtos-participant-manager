@@ -6,7 +6,6 @@ import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
-import UserProfile from "@/app/components/userProfile";
 
 interface ScreeningPageProps {
   screeningType: string;
@@ -26,7 +25,7 @@ const getPathwayEnrolment = async (
   }
 
   try {
-    return await fetchPathwayEnrolment(session.user.accessToken, enrolmentId);
+    return await fetchPathwayEnrolment(session, enrolmentId);
   } catch (error) {
     console.error("Failed to get pathway enrolment data:", error);
     return null;
@@ -65,13 +64,6 @@ export default async function ScreeningPage({
               <Card
                 title={`About ${pathwayEnrolment.screeningName}`}
                 url={pathwayEnrolment.infoUrl}
-              />
-            )}
-            {session?.user && (
-              <UserProfile
-                firstName={session.user?.firstName}
-                lastName={session.user?.lastName}
-                nhsNumber={session.user?.nhsNumber}
               />
             )}
           </div>
