@@ -35,7 +35,7 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      if (string.IsNullOrEmpty(participantId.ToString()))
+      if (participantId == Guid.Empty)
       {
         logger.LogError("Access token doesn't contain ParticipantId");
         return new UnauthorizedResult();
