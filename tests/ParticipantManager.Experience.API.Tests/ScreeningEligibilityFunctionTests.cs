@@ -19,7 +19,7 @@ public class ScreeningEligibilityFunctionTests
   private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
   private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
-  private HttpRequestData _request;
+  private readonly HttpRequestData _request = CreateHttpRequest("");
 
   public ScreeningEligibilityFunctionTests()
   {
@@ -35,8 +35,6 @@ public class ScreeningEligibilityFunctionTests
     _mockTokenService
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Expired());
-
-    _request = CreateHttpRequest("");
 
     // Act
     var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;

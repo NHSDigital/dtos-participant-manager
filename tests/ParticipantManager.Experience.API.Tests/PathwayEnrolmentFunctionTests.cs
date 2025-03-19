@@ -20,12 +20,12 @@ public class PathwayEnrolmentFunctionTests
   private readonly Mock<ILogger<PathwayEnrolmentFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
   private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
-  private HttpRequestData _request;
-
+  private readonly Guid _participantId = Guid.NewGuid();
+  private readonly Guid _enrolmentId = Guid.NewGuid();
+  private readonly HttpRequestData _request = CreateHttpRequest("");
 
   public PathwayEnrolmentFunctionTests()
   {
-    _request = CreateHttpRequest("");
     _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
     _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
       .Returns(MockPathwayDetails);
@@ -35,12 +35,13 @@ public class PathwayEnrolmentFunctionTests
   [Fact]
   public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfInvalidToken()
   {
+    // Arrange
     _mockTokenService
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Expired());
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(_request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -49,6 +50,7 @@ public class PathwayEnrolmentFunctionTests
   [Fact]
   public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
   {
+    // Arrange
     var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345"),
@@ -63,20 +65,21 @@ public class PathwayEnrolmentFunctionTests
       .ReturnsAsync(AccessTokenResult.Success(principal));
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(_request, Guid.NewGuid(), Guid.NewGuid()) as UnauthorizedResult;
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayEnrolmentById_ShouldReturnNotFound_IfPathwayEnrolmentIsNull()
   {
+    // Arrange
     var claims = new List<Claim>
     {
-      new(ClaimTypes.NameIdentifier, "12345678"),
+      new(ClaimTypes.NameIdentifier, "1234567890"),
       new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "12345678")
+      new("nhs_number", "1234567890")
     };
     var identity = new ClaimsIdentity(claims, "Bearer");
     var principal = new ClaimsPrincipal(identity);
@@ -85,15 +88,128 @@ public class PathwayEnrolmentFunctionTests
       .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
       .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
+    _crudApiClient
+      .Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
+      .ReturnsAsync((EnrolledPathwayDetailsDto)null);
 
     // Act
-    var response = await _function.GetPathwayEnrolmentById(_request, Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as NotFoundResult;
 
     // Assert
-    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
+    Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNhsNumberDoesNotMatch()
+  {
+    // Arrange
+    var claims = new List<Claim>
+    {
+      new(ClaimTypes.NameIdentifier, "12345"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "0987654321") // Different from the mocked data
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal));
+
+    // Act
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
+
+    // Assert
+    Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetPathwayEnrolmentById_ShouldReturnForbidden_IfFeatureDisabled()
+  {
+    // Arrange
+    var claims = new List<Claim>
+    {
+      new(ClaimTypes.NameIdentifier, "1234567890"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "1234567890")
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal));
+
+    _mockFeatureFlagClient
+      .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId))
+      .ReturnsAsync(false);
+
+    // Act
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId);
+
+    // Assert
+    Assert.NotNull(response);
+    Assert.IsType<ForbidResult>(response);
+  }
+
+  [Fact]
+  public async Task GetPathwayEnrolmentById_ShouldReturnOk_WithValidToken()
+  {
+    // Arrange
+    var claims = new List<Claim>
+    {
+      new(ClaimTypes.NameIdentifier, "1234567890"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "1234567890")
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal));
+
+    _mockFeatureFlagClient
+      .Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>()))
+      .ReturnsAsync(true);
+
+    // Act
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as OkObjectResult;
+
+    // Assert
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(pathwayEnrolmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
+    Assert.Equal(pathwayEnrolmentDto.ScreeningName, pathwayEnrolmentDto.ScreeningName);
+  }
+
+  [Fact]
+  public async Task GetPathwayEnrolmentById_ShouldReturnBadRequest_WhenExceptionThrown()
+  {
+    // Arrange
+    var claims = new List<Claim>
+    {
+      new(ClaimTypes.NameIdentifier, "1234567890"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "1234567890")
+    };
+    var identity = new ClaimsIdentity(claims, "Bearer");
+    var principal = new ClaimsPrincipal(identity);
+
+    _mockTokenService
+      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+      .ReturnsAsync(AccessTokenResult.Success(principal));
+
+    // Setup exception to be thrown
+    _crudApiClient
+      .Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
+      .ThrowsAsync(new Exception("Test exception message"));
+
+    // Act
+    var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as BadRequestObjectResult;
+
+    // Assert
+    Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
+    Assert.Equal("Test exception message", response?.Value);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request
@@ -120,7 +236,7 @@ public class PathwayEnrolmentFunctionTests
       NextActionDate = DateTime.Now,
       Participant = new ParticipantDto
       {
-        NhsNumber = "12345678"
+        NhsNumber = "1234567890"
       }
     };
   }
