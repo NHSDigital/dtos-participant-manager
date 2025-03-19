@@ -25,7 +25,7 @@ public class PathwayTypeEnrolmentFunctions
 
   [Function("GetPathwayTypeEnrolmentsByParticipantId")]
   public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
-    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "pathwaytypeenrolments")]
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pathwaytypeenrolments")]
     HttpRequest req)
   {
     _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
@@ -58,7 +58,7 @@ public class PathwayTypeEnrolmentFunctions
 
   [Function("GetPathwayTypeEnrolmentById")]
   public async Task<IActionResult> GetPathwayTypeEnrolmentById(
-    [HttpTrigger(AuthorizationLevel.Function, "get",
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get",
       Route = "participants/{participantId:guid}/pathwaytypeenrolments/{enrolmentId:guid}")]
     HttpRequestData req, Guid participantId, Guid enrolmentId)
   {
@@ -87,7 +87,7 @@ public class PathwayTypeEnrolmentFunctions
   }
 
   [Function("CreatePathwayTypeEnrolment")]
-  public async Task<IActionResult> CreatePathwayTypeEnrolment([HttpTrigger(AuthorizationLevel.Function, "post", Route = "pathwaytypeenrolment")]
+  public async Task<IActionResult> CreatePathwayTypeEnrolment([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolment")]
     HttpRequestData req)
   {
     _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
