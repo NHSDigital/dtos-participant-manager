@@ -53,7 +53,7 @@ public class ParticipantFunctionsTests
     _function = new ParticipantFunctions(_logger.Object, _dbContext);
   }
 
-  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
+  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object? body)
   {
     var json = JsonSerializer.Serialize(body);
     var byteArray = Encoding.UTF8.GetBytes(json);
