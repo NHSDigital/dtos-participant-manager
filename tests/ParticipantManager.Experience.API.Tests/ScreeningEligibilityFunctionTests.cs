@@ -29,7 +29,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfInvalidToken()
+  public async Task GetScreeningEligibility_InvalidToken_ReturnsUnauthorized()
   {
     // Arrange
     _mockTokenService
@@ -44,7 +44,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfNoNhsNumber()
+  public async Task GetScreeningEligibility_NoNhsNumber_ReturnsUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -68,7 +68,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfParticipantIdIsEmpty()
+  public async Task GetScreeningEligibility_ParticipantIdIsEmpty_ReturnsUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -92,7 +92,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnNotFound_IfPathwayEnrolmentsIsNull()
+  public async Task GetScreeningEligibility_PathwayEnrolmentsIsNull_ReturnsNotFound()
   {
     // Arrange
     var claims = new List<Claim>
@@ -124,7 +124,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnUnauthorized_IfNhsNumberDoesNotMatch()
+  public async Task GetScreeningEligibility_NhsNumberDoesNotMatch_ReturnsUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -150,7 +150,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnForbidden_IfFeatureDisabled()
+  public async Task GetScreeningEligibility_FeatureIsDisabled_ReturnsForbidden()
   {
     // Arrange
     var claims = new List<Claim>
@@ -181,7 +181,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnOk_WithValidToken()
+  public async Task GetScreeningEligibility_ValidToken_ReturnsOk()
   {
     // Arrange
     var claims = new List<Claim>
@@ -208,7 +208,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_ShouldReturnBadRequest_WhenExceptionThrown()
+  public async Task GetScreeningEligibility_ExceptionIsThrown_ReturnsBadRequest()
   {
     // Arrange
     var claims = new List<Claim>

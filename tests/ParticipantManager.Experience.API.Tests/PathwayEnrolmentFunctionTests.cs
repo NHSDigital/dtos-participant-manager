@@ -33,7 +33,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfInvalidToken()
+  public async Task GetPathwayEnrolmentById_InvalidToken_ReturnsUnauthorized()
   {
     // Arrange
     _mockTokenService
@@ -48,7 +48,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNoNhsNumber()
+  public async Task GetPathwayEnrolmentById_NoNhsNumber_ReturnsUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -72,7 +72,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnNotFound_IfPathwayEnrolmentIsNull()
+  public async Task GetPathwayEnrolmentById_PathwayEnrolmentIsNull_ReturnsNotFound()
   {
     // Arrange
     var claims = new List<Claim>
@@ -100,7 +100,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnUnauthorized_IfNhsNumberDoesNotMatch()
+  public async Task GetPathwayEnrolmentById_NhsNumberDoesNotMatch_ReturnsUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -124,7 +124,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnForbidden_IfFeatureDisabled()
+  public async Task GetPathwayEnrolmentById_FeatureToggleIsDisabled_ReturnsForbidden()
   {
     // Arrange
     var claims = new List<Claim>
@@ -153,7 +153,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnOk_WithValidToken()
+  public async Task GetPathwayEnrolmentById_ValidToken_ReturnsOk()
   {
     // Arrange
     var claims = new List<Claim>
@@ -183,7 +183,7 @@ public class PathwayEnrolmentFunctionTests
   }
 
   [Fact]
-  public async Task GetPathwayEnrolmentById_ShouldReturnBadRequest_WhenExceptionThrown()
+  public async Task GetPathwayEnrolmentById_ExceptionIsThrown_ReturnsBadRequest()
   {
     // Arrange
     var claims = new List<Claim>
