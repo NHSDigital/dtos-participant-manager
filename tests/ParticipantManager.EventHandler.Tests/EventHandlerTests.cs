@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Azure;
+using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -41,8 +42,7 @@ public class CreateEnrolmentHandlerTests
       ScreeningName = "Test Screening"
     };
 
-    var eventGridEvent = new EventGridEvent("/participants/12345", "ParticipantInvited", "0.1", pathwayParticipantDto,
-      typeof(CreatePathwayParticipantDto));
+    var cloudEvent = new CloudEvent("/services/CreateEnrolment", "ParticipantInvited", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
@@ -55,11 +55,11 @@ public class CreateEnrolmentHandlerTests
 
     _mockResponse.Setup(r => r.Status).Returns((int)HttpStatusCode.OK);
 
-    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default))
+    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default))
       .ReturnsAsync(_mockResponse.Object);
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
@@ -70,7 +70,7 @@ public class CreateEnrolmentHandlerTests
       dto.PathwayTypeName == pathwayParticipantDto.PathwayTypeName &&
       dto.ScreeningName == pathwayParticipantDto.ScreeningName
     )), Times.Once);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Once);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Once);
   }
 
   [Fact]
@@ -91,13 +91,7 @@ public class CreateEnrolmentHandlerTests
       ParticipantId = participantId
     };
 
-    var eventGridEvent = new EventGridEvent(
-      "test-subject",
-      "test-event",
-      "1.0",
-      pathwayParticipantDto,
-      typeof(CreatePathwayParticipantDto)
-    );
+    var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync(existingParticipant);
@@ -107,11 +101,11 @@ public class CreateEnrolmentHandlerTests
 
     _mockResponse.Setup(r => r.Status).Returns((int)HttpStatusCode.OK);
 
-    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default))
+    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default))
       .ReturnsAsync(_mockResponse.Object);
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
@@ -122,51 +116,41 @@ public class CreateEnrolmentHandlerTests
       dto.PathwayTypeName == pathwayParticipantDto.PathwayTypeName &&
       dto.ScreeningName == pathwayParticipantDto.ScreeningName
     )), Times.Once);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Once);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Once);
   }
 
   [Fact]
   public async Task Run_WithInvalidEventData_LogsErrorAndReturns()
   {
     // Arrange
-    var eventGridEvent = new EventGridEvent(
-      "test-subject",
-      "test-event",
-      "1.0",
-      "invalid json data"
-    );
+    var cloudEvent = new CloudEvent("test-source", "test-event", "invalid json data");
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(It.IsAny<string>()), Times.Never);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Never);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Never);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Never);
   }
 
   [Fact]
   public async Task Run_WithNullPathwayParticipantDto_ReturnsEarly()
   {
     // Arrange
-    var eventGridEvent = new EventGridEvent(
-      "test-subject",
-      "test-event",
-      "1.0",
-      "null"
-    );
+    var cloudEvent = new CloudEvent("test-source", "test-event", "null");
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(It.IsAny<string>()), Times.Never);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Never);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Never);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Never);
   }
 
   [Fact]
@@ -182,13 +166,7 @@ public class CreateEnrolmentHandlerTests
       ScreeningName = "Test Screening"
     };
 
-    var eventGridEvent = new EventGridEvent(
-      "test-subject",
-      "test-event",
-      "1.0",
-      pathwayParticipantDto,
-      typeof(CreatePathwayParticipantDto)
-    );
+    var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
@@ -200,14 +178,14 @@ public class CreateEnrolmentHandlerTests
       .ReturnsAsync(false);
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Once);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Never);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Never);
   }
 
   [Fact]
@@ -223,13 +201,7 @@ public class CreateEnrolmentHandlerTests
       ScreeningName = "Test Screening"
     };
 
-    var eventGridEvent = new EventGridEvent(
-      "test-subject",
-      "test-event",
-      "1.0",
-      pathwayParticipantDto,
-      typeof(CreatePathwayParticipantDto)
-    );
+    var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
       .ReturnsAsync((ParticipantDto)null);
@@ -242,17 +214,17 @@ public class CreateEnrolmentHandlerTests
 
     _mockResponse.Setup(r => r.Status).Returns((int)HttpStatusCode.BadRequest);
 
-    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default))
+    _mockEventGridPublisherClient.Setup(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default))
       .ReturnsAsync(_mockResponse.Object);
 
     // Act
-    await _handler.Run(eventGridEvent);
+    await _handler.Run(cloudEvent);
 
     // Assert
     _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
     _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
       Times.Once);
-    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<EventGridEvent>(), default), Times.Once);
+    _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Once);
   }
 }
