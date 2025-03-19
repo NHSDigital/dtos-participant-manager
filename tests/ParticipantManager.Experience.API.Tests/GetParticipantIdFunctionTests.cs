@@ -87,7 +87,6 @@ public class GetParticipantIdFunctionTests
         .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
         .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    // Override the default setup to return null
     _crudApiClient
         .Setup(s => s.GetParticipantByNhsNumberAsync("12345678"))
         .ReturnsAsync((ParticipantDto)null);
@@ -117,7 +116,6 @@ public class GetParticipantIdFunctionTests
         .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
         .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    // Feature flag returns false
     _mockFeatureFlagClient
         .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId))
         .ReturnsAsync(false);
@@ -176,7 +174,6 @@ public class GetParticipantIdFunctionTests
         .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
         .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    // Setup exception to be thrown
     _crudApiClient
         .Setup(s => s.GetParticipantByNhsNumberAsync("12345678"))
         .ThrowsAsync(new Exception("Test exception message"));
