@@ -26,8 +26,7 @@ public class PathwayEnrolmentFunctionTests
     public PathwayEnrolmentFunctionTests()
     {
         _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
-          .Returns(MockPathwayDetails);
+        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result).Returns(MockPathwayDetails);
         _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
     }
 
@@ -35,8 +34,7 @@ public class PathwayEnrolmentFunctionTests
     public async Task GetPathwayEnrolmentById_InvalidToken_ReturnsUnauthorized()
     {
         // Arrange
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired());
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired());
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
@@ -58,9 +56,7 @@ public class PathwayEnrolmentFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
@@ -82,13 +78,8 @@ public class PathwayEnrolmentFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _crudApiClient
-          .Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
-          .Returns(Task.FromResult<EnrolledPathwayDetailsDto?>(null));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId)).Returns(Task.FromResult<EnrolledPathwayDetailsDto?>(null));
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as NotFoundResult;
@@ -110,9 +101,7 @@ public class PathwayEnrolmentFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
@@ -126,21 +115,17 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "1234567890"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "1234567890")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "1234567890"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("nhs_number", "1234567890")
+        };
+
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _mockFeatureFlagClient
-          .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId))
-          .ReturnsAsync(false);
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(false);
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId);
@@ -155,21 +140,16 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "1234567890"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "1234567890")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "1234567890"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("nhs_number", "1234567890")
+        };
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _mockFeatureFlagClient
-          .Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>()))
-          .ReturnsAsync(true);
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as OkObjectResult;
@@ -185,22 +165,16 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "1234567890"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "1234567890")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "1234567890"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("nhs_number", "1234567890")
+        };
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        // Setup exception to be thrown
-        _crudApiClient
-          .Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
-          .ThrowsAsync(new Exception("Test exception message"));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId)).ThrowsAsync(new Exception("Test exception message"));
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as BadRequestObjectResult;
@@ -216,8 +190,7 @@ public class PathwayEnrolmentFunctionTests
         var context = new Mock<FunctionContext>();
         var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
         var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-        if (!string.IsNullOrEmpty(authHeader))
-            headers.Add("Authorization", $"{authHeader}");
+        if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
 
         request.Setup(r => r.Headers).Returns(headers);
         return request.Object;
