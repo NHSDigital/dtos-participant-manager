@@ -26,8 +26,7 @@ public class GetParticipantIdFunctionTests
     public GetParticipantIdFunctionTests()
     {
         _loggerMock = new Mock<ILogger<GetParticipantIdFunction>>();
-        _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync(It.IsAny<string>()))
-            .ReturnsAsync(MockParticipant);
+        _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync(It.IsAny<string>())).ReturnsAsync(MockParticipant);
         _function = new GetParticipantIdFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
     }
 
@@ -35,9 +34,7 @@ public class GetParticipantIdFunctionTests
     public async Task GetParticipantId_ShouldReturnUnauthorized_IfInvalidToken()
     {
         // Arrange
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Expired());
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired());
 
         // Act
         var response = await _function.GetParticipantId(_request) as UnauthorizedResult;
@@ -59,9 +56,7 @@ public class GetParticipantIdFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
         var response = await _function.GetParticipantId(_request) as UnauthorizedResult;
@@ -83,13 +78,9 @@ public class GetParticipantIdFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync("12345678")).Returns(Task.FromResult<ParticipantDto?>(null));
 
-        _crudApiClient
-            .Setup(s => s.GetParticipantByNhsNumberAsync("12345678"))
-            .Returns(Task.FromResult<ParticipantDto?>(null));
         // Act
         var response = await _function.GetParticipantId(_request) as NotFoundObjectResult;
 
@@ -111,13 +102,8 @@ public class GetParticipantIdFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _mockFeatureFlagClient
-            .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId))
-            .ReturnsAsync(false);
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(false);
 
         // Act
         var response = await _function.GetParticipantId(_request);
@@ -140,13 +126,8 @@ public class GetParticipantIdFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _mockFeatureFlagClient
-            .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId))
-            .ReturnsAsync(true);
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(true);
 
         // Act
         var response = await _function.GetParticipantId(_request) as OkObjectResult;
@@ -169,13 +150,8 @@ public class GetParticipantIdFunctionTests
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-
-        _crudApiClient
-            .Setup(s => s.GetParticipantByNhsNumberAsync("12345678"))
-            .ThrowsAsync(new Exception("Test exception message"));
+        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+        _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync("12345678")).ThrowsAsync(new Exception("Test exception message"));
 
         // Act
         var response = await _function.GetParticipantId(_request) as BadRequestObjectResult;
