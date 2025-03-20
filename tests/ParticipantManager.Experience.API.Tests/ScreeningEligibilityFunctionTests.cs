@@ -14,243 +14,275 @@ using ParticipantManager.Shared.DTOs;
 
 public class ScreeningEligibilityFunctionTests
 {
-  private readonly Mock<ICrudApiClient> _crudApiClient = new();
-  private readonly ScreeningEligibilityFunction _function;
-  private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
-  private readonly Mock<ITokenService> _mockTokenService = new();
-  private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
-  private readonly HttpRequestData _request = CreateHttpRequest("");
+    private readonly Mock<ICrudApiClient> _crudApiClient = new();
+    private readonly ScreeningEligibilityFunction _function;
+    private readonly Mock<ILogger<ScreeningEligibilityFunction>> _loggerMock;
+    private readonly Mock<ITokenService> _mockTokenService = new();
+    private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
+    private readonly HttpRequestData _request = CreateHttpRequest("");
 
-  public ScreeningEligibilityFunctionTests()
-  {
-    _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-    _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result).Returns(MockListPathwayEnrolments);
-    _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
-  }
+    public ScreeningEligibilityFunctionTests()
+    {
+        _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
+        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result).Returns(MockListPathwayEnrolments);
+        _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_InvalidToken_ReturnsUnauthorized()
-  {
-    // Arrange
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Expired());
+    [Fact]
+    public async Task GetScreeningEligibility_InvalidToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Expired());
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_NoNhsNumber_ReturnsUnauthorized()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_NoNhsNumber_ReturnsUnauthorized()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345"),
       new(ClaimTypes.Email, "user@example.com"),
       new("custom_claim", "my_value")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_ParticipantIdIsEmpty_ReturnsUnauthorized()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_ParticipantIdIsEmpty_ReturnsUnauthorized()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "12345678")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, Guid.Empty) as UnauthorizedResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, Guid.Empty) as UnauthorizedResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_PathwayEnrolmentsIsNull_ReturnsNotFound()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_PathwayEnrolmentsIsNull_ReturnsNotFound()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "12345678")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    var participantId = Guid.NewGuid();
+        var participantId = Guid.NewGuid();
 
-    // Setup to return null pathway enrolments
-    _crudApiClient
-      .Setup(s => s.GetPathwayEnrolmentsAsync(participantId))
-      .ReturnsAsync((List<PathwayEnrolmentDto>)null);
+        _crudApiClient
+          .Setup(s => s.GetPathwayEnrolmentsAsync(participantId))
+        .ReturnsAsync((List<PathwayEnrolmentDto>?)null);
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, participantId) as NotFoundObjectResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, participantId) as NotFoundObjectResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
-    Assert.Equal("Unable to find pathway enrolments", response?.Value);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
+        Assert.Equal("Unable to find pathway enrolments", response?.Value);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_NhsNumberDoesNotMatch_ReturnsUnauthorized()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_PathwayEnrolmentsReturnsEmptyCollection_ReturnsOk()
+    {
+        // Arrange
+        var claims = new List<Claim>
+    {
+      new(ClaimTypes.NameIdentifier, "12345"),
+      new(ClaimTypes.Email, "user@example.com"),
+      new("nhs_number", "12345678")
+    };
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
+
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
+
+        var participantId = Guid.NewGuid();
+
+        _crudApiClient
+          .Setup(s => s.GetPathwayEnrolmentsAsync(participantId))
+        .ReturnsAsync([]);
+
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, participantId) as NotFoundObjectResult;
+
+        // Assert
+        Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
+        Assert.Equal("Unable to find pathway enrolments", response?.Value);
+    }
+
+    [Fact]
+    public async Task GetScreeningEligibility_NhsNumberDoesNotMatch_ReturnsUnauthorized()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "87654321") // Different NHS number than in mock enrolments
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    var participantId = Guid.NewGuid();
+        var participantId = Guid.NewGuid();
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, participantId) as UnauthorizedResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, participantId) as UnauthorizedResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_FeatureIsDisabled_ReturnsForbidden()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_FeatureIsDisabled_ReturnsForbidden()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345678"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "12345678")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    var participantId = Guid.NewGuid();
+        var participantId = Guid.NewGuid();
 
-    _mockFeatureFlagClient
-      .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", participantId))
-      .ReturnsAsync(false);
+        _mockFeatureFlagClient
+          .Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", participantId))
+          .ReturnsAsync(false);
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, participantId);
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, participantId);
 
-    // Assert
-    Assert.NotNull(response);
-    Assert.IsType<ForbidResult>(response);
-  }
+        // Assert
+        Assert.NotNull(response);
+        Assert.IsType<ForbidResult>(response);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_ValidToken_ReturnsOk()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_ValidToken_ReturnsOk()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345678"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "12345678")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
+        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as OkObjectResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as OkObjectResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(2, ((List<PathwayEnrolmentDto>)response?.Value).Count);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
+        var enrollments = response?.Value as List<PathwayEnrolmentDto>;
+        Assert.NotNull(enrollments);
+        Assert.Equal(2, enrollments.Count);
+    }
 
-  [Fact]
-  public async Task GetScreeningEligibility_ExceptionIsThrown_ReturnsBadRequest()
-  {
-    // Arrange
-    var claims = new List<Claim>
+    [Fact]
+    public async Task GetScreeningEligibility_ExceptionIsThrown_ReturnsBadRequest()
+    {
+        // Arrange
+        var claims = new List<Claim>
     {
       new(ClaimTypes.NameIdentifier, "12345678"),
       new(ClaimTypes.Email, "user@example.com"),
       new("nhs_number", "12345678")
     };
-    var identity = new ClaimsIdentity(claims, "Bearer");
-    var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, "Bearer");
+        var principal = new ClaimsPrincipal(identity);
 
-    _mockTokenService
-      .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-      .ReturnsAsync(AccessTokenResult.Success(principal));
+        _mockTokenService
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
+          .ReturnsAsync(AccessTokenResult.Success(principal));
 
-    var participantId = Guid.NewGuid();
+        var participantId = Guid.NewGuid();
 
-    _crudApiClient
-      .Setup(s => s.GetPathwayEnrolmentsAsync(participantId))
-      .ThrowsAsync(new Exception("Test exception message"));
+        _crudApiClient
+          .Setup(s => s.GetPathwayEnrolmentsAsync(participantId))
+          .ThrowsAsync(new Exception("Test exception message"));
 
-    // Act
-    var response = await _function.GetParticipantEligibility(_request, participantId) as BadRequestObjectResult;
+        // Act
+        var response = await _function.GetParticipantEligibility(_request, participantId) as BadRequestObjectResult;
 
-    // Assert
-    Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
-    Assert.Equal("Test exception message", response?.Value);
-  }
+        // Assert
+        Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
+        Assert.Equal("Test exception message", response?.Value);
+    }
 
-  private static HttpRequestData CreateHttpRequest(string? authHeader)
-  {
-    var context = new Mock<FunctionContext>();
-    var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
-    var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-    if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
-    request.Setup(r => r.Headers).Returns(headers);
-    return request.Object;
-  }
+    private static HttpRequestData CreateHttpRequest(string? authHeader)
+    {
+        var context = new Mock<FunctionContext>();
+        var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
+        var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
+        if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
+        request.Setup(r => r.Headers).Returns(headers);
+        return request.Object;
+    }
 
-  private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
-  {
-    return new List<PathwayEnrolmentDto>
+    private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
+    {
+        return new List<PathwayEnrolmentDto>
     {
       new()
       {
@@ -269,5 +301,5 @@ public class ScreeningEligibilityFunctionTests
         }
       }
     };
-  }
+    }
 }
