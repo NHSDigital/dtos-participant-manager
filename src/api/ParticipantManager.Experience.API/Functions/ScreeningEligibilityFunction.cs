@@ -1,4 +1,3 @@
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -15,72 +14,72 @@ public class ScreeningEligibilityFunction(
     ITokenService tokenService,
     IFeatureFlagClient featureFlagClient)
 {
-    [Function("GetScreeningEligibility")]
-    public async Task<IActionResult> GetParticipantEligibility(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+  [Function("GetScreeningEligibility")]
+  public async Task<IActionResult> GetParticipantEligibility(
+      [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
             HttpRequestData req, Guid participantId)
+  {
+    try
     {
-        try
+      var result = await tokenService.ValidateToken(req);
+
+      if (result.Status != AccessTokenStatus.Valid)
+      {
+        logger.LogError("Invalid access token");
+        return new UnauthorizedResult();
+      }
+
+      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      if (string.IsNullOrEmpty(nhsNumber))
+      {
+        logger.LogError("Access token doesn't contain NHS number");
+        return new UnauthorizedResult();
+      }
+
+      if (participantId == Guid.Empty)
+      {
+        logger.LogError("Access token doesn't contain ParticipantId");
+        return new UnauthorizedResult();
+      }
+
+      var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
+      if (pathwayEnrolments == null)
+      {
+        logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
+        return new NotFoundObjectResult("Unable to find pathway enrolments");
+      }
+
+      if (pathwayEnrolments.Count == 0)
+      {
+        logger.LogInformation("Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}", new { ParticipantId = participantId });
+        return new OkObjectResult(new
         {
-            var result = await tokenService.ValidateToken(req);
+          Message = $"No pathway enrollments found for the participant: {participantId}",
+          Enrollments = new List<PathwayEnrolmentDto>()
+        });
+      }
 
-            if (result.Status != AccessTokenStatus.Valid)
-            {
-                logger.LogError("Invalid access token");
-                return new UnauthorizedResult();
-            }
+      //Check that logged in user has access to participant
+      if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant?.NhsNumber != nhsNumber.ToString()))
+      {
+        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}", new { ParticipantId = participantId });
+        return new UnauthorizedResult();
+      }
 
-            var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
-            if (string.IsNullOrEmpty(nhsNumber))
-            {
-                logger.LogError("Access token doesn't contain NHS number");
-                return new UnauthorizedResult();
-            }
+      var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
 
-            if (participantId == Guid.Empty)
-            {
-                logger.LogError("Access token doesn't contain ParticipantId");
-                return new UnauthorizedResult();
-            }
+      if (!enabled)
+      {
+        return new ForbidResult();
+      }
 
-            var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
-            if (pathwayEnrolments == null)
-            {
-                logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
-                return new NotFoundObjectResult("Unable to find pathway enrolments");
-            }
-
-            if (pathwayEnrolments.Count == 0)
-            {
-                logger.LogInformation("Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}", new { ParticipantId = participantId });
-                return new OkObjectResult(new
-                {
-                    Message = $"No pathway enrollments found for the participant: {participantId}",
-                    Enrollments = new List<PathwayEnrolmentDto>()
-                });
-            }
-
-            //Check that logged in user has access to participant
-            if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant?.NhsNumber != nhsNumber.ToString()))
-            {
-                logger.LogError("Logged in user does not have access to this record: {@ParticipantId}", new { ParticipantId = participantId });
-                return new UnauthorizedResult();
-            }
-
-            var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
-
-            if (!enabled)
-            {
-                return new ForbidResult();
-            }
-
-            logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}", new { NhsNumber = nhsNumber });
-            return new OkObjectResult(pathwayEnrolments);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Invalid: Bad Request");
-            return new BadRequestObjectResult(ex.Message);
-        }
+      logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}", new { NhsNumber = nhsNumber });
+      return new OkObjectResult(pathwayEnrolments);
     }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "Invalid: Bad Request");
+      return new BadRequestObjectResult(ex.Message);
+    }
+  }
 }
