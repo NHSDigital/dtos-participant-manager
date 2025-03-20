@@ -41,7 +41,7 @@ var host = new HostBuilder()
     services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+      options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
     services.AddHttpContextAccessor();

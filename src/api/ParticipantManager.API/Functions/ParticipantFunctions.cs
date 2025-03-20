@@ -33,6 +33,11 @@ public class ParticipantFunctions
     {
       // Deserialize the JSON request body into the Participant model
       var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body);
+      if(participant == null)
+      {
+          _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
+          return new BadRequestObjectResult("Invalid participant JSON provided. Deserialized to null.");
+      }
       // Validate Data Annotations
       var validationResults = new List<ValidationResult>();
       var context = new ValidationContext(participant, null, null);
