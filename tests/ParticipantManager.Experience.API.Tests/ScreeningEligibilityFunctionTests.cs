@@ -279,7 +279,8 @@ public class ScreeningEligibilityFunctionTests
         var context = new Mock<FunctionContext>();
         var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
         var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-        if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
+        if (!string.IsNullOrEmpty(authHeader))
+            headers.Add("Authorization", $"{authHeader}");
         request.Setup(r => r.Headers).Returns(headers);
         return request.Object;
     }

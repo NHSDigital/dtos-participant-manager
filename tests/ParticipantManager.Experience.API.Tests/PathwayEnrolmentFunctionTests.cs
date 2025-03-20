@@ -36,8 +36,7 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         _mockTokenService
-          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-          .ReturnsAsync(AccessTokenResult.Expired());
+          .Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired());
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
@@ -217,7 +216,8 @@ public class PathwayEnrolmentFunctionTests
         var context = new Mock<FunctionContext>();
         var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
         var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-        if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
+        if (!string.IsNullOrEmpty(authHeader))
+            headers.Add("Authorization", $"{authHeader}");
 
         request.Setup(r => r.Headers).Returns(headers);
         return request.Object;

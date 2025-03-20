@@ -10,15 +10,15 @@ using ParticipantManager.Shared.DTOs;
 namespace ParticipantManager.Experience.API.Functions;
 
 public class ScreeningEligibilityFunction(
-  ILogger<ScreeningEligibilityFunction> logger,
-  ICrudApiClient crudApiClient,
-  ITokenService tokenService,
-  IFeatureFlagClient featureFlagClient)
+    ILogger<ScreeningEligibilityFunction> logger,
+    ICrudApiClient crudApiClient,
+    ITokenService tokenService,
+    IFeatureFlagClient featureFlagClient)
 {
     [Function("GetScreeningEligibility")]
     public async Task<IActionResult> GetParticipantEligibility(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
-    HttpRequestData req, Guid participantId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+            HttpRequestData req, Guid participantId)
     {
         try
         {
