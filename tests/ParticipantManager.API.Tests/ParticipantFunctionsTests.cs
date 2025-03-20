@@ -22,8 +22,7 @@ public class ParticipantFunctionsTests
         var services = new ServiceCollection();
 
         // Use a unique in-memory database per test to isolate them
-        services.AddDbContext<ParticipantManagerDbContext>(options =>
-          options.UseInMemoryDatabase(databaseName));
+        services.AddDbContext<ParticipantManagerDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddLogging(builder =>
         {
