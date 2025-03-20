@@ -48,11 +48,12 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "12345"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("custom_claim", "my_value")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "12345"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("custom_claim", "my_value")
+        };
+
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
@@ -70,11 +71,12 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "1234567890"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "1234567890")
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "1234567890"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("nhs_number", "1234567890")
+        };
+
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
@@ -93,11 +95,12 @@ public class PathwayEnrolmentFunctionTests
     {
         // Arrange
         var claims = new List<Claim>
-    {
-      new(ClaimTypes.NameIdentifier, "12345"),
-      new(ClaimTypes.Email, "user@example.com"),
-      new("nhs_number", "0987654321") // Different from the mocked data
-    };
+        {
+            new(ClaimTypes.NameIdentifier, "12345"),
+            new(ClaimTypes.Email, "user@example.com"),
+            new("nhs_number", "0987654321") // Different from the mocked data
+        };
+
         var identity = new ClaimsIdentity(claims, "Bearer");
         var principal = new ClaimsPrincipal(identity);
 
