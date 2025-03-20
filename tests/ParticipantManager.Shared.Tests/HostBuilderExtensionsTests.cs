@@ -6,7 +6,7 @@ namespace ParticipantManager.Shared;
 public class HostBuilderExtensionsTests
 {
   [Fact]
-  public void ConfigureSerligLogging_ShouldNotReturnNull()
+  public void ConfigureSerilogLogging_ShouldNotReturnNull()
   {
     // Arrange
     var appInsightsConnectionString = "InstrumentationKey=value1";
