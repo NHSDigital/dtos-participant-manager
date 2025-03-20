@@ -1,32 +1,34 @@
 {
-    "topics": [
-      {
-        "name": "evtgrd-pathway-coordinator",
-        "port": 60101,
-        "key": "TheLocal+DevelopmentKey=",
-        "subscribers": [
-          {
-            "name": "PathwayCoordinatorSubscription",
-            "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=ParticipantEventHandler",
-            "disableValidation": true
-          },
-          {
-            "name": "AuditSubscription",
-            "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=AuditEventHandler",
-            "disableValidation": true
-          },
-          {
-            "name": "ContextManagerSubscription",
-            "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=ContextManagerEventHandler",
-            "disableValidation": true
-          }
-        ]
-      },
-      {
-        "name": "evtgrd-participant-manager",
-        "port": 60102,
-        "key": "TheLocal+DevelopmentKey=",
-        "subscribers": [
+  "topics": [
+    {
+      "name": "evtgrd-pathway-coordinator",
+      "port": 60102,
+      "key": "TheLocal+DevelopmentKey=",
+      "subscribers": [
+        {
+          "name": "PathwayCoordinatorSubscription",
+          "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=ParticipantEventHandler",
+          "disableValidation": true
+        },
+        {
+          "name": "AuditSubscription",
+          "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=AuditEventHandler",
+          "disableValidation": true
+        },
+        {
+          "name": "ContextManagerSubscription",
+          "endpoint": "http://host.docker.internal:7130/runtime/webhooks/EventGrid?functionName=ContextManagerEventHandler",
+          "disableValidation": true
+        }
+      ]
+    },
+    {
+      "name": "evtgrd-participant-manager",
+      "type": "CloudEvent",
+      "port": 60101,
+      "key": "TheLocal+DevelopmentKey=",
+      "subscribers": {
+        "http": [
           {
             "name": "ParticipantManagerSubscription",
             "endpoint": "http://host.docker.internal:6001/runtime/webhooks/EventGrid?functionName=CreateEnrolmentHandler",
@@ -34,5 +36,6 @@
           }
         ]
       }
-    ]
-  }
+    }
+  ]
+}

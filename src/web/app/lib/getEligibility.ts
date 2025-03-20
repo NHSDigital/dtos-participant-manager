@@ -12,7 +12,7 @@ export async function getEligibility(
   }
 
   try {
-    return await fetchPatientScreeningEligibility(session.user.accessToken);
+    return await fetchPatientScreeningEligibility(session);
   } catch (error) {
     logger.error("Failed to get eligibility data:", error);
     return null;
