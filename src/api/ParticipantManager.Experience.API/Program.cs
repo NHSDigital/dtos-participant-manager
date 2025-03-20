@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,11 +39,9 @@ var host = new HostBuilder()
           options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
-    services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-      options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-    });
+    services.AddSingleton(new JsonSerializerOptions {
+          PropertyNameCaseInsensitive = true
+        });
 
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();

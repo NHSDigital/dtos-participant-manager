@@ -5,7 +5,7 @@ using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Shared.Client;
 
-public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient) : ICrudApiClient
+public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient, JsonSerializerOptions _jsonSerializerOptions) : ICrudApiClient
 {
   public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(Guid participantId)
   {
@@ -16,7 +16,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
     {
       var response = await httpClient.GetAsync(url);
       response.EnsureSuccessStatusCode();
-      return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>();
+      return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(_jsonSerializerOptions);
     }
     catch (Exception ex)
     {
@@ -36,7 +36,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
       response.EnsureSuccessStatusCode();
 
 
-      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>();
+      return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(_jsonSerializerOptions);
     }
     catch (Exception ex)
     {
@@ -59,7 +59,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
         return null;
       }
 
-      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>();
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(_jsonSerializerOptions);
 
       logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
       return participant;
@@ -82,7 +82,7 @@ public class CrudApiClient(ILogger<CrudApiClient> logger, HttpClient httpClient)
 
       logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NhsNumber });
 
-      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>();
+      var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(_jsonSerializerOptions);
 
       return participant?.ParticipantId;
     }

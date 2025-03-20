@@ -15,12 +15,14 @@ public class PathwayTypeEnrolmentFunctions
 {
   private readonly ParticipantManagerDbContext _dbContext;
   private readonly ILogger<PathwayTypeEnrolmentFunctions> _logger;
+  private readonly JsonSerializerOptions _jsonSerializerOptions;
 
   public PathwayTypeEnrolmentFunctions(ILogger<PathwayTypeEnrolmentFunctions> logger,
-    ParticipantManagerDbContext dbContext)
+    ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
   {
     _logger = logger;
     _dbContext = dbContext;
+    _jsonSerializerOptions = jsonSerializerOptions;
   }
 
   [Function("GetPathwayTypeEnrolmentsByParticipantId")]
@@ -97,7 +99,7 @@ public class PathwayTypeEnrolmentFunctions
 
     try
     {
-      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body);
+      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body, _jsonSerializerOptions);
 
       if(pathwayTypeEnrolment == null)
       {

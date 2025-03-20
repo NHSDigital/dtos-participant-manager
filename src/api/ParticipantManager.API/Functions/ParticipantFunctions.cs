@@ -15,11 +15,13 @@ public class ParticipantFunctions
 {
   private readonly ParticipantManagerDbContext _dbContext;
   private readonly ILogger<ParticipantFunctions> _logger;
+  private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-  public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext)
+  public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
   {
     _logger = logger;
     _dbContext = dbContext;
+    _jsonSerializerOptions = jsonSerializerOptions;
   }
 
   [Function("CreateParticipant")]
@@ -32,7 +34,7 @@ public class ParticipantFunctions
     try
     {
       // Deserialize the JSON request body into the Participant model
-      var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body);
+      var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, _jsonSerializerOptions);
       if(participant == null)
       {
           _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
