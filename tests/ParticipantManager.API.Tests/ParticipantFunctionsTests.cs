@@ -1,3 +1,5 @@
+namespace ParticipantManager.API.Tests;
+
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +14,6 @@ using ParticipantManager.API.Data;
 using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
 
-namespace ParticipantManager.API.Tests;
 
 public class ParticipantFunctionsTests
 {
