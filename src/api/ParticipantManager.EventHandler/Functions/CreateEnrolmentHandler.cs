@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -22,16 +23,16 @@ public class CreateEnrolmentHandler
   }
 
   [Function("CreateEnrolmentHandler")]
-  public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
+  public async Task Run([EventGridTrigger] CloudEvent cloudEvent)
   {
-    _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", eventGridEvent.GetType(),
-      eventGridEvent.Subject);
+    _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", cloudEvent.GetType(),
+      cloudEvent.Subject);
 
     CreatePathwayParticipantDto? pathwayParticipantDto;
 
     try
     {
-      pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(eventGridEvent.Data.ToString());
+      pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(cloudEvent.Data.ToString());
     }
     catch (Exception ex)
     {
@@ -68,11 +69,10 @@ public class CreateEnrolmentHandler
     }
 
     // Send Event
-    var eventToSend = new EventGridEvent(
-      subject: "PathwayTypeEnrolment",
-      eventType: "Created",
-      dataVersion: "1.0",
-      data: "Test"
+    var eventToSend = new CloudEvent(
+      "CreateEnrolmentHandler",
+      "PathwayTypeEnrolmentCreated",
+      "Test"
     );
 
     var result = await _eventGridPublisherClient.SendEventAsync(eventToSend);
