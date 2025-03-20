@@ -146,11 +146,15 @@ public class ScreeningEligibilityFunctionTests
         .ReturnsAsync([]);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, participantId) as NotFoundObjectResult;
+        var response = await _function.GetParticipantEligibility(_request, participantId) as OkObjectResult;
 
         // Assert
-        Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-        Assert.Equal("Unable to find pathway enrolments", response?.Value);
+        Assert.IsType<OkObjectResult>(response);
+        Assert.Equal(StatusCodes.Status200OK, response.StatusCode);
+        var messageProperty = response.Value?.GetType().GetProperty("Message");
+        Assert.NotNull(messageProperty);
+        var messageValue = messageProperty.GetValue(response.Value);
+        Assert.Equal($"No pathway enrollments found for the participant: {participantId}", messageValue);
     }
 
     [Fact]

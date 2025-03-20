@@ -89,7 +89,7 @@ public class PathwayEnrolmentFunctionTests
 
         _crudApiClient
           .Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
-          .ReturnsAsync(new EnrolledPathwayDetailsDto());
+          .Returns(Task.FromResult<EnrolledPathwayDetailsDto?>(null));
 
         // Act
         var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as NotFoundResult;
