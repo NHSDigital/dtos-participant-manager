@@ -46,15 +46,13 @@ public class ScreeningEligibilityFunction(
             var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
             if (pathwayEnrolments == null)
             {
-                logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}",
-                  new { ParticipantId = participantId });
+                logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
                 return new NotFoundObjectResult("Unable to find pathway enrolments");
             }
 
             if (pathwayEnrolments.Count == 0)
             {
-                logger.LogInformation("Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}",
-                  new { ParticipantId = participantId });
+                logger.LogInformation("Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}", new { ParticipantId = participantId });
                 return new OkObjectResult(new
                 {
                     Message = $"No pathway enrollments found for the participant: {participantId}",
@@ -65,8 +63,7 @@ public class ScreeningEligibilityFunction(
             //Check that logged in user has access to participant
             if (pathwayEnrolments.FirstOrDefault()?.Participant?.NhsNumber != nhsNumber.ToString())
             {
-                logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
-                  new { ParticipantId = participantId });
+                logger.LogError("Logged in user does not have access to this record: {@ParticipantId}", new { ParticipantId = participantId });
                 return new UnauthorizedResult();
             }
 
