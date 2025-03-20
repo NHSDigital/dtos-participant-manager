@@ -32,11 +32,7 @@ public class ParticipantFunctions
     try
     {
       // Deserialize the JSON request body into the Participant model
-      var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body,
-        new JsonSerializerOptions
-        {
-          PropertyNameCaseInsensitive = true
-        });
+      var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body);
       // Validate Data Annotations
       var validationResults = new List<ValidationResult>();
       var context = new ValidationContext(participant, null, null);

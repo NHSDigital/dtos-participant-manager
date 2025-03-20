@@ -97,11 +97,7 @@ public class PathwayTypeEnrolmentFunctions
 
     try
     {
-      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body,
-        new JsonSerializerOptions
-        {
-          PropertyNameCaseInsensitive = true
-        });
+      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body);
 
       var context = new ValidationContext(pathwayTypeEnrolment, null, null);
       if (!Validator.TryValidateObject(pathwayTypeEnrolment, context, validationResults, true))

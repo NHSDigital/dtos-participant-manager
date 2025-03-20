@@ -38,6 +38,12 @@ var host = new HostBuilder()
           options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
+    services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
     services.AddDbContext<ParticipantManagerDbContext>(options =>
     {
       if (string.IsNullOrEmpty(databaseConnectionString))

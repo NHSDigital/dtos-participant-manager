@@ -41,6 +41,12 @@ var host = new HostBuilder()
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();
 
+    services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
       client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
