@@ -24,6 +24,10 @@ public class ParticipantFunctionsTests
     services.AddDbContext<ParticipantManagerDbContext>(options =>
       options.UseInMemoryDatabase(databaseName));
 
+    services.AddSingleton(new JsonSerializerOptions {
+      PropertyNameCaseInsensitive = true
+    });
+
     services.AddLogging(builder =>
     {
       builder.AddConsole(); // Use console logging
@@ -60,10 +64,11 @@ public class ParticipantFunctionsTests
   {
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var fun = new ParticipantFunctions(logger.Object, dbContext);
+    var fun = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
 
     // Mock HTTP Request
     var participant = new Participant
@@ -88,10 +93,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var fun = new ParticipantFunctions(logger.Object, dbContext);
+    var fun = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
 
     // Mock HTTP Request
     var participant = new Participant
@@ -118,10 +124,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
+    var function = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
 
     var participant = new Participant
     {
@@ -150,10 +157,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<PathwayTypeEnrolmentFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new PathwayTypeEnrolmentFunctions(logger.Object, dbContext);
+    var function = new PathwayTypeEnrolmentFunctions(logger.Object, dbContext, jsonSerializerOptions);
 
     var nhsNumber = "123";
 
@@ -198,10 +206,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
+    var function = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
 
     var participant = new Participant
     {
@@ -230,10 +239,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
+    var function = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
     var request = CreateMockHttpRequest(functionContext, null);
 
     // Act
@@ -250,10 +260,11 @@ public class ParticipantFunctionsTests
     // Arrange
     var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
     var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
+    var jsonSerializerOptions = serviceProvider.GetRequiredService<JsonSerializerOptions>();
     var logger = new Mock<ILogger<ParticipantFunctions>>();
     var functionContext = new Mock<FunctionContext>().Object;
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
+    var function = new ParticipantFunctions(logger.Object, dbContext, jsonSerializerOptions);
     var request = CreateMockHttpRequestWithQuery(functionContext, ""); // No query param
 
     // Act
