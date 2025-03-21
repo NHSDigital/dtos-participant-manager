@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
+using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Functions;
 
@@ -35,7 +36,7 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      if (string.IsNullOrEmpty(participantId.ToString()))
+      if (participantId == Guid.Empty)
       {
         logger.LogError("Access token doesn't contain ParticipantId");
         return new UnauthorizedResult();
@@ -44,13 +45,25 @@ public class ScreeningEligibilityFunction(
       var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
       if (pathwayEnrolments == null)
       {
-        logger.LogError("Failed to find pathway enrolments for NhsNumber: {@ParticipantId}",
+        logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}",
           new { ParticipantId = participantId });
         return new NotFoundObjectResult("Unable to find pathway enrolments");
       }
 
+      if (pathwayEnrolments.Count == 0)
+      {
+        logger.LogInformation(
+          "Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}",
+          new { ParticipantId = participantId });
+        return new OkObjectResult(new
+        {
+          Message = $"No pathway enrollments found for the participant: {participantId}",
+          Enrollments = new List<PathwayEnrolmentDto>()
+        });
+      }
+
       //Check that logged in user has access to participant
-      if (pathwayEnrolments.FirstOrDefault().Participant.NhsNumber != nhsNumber.ToString())
+      if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant?.NhsNumber != nhsNumber.ToString()))
       {
         logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
           new { ParticipantId = participantId });
@@ -64,8 +77,8 @@ public class ScreeningEligibilityFunction(
         return new ForbidResult();
       }
 
-      logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}",
-        new { NhsNumber = nhsNumber });
+      logger.LogInformation("Found pathway enrolments for Participant: {@ParticipantId}",
+        new { ParticipantId = participantId });
       return new OkObjectResult(pathwayEnrolments);
     }
     catch (Exception ex)
