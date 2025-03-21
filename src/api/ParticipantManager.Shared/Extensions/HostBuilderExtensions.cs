@@ -15,12 +15,13 @@ public static class HostBuilderExtensions
         .MinimumLevel.Information()
         .Enrich.FromLogContext()
         .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
-        .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
+        .Destructure.With(new NhsNumberHashingPolicy()) // Applies NHS number hashing when destructuring
         .Enrich.WithSensitiveDataMasking(options =>
         {
           options.MaskingOperators
             .Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
-          options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
+          options.MaskingOperators
+            .Add(new NhsNumberRegexMaskOperator()); // If destructuring wasn't used in the log statement, then the NHS Number will be masked
           options.MaskingOperators.Add(new EmailAddressMaskingOperator());
         })
         .WriteTo.Console(new RenderedCompactJsonFormatter())
