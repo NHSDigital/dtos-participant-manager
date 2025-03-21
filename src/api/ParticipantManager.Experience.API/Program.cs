@@ -2,9 +2,6 @@ using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
@@ -17,24 +14,6 @@ var host = new HostBuilder()
   .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
   .ConfigureServices((context, services) =>
   {
-    services.AddSingleton<FunctionContextAccessor>();
-    services.AddOpenTelemetry()
-      .ConfigureResource(builder => builder
-        .AddService("ParticipantManager.Experience.API"))
-      .WithTracing(builder => builder
-        .AddSource(nameof(ParticipantManager.Experience.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
-      .WithMetrics(builder => builder
-        .AddMeter(nameof(ParticipantManager.Experience.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorMetricExporter(options =>
-        {
-          options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
-        }));
-
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();
 
@@ -54,6 +33,7 @@ var host = new HostBuilder()
     services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
     services.AddAuthorization();
   })
+  .ConfigureOpenTelemetry(nameof(ParticipantManager.Experience.API), appInsightsConnectionString)
   .ConfigureSerilogLogging(appInsightsConnectionString)
   .ConfigureLogging(logging =>
   {
