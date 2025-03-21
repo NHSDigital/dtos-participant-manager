@@ -63,7 +63,7 @@ public class CreateEnrolmentHandler
 
     if (!succeeded)
     {
-      _logger.LogError("Failed to create PathwayTypeEnrollment for Participant: {Participant}, PathwayTypeName: {PathwayTypeName}",
+      _logger.LogError("Failed to create PathwayTypeEnrolment for Participant: {Participant}, PathwayTypeName: {PathwayTypeName}",
       pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
       return;
     }
