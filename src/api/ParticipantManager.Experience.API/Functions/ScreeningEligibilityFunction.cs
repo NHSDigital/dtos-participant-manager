@@ -42,7 +42,7 @@ public class ScreeningEligibilityFunction(
       }
 
       var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
-      if (pathwayEnrolments == null)
+      if (pathwayEnrolments == null || pathwayEnrolments.FirstOrDefault() == null)
       {
         logger.LogError("Failed to find pathway enrolments for NhsNumber: {@ParticipantId}",
           new { ParticipantId = participantId });
@@ -50,7 +50,7 @@ public class ScreeningEligibilityFunction(
       }
 
       //Check that logged in user has access to participant
-      if (pathwayEnrolments.FirstOrDefault().Participant.NhsNumber != nhsNumber.ToString())
+      if (pathwayEnrolments?.FirstOrDefault()?.Participant.NhsNumber != nhsNumber.ToString())
       {
         logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
           new { ParticipantId = participantId });

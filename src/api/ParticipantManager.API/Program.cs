@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,10 @@ var host = new HostBuilder()
         {
           options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
+
+    services.AddSingleton(new JsonSerializerOptions {
+          PropertyNameCaseInsensitive = true
+        });
 
     services.AddDbContext<ParticipantManagerDbContext>(options =>
     {

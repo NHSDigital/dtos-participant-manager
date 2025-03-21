@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.Identity;
 using Azure.Messaging.EventGrid;
 using Azure.Monitor.OpenTelemetry.Exporter;
@@ -38,6 +39,10 @@ var host = new HostBuilder()
 
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();
+
+    services.AddSingleton(new JsonSerializerOptions {
+          PropertyNameCaseInsensitive = true
+        });
 
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
