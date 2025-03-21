@@ -11,6 +11,7 @@ using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
+using ParticipantManager.TestUtils;
 
 public class GetParticipantIdFunctionTests
 {
@@ -20,8 +21,6 @@ public class GetParticipantIdFunctionTests
   private readonly Mock<ITokenService> _mockTokenService = new();
   private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
   private readonly Guid _validParticipantId = Guid.NewGuid();
-  private readonly HttpRequestData _request = CreateHttpRequest("");
-
 
   public GetParticipantIdFunctionTests()
   {
@@ -35,16 +34,18 @@ public class GetParticipantIdFunctionTests
   {
     // Arrange
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Expired());
+    // Call the static method with authentication header
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request) as UnauthorizedResult;
+    var response = await _function.GetParticipantId(request) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
   }
 
   [Fact]
-  public async Task GetParticipantId__NoNhsNumber_ShouldReturnUnauthorized()
+  public async Task GetParticipantId_NoNhsNumber_ShouldReturnUnauthorized()
   {
     // Arrange
     var claims = new List<Claim>
@@ -57,9 +58,10 @@ public class GetParticipantIdFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request) as UnauthorizedResult;
+    var response = await _function.GetParticipantId(request) as UnauthorizedResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -80,9 +82,10 @@ public class GetParticipantIdFunctionTests
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
     _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync("12345678")).Returns(Task.FromResult<ParticipantDto?>(null));
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request) as NotFoundObjectResult;
+    var response = await _function.GetParticipantId(request) as NotFoundObjectResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
@@ -104,9 +107,10 @@ public class GetParticipantIdFunctionTests
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
     _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(false);
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request);
+    var response = await _function.GetParticipantId(request);
 
     // Assert
     Assert.NotNull(response);
@@ -128,9 +132,10 @@ public class GetParticipantIdFunctionTests
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
     _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(true);
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request) as OkObjectResult;
+    var response = await _function.GetParticipantId(request) as OkObjectResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
@@ -152,24 +157,14 @@ public class GetParticipantIdFunctionTests
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
     _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync("12345678")).ThrowsAsync(new Exception("Test exception message"));
+    var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
-    var response = await _function.GetParticipantId(_request) as BadRequestObjectResult;
+    var response = await _function.GetParticipantId(request) as BadRequestObjectResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
     Assert.Equal("Test exception message", response?.Value);
-  }
-
-  private static HttpRequestData CreateHttpRequest(string? authHeader)
-  {
-    var context = new Mock<FunctionContext>();
-    var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
-    var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
-    if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
-
-    request.Setup(r => r.Headers).Returns(headers);
-    return request.Object;
   }
 
   private ParticipantDto MockParticipant()

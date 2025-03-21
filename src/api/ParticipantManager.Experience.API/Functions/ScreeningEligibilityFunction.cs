@@ -73,7 +73,7 @@ public class ScreeningEligibilityFunction(
         return new ForbidResult();
       }
 
-      logger.LogInformation("Found pathway enrolments for NhsNumber: {@NhsNumber}", new { NhsNumber = nhsNumber });
+      logger.LogInformation("Found pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
       return new OkObjectResult(pathwayEnrolments);
     }
     catch (Exception ex)
