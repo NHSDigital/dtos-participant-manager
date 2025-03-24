@@ -22,7 +22,7 @@ public class NhsNumberRegexMaskOperatorTests
 
   [Theory]
   [InlineData("0000000000")]
-  [InlineData("9991234567")]
+  [InlineData("4857773456")]
   [InlineData("9999999999")]
   public void NhsNumberRegexMaskOperator_MasksNhsNumbers(string nhsNumber)
   {
