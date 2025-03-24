@@ -47,10 +47,14 @@ public class ParticipantFunctionsTests
         .UseInMemoryDatabase(databaseName)
         .Options;
 
+    var jsonOptions = new JsonSerializerOptions {
+      PropertyNameCaseInsensitive = true
+    };
+
     _dbContext = new ParticipantManagerDbContext(options);
     _logger = new Mock<ILogger<ParticipantFunctions>>();
     _functionContext = new Mock<FunctionContext>().Object;
-    _function = new ParticipantFunctions(_logger.Object, _dbContext);
+    _function = new ParticipantFunctions(_logger.Object, _dbContext, jsonOptions);
   }
 
   private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object? body)
@@ -166,7 +170,7 @@ public class ParticipantFunctionsTests
       string name, string dobString, string nhsNumber, Type expectedValidationResultType)
   {
     // Arrange
-    var invalidParticipant = new Participant();
+    var invalidParticipant = new Participant() {Name = "", NhsNumber = ""};
 
     if (!string.IsNullOrEmpty(name))
       invalidParticipant.Name = name;
