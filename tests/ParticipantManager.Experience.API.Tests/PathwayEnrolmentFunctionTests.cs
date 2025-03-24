@@ -28,6 +28,7 @@ public class PathwayEnrolmentFunctionTests
     _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
     _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result).Returns(MockPathwayDetails);
     _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
   }
 
   [Fact]
@@ -152,7 +153,6 @@ public class PathwayEnrolmentFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
 
     // Act
     var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as OkObjectResult;
