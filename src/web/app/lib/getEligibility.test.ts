@@ -22,7 +22,7 @@ describe("getEligibility", () => {
   });
 
   it("returns null when session has no access token", async () => {
-    const session = { user: {} };
+    const session = { user: {}, expires: "2024-01-01T00:00:00.000Z" };
 
     const result = await getEligibility(session);
 
@@ -44,6 +44,7 @@ describe("getEligibility", () => {
       user: {
         accessToken: "test-token",
       },
+      expires: "2024-01-01T00:00:00.000Z",
     };
 
     (fetchPatientScreeningEligibility as jest.Mock).mockResolvedValue(
@@ -53,7 +54,7 @@ describe("getEligibility", () => {
     const result = await getEligibility(session);
 
     expect(result).toEqual(mockEligibilityData);
-    expect(fetchPatientScreeningEligibility).toHaveBeenCalledWith("test-token");
+    expect(fetchPatientScreeningEligibility).toHaveBeenCalledWith(session);
     expect(logger.warn).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
   });
@@ -64,6 +65,7 @@ describe("getEligibility", () => {
       user: {
         accessToken: "test-token",
       },
+      expires: "2024-01-01T00:00:00.000Z",
     };
 
     (fetchPatientScreeningEligibility as jest.Mock).mockRejectedValue(error);
@@ -71,7 +73,7 @@ describe("getEligibility", () => {
     const result = await getEligibility(session);
 
     expect(result).toBeNull();
-    expect(fetchPatientScreeningEligibility).toHaveBeenCalledWith("test-token");
+    expect(fetchPatientScreeningEligibility).toHaveBeenCalledWith(session);
     expect(logger.error).toHaveBeenCalledWith(
       "Failed to get eligibility data:",
       error
