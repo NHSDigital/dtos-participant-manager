@@ -1,5 +1,3 @@
-import { P } from "pino";
-
 export interface DecodedToken {
   iss: string;
   aud: string;
@@ -20,6 +18,6 @@ declare module "next-auth" {
   }
 
   interface Session {
-    error?: "RefreshTokenError"
+    error?: "RefreshTokenError";
   }
 }
