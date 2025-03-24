@@ -93,9 +93,9 @@ public class PathwayEnrolmentFunctionTests
     var response = await _function.GetPathwayEnrolmentById(request, Guid.NewGuid(), Guid.NewGuid()) as OkObjectResult;
 
     // Assert
-    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto)response.Value;
+    var pathwayEnrolmentDto = (EnrolledPathwayDetailsDto?)response?.Value;
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(pathwayEnrolmentDto.ScreeningName, MockPathwayDetails().ScreeningName);
+    Assert.Equal(pathwayEnrolmentDto?.ScreeningName, MockPathwayDetails().ScreeningName);
   }
 
   // ✅ Helper Method to Create Mock HTTP Request

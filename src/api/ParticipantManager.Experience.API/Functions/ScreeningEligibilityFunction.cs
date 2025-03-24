@@ -28,7 +28,7 @@ public class ScreeningEligibilityFunction(
         return new UnauthorizedResult();
       }
 
-      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      var nhsNumber = result.Principal?.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
       if (string.IsNullOrEmpty(nhsNumber))
       {
         logger.LogError("Access token doesn't contain NHS number");

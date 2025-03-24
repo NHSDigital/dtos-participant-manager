@@ -28,8 +28,8 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
     {
       // Get the token from the header
       logger.LogInformation("Validating token");
-      if (request.Headers.TryGetValues(AuthHeaderName, out var authHeaderValues) &&
-          authHeaderValues.FirstOrDefault().StartsWith(BearerPrefix))
+      if (request.Headers.TryGetValues(AuthHeaderName, out var authHeaderValues) && authHeaderValues.FirstOrDefault() != null &&
+          authHeaderValues.FirstOrDefault()!.StartsWith(BearerPrefix))
       {
         var token = authHeaderValues.FirstOrDefault()?.Replace("Bearer ", "");
         var tokenParams = new TokenValidationParameters

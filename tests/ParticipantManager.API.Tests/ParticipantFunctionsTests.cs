@@ -39,7 +39,7 @@ public class ParticipantFunctionsTests
     return services.BuildServiceProvider();
   }
 
-  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
+  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object? body)
   {
     var json = JsonSerializer.Serialize(body);
     var byteArray = Encoding.UTF8.GetBytes(json);
@@ -251,7 +251,7 @@ public class ParticipantFunctionsTests
 
     // Assert
     var result = Assert.IsType<NotFoundObjectResult>(response);
-    Assert.Contains("not found", result.Value.ToString());
+    Assert.Contains("not found", result?.Value?.ToString());
   }
 
   [Fact]
@@ -272,6 +272,6 @@ public class ParticipantFunctionsTests
 
     // Assert
     var result = Assert.IsType<BadRequestObjectResult>(response);
-    Assert.Contains("Please provide an NHS Number", result.Value.ToString());
+    Assert.Contains("Please provide an NHS Number", result?.Value?.ToString());
   }
 }

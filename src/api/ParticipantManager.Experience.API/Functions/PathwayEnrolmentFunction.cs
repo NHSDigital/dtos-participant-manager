@@ -30,7 +30,7 @@ public class PathwayEnrolmentFunction(
 
       logger.LogInformation("Access token is valid, looking for NHS Number");
 
-      var nhsNumber = result.Principal.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
+      var nhsNumber = result.Principal?.Claims.FirstOrDefault(c => c.Type == "nhs_number")?.Value;
       if (string.IsNullOrEmpty(nhsNumber))
       {
         logger.LogError("Access token doesn't contain NHS number");
