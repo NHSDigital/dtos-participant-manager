@@ -136,10 +136,7 @@ public class ScreeningEligibilityFunctionTests
     // Assert
     Assert.IsType<OkObjectResult>(response);
     Assert.Equal(StatusCodes.Status200OK, response.StatusCode);
-    var messageProperty = response.Value?.GetType().GetProperty("Message");
-    Assert.NotNull(messageProperty);
-    var messageValue = messageProperty.GetValue(response.Value);
-    Assert.Equal($"No pathway enrollments found for the participant: {_participantId}", messageValue);
+    Assert.NotNull(response);
   }
 
   [Fact]
@@ -166,7 +163,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_FeatureIsDisabled_ReturnsForbidden()
+  public async Task GetScreeningEligibility_FeatureIsEnabled_ReturnsForbidden()
   {
     // Arrange
     var claims = new List<Claim>
@@ -180,7 +177,7 @@ public class ScreeningEligibilityFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(false);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(true);
 
     // Act
     var response = await _function.GetParticipantEligibility(_request, _participantId);
@@ -205,7 +202,6 @@ public class ScreeningEligibilityFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(true);
 
     // Act
     var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as OkObjectResult;

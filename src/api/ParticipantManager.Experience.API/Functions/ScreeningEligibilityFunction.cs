@@ -49,18 +49,8 @@ public class ScreeningEligibilityFunction(
         return new NotFoundObjectResult("Unable to find pathway enrolments");
       }
 
-      if (pathwayEnrolments.Count == 0)
-      {
-        logger.LogInformation("Successful response but no Pathway enrolments were found for Participant: {@ParticipantId}", new { ParticipantId = participantId });
-        return new OkObjectResult(new
-        {
-          Message = $"No pathway enrollments found for the participant: {participantId}",
-          Enrollments = new List<PathwayEnrolmentDto>()
-        });
-      }
-
       //Check that logged in user has access to participant
-      if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant?.NhsNumber != nhsNumber.ToString()))
+      if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant.NhsNumber != nhsNumber.ToString()))
       {
         logger.LogError("Logged in user does not have access to this record: {@ParticipantId}", new { ParticipantId = participantId });
         return new UnauthorizedResult();
@@ -68,7 +58,7 @@ public class ScreeningEligibilityFunction(
 
       var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
 
-      if (!enabled)
+      if (enabled)
       {
         return new ForbidResult();
       }
@@ -78,7 +68,7 @@ public class ScreeningEligibilityFunction(
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Invalid: Bad Request");
+      logger.LogError(ex, "Invalid: Bad Request, Returned Pathway Enrolments: {PathwayEnrolmentCount}", ex.Data.Count);
       return new BadRequestObjectResult(ex.Message);
     }
   }
