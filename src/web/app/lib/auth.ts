@@ -238,7 +238,7 @@ export async function getAuthConfig() {
       },
     },
     events: {
-      async session({ session, token }) {
+      async session({ session }) {
         const maxAge = 1800; // 30 minutes [Recommended by NHS login]
         const now = Math.floor(Date.now() / 1000);
         session.expires = new Date((now + maxAge) * 1000).toISOString();
