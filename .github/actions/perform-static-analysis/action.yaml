@@ -56,6 +56,13 @@ runs:
         ./.sonar/scanner/dotnet-coverage collect -f xml -o coverage.xml dotnet test src/api/ParticipantManager.API.sln
         cd src/web
         npm ci
-        npm run test:unit:coverage
+        npm run test:unit:coverage -- --coverageDirectory=coverage --coverageReporters=lcov
         cd ../..
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
+    - name: Debug Coverage Files
+      run: |
+        echo "🔍 Checking Coverage Files"
+        ls -l src/web/coverage/ || dir src\web\coverage\
+        echo "🔍 Displaying lcov.info Contents"
+        cat src/web/coverage/lcov.info || echo "❌ lcov.info NOT FOUND!"
+
