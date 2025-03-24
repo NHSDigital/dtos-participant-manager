@@ -107,7 +107,7 @@ public class GetParticipantIdFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(false);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(true);
     var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
@@ -132,7 +132,6 @@ public class GetParticipantIdFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(true);
     var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
