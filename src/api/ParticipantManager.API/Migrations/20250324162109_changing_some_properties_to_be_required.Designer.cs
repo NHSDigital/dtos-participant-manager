@@ -12,8 +12,8 @@ using ParticipantManager.API.Data;
 namespace ParticipantManager.API.Migrations
 {
     [DbContext(typeof(ParticipantManagerDbContext))]
-    [Migration("20250321115609_updating some properties to be required")]
-    partial class updatingsomepropertiestoberequired
+    [Migration("20250324162109_changing_some_properties_to_be_required")]
+    partial class changing_some_properties_to_be_required
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,7 @@ namespace ParticipantManager.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Outcome")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EncounterId");
@@ -56,13 +57,15 @@ namespace ParticipantManager.API.Migrations
                     b.Property<Guid>("EnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PathwayTypeEnrolmentEnrolmentId")
+                    b.Property<Guid>("PathwayTypeEnrolmentEnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PathwayVersion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EpisodeId");
@@ -148,7 +151,9 @@ namespace ParticipantManager.API.Migrations
                 {
                     b.HasOne("ParticipantManager.API.Models.PathwayTypeEnrolment", "PathwayTypeEnrolment")
                         .WithMany("Episodes")
-                        .HasForeignKey("PathwayTypeEnrolmentEnrolmentId");
+                        .HasForeignKey("PathwayTypeEnrolmentEnrolmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("PathwayTypeEnrolment");
                 });

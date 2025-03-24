@@ -6,57 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ParticipantManager.API.Migrations
 {
     /// <inheritdoc />
-    public partial class updatingsomepropertiestoberequired : Migration
+    public partial class changing_some_properties_to_be_required : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Episodes_PathwayTypeEnrolments_PathwayTypeEnrolmentEnrolmentId",
-                table: "Episodes");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Status",
-                table: "Episodes",
-                type: "nvarchar(max)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "PathwayVersion",
-                table: "Episodes",
-                type: "nvarchar(max)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "PathwayTypeEnrolmentEnrolmentId",
-                table: "Episodes",
-                type: "uniqueidentifier",
-                nullable: true,
-                oldClrType: typeof(Guid),
-                oldType: "uniqueidentifier");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Outcome",
-                table: "Encounters",
-                type: "nvarchar(max)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Episodes_PathwayTypeEnrolments_PathwayTypeEnrolmentEnrolmentId",
-                table: "Episodes",
-                column: "PathwayTypeEnrolmentEnrolmentId",
-                principalTable: "PathwayTypeEnrolments",
-                principalColumn: "EnrolmentId");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_Episodes_PathwayTypeEnrolments_PathwayTypeEnrolmentEnrolmentId",
@@ -109,6 +62,53 @@ namespace ParticipantManager.API.Migrations
                 principalTable: "PathwayTypeEnrolments",
                 principalColumn: "EnrolmentId",
                 onDelete: ReferentialAction.Cascade);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Episodes_PathwayTypeEnrolments_PathwayTypeEnrolmentEnrolmentId",
+                table: "Episodes");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Status",
+                table: "Episodes",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "PathwayVersion",
+                table: "Episodes",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
+
+            migrationBuilder.AlterColumn<Guid>(
+                name: "PathwayTypeEnrolmentEnrolmentId",
+                table: "Episodes",
+                type: "uniqueidentifier",
+                nullable: true,
+                oldClrType: typeof(Guid),
+                oldType: "uniqueidentifier");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Outcome",
+                table: "Encounters",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Episodes_PathwayTypeEnrolments_PathwayTypeEnrolmentEnrolmentId",
+                table: "Episodes",
+                column: "PathwayTypeEnrolmentEnrolmentId",
+                principalTable: "PathwayTypeEnrolments",
+                principalColumn: "EnrolmentId");
         }
     }
 }

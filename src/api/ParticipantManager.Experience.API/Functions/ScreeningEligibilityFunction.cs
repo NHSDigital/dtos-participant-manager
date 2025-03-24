@@ -43,7 +43,7 @@ public class ScreeningEligibilityFunction(
       }
 
       var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
-      if (pathwayEnrolments == null || pathwayEnrolments.FirstOrDefault() == null)
+      if (pathwayEnrolments == null)
       {
         logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}",
           new { ParticipantId = participantId });

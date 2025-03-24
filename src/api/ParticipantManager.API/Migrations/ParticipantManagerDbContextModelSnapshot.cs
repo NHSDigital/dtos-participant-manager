@@ -35,6 +35,7 @@ namespace ParticipantManager.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Outcome")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EncounterId");
@@ -53,13 +54,15 @@ namespace ParticipantManager.API.Migrations
                     b.Property<Guid>("EnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PathwayTypeEnrolmentEnrolmentId")
+                    b.Property<Guid>("PathwayTypeEnrolmentEnrolmentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PathwayVersion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EpisodeId");
@@ -145,7 +148,9 @@ namespace ParticipantManager.API.Migrations
                 {
                     b.HasOne("ParticipantManager.API.Models.PathwayTypeEnrolment", "PathwayTypeEnrolment")
                         .WithMany("Episodes")
-                        .HasForeignKey("PathwayTypeEnrolmentEnrolmentId");
+                        .HasForeignKey("PathwayTypeEnrolmentEnrolmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("PathwayTypeEnrolment");
                 });
