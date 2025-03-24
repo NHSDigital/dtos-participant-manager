@@ -15,6 +15,14 @@ find "$UnitDir" -name '*.csproj' -not -path "$UnitDir/IntegrationTests/*" | whil
     dotnet test "$file" --filter "TestCategory!=Integration" --logger $Format --verbosity quiet
 done
 
+# Run the Unit tests in the src/web folder to execute the Next.js tests
+cd src/web
+echo -e "\nInstalling dependencies"
+npm ci
+echo -e "\nRunning unit tests for Nextjs"
+npm run test:unit
+cd "$dir"
+
 # Move all trx result files into a separate folder, for easier reporting
 mkdir -p "$ResDir"
 find "$UnitDir" -name "*.$Format" -not -path "$ResDir/*" | while read -r resfile; do
