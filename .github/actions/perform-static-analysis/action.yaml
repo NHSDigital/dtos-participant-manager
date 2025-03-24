@@ -57,7 +57,7 @@ runs:
         cd src/web
         npm ci
         npm run test:unit:coverage -- --coverageDirectory=coverage --coverageReporters=lcov
-        sed -i 's|^SF:|SF:src/web/|g' src/web/coverage/lcov.info
+        sed -i 's|^SF:|SF:src/web/|g' coverage/lcov.info
         cd ../..
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
     - name: Debug Coverage Files
