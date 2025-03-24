@@ -17,6 +17,8 @@ done
 
 # Run the Unit tests in the src/web folder to execute the Next.js tests
 cd src/web
+echo -e "\nInstalling dependencies"
+npm ci
 echo -e "\nRunning unit tests for Nextjs"
 npm run test:unit
 cd "$dir"
