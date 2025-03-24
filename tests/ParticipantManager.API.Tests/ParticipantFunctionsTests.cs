@@ -1,27 +1,24 @@
 namespace ParticipantManager.API.Tests;
 
 using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
+using ParticipantManager.TestUtils;
 
 public class ParticipantFunctionsTests
 {
   private readonly ParticipantManagerDbContext _dbContext;
   private readonly Mock<ILogger<ParticipantFunctions>> _logger;
-  private readonly FunctionContext _functionContext;
   private readonly ParticipantFunctions _function;
   private readonly Participant _mockParticipant;
   private readonly Participant _mockParticipant2;
+  private readonly SetupRequest _requestSetup = new();
 
   public ParticipantFunctionsTests()
   {
@@ -57,30 +54,11 @@ public class ParticipantFunctionsTests
     _function = new ParticipantFunctions(_logger.Object, _dbContext, jsonOptions);
   }
 
-  private static HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object? body)
-  {
-    var json = JsonSerializer.Serialize(body);
-    var byteArray = Encoding.UTF8.GetBytes(json);
-    var memoryStream = new MemoryStream(byteArray);
-    var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
-    mockRequest.Setup(r => r.Body).Returns(memoryStream);
-    return mockRequest.Object;
-  }
-
-  private static HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
-  {
-    var requestUrl = new Uri($"http://localhost/api/participants?{queryString}");
-    var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
-    mockRequest.Setup(r => r.Url).Returns(requestUrl);
-    mockRequest.Setup(r => r.Headers).Returns(new HttpHeadersCollection());
-    return mockRequest.Object;
-  }
-
   [Fact]
   public async Task CreateParticipant_ValidParticipantData_ReturnsCreatedResult()
   {
     // Arrange
-    var request = CreateMockHttpRequest(_functionContext, _mockParticipant);
+    var request = _requestSetup.CreateMockHttpRequest(_mockParticipant);
 
     // Act
     var response = await _function.CreateParticipant(request);
@@ -98,7 +76,7 @@ public class ParticipantFunctionsTests
     _dbContext.Participants.Add(_mockParticipant);
     await _dbContext.SaveChangesAsync();
 
-    var request = CreateMockHttpRequest(_functionContext, null);
+    var request = _requestSetup.CreateMockHttpRequest(null);
 
     // Act
     var response = await _function.GetParticipantById(request, _mockParticipant.ParticipantId);
@@ -116,7 +94,7 @@ public class ParticipantFunctionsTests
     _dbContext.Participants.Add(_mockParticipant2);
     await _dbContext.SaveChangesAsync();
 
-    var request = CreateMockHttpRequestWithQuery(_functionContext, $"nhsNumber={_mockParticipant2.NhsNumber}");
+    var request = _requestSetup.CreateMockHttpRequestWithQuery($"nhsNumber={_mockParticipant2.NhsNumber}");
 
     // Act
     var response = await _function.GetParticipantByNhsNumber(request);
@@ -134,7 +112,7 @@ public class ParticipantFunctionsTests
       string queryParam, Type expectedResultType, string expectedMessage)
   {
     // Arrange
-    var request = CreateMockHttpRequestWithQuery(_functionContext, queryParam);
+    var request = _requestSetup.CreateMockHttpRequestWithQuery(queryParam);
 
     // Act
     var response = await _function.GetParticipantByNhsNumber(request);
@@ -151,7 +129,7 @@ public class ParticipantFunctionsTests
       string requestBody, Type expectedResultType, string expectedMessage)
   {
     // Arrange
-    var mockRequest = CreateMockHttpRequest(_functionContext, requestBody);
+    var mockRequest = _requestSetup.CreateMockHttpRequest(requestBody);
 
     // Act
     var response = await _function.CreateParticipant(mockRequest);
@@ -181,7 +159,7 @@ public class ParticipantFunctionsTests
     if (!string.IsNullOrEmpty(nhsNumber))
       invalidParticipant.NhsNumber = nhsNumber;
 
-    var request = CreateMockHttpRequest(_functionContext, invalidParticipant);
+    var request = _requestSetup.CreateMockHttpRequest(invalidParticipant);
 
     // Act
     var response = await _function.CreateParticipant(request);
@@ -198,7 +176,7 @@ public class ParticipantFunctionsTests
     _dbContext.Participants.Add(_mockParticipant);
     await _dbContext.SaveChangesAsync();
 
-    var request = CreateMockHttpRequest(_functionContext, _mockParticipant);
+    var request = _requestSetup.CreateMockHttpRequest(_mockParticipant);
 
     // Act
     var response = await _function.CreateParticipant(request);
@@ -214,7 +192,7 @@ public class ParticipantFunctionsTests
   {
     // Arrange
     var participantId = Guid.NewGuid();
-    var request = CreateMockHttpRequest(_functionContext, null);
+    var request = _requestSetup.CreateMockHttpRequest(null);
 
     // Act
     var response = await _function.GetParticipantById(request, participantId);
