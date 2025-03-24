@@ -82,6 +82,7 @@ public class GetParticipantIdFunctionTests
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
     _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync("12345678")).Returns(Task.FromResult<ParticipantDto?>(null));
+
     var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act

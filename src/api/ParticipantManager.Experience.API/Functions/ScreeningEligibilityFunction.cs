@@ -9,15 +9,15 @@ using ParticipantManager.Shared.DTOs;
 namespace ParticipantManager.Experience.API.Functions;
 
 public class ScreeningEligibilityFunction(
-    ILogger<ScreeningEligibilityFunction> logger,
-    ICrudApiClient crudApiClient,
-    ITokenService tokenService,
-    IFeatureFlagClient featureFlagClient)
+  ILogger<ScreeningEligibilityFunction> logger,
+  ICrudApiClient crudApiClient,
+  ITokenService tokenService,
+  IFeatureFlagClient featureFlagClient)
 {
   [Function("GetScreeningEligibility")]
   public async Task<IActionResult> GetParticipantEligibility(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
-            HttpRequestData req, Guid participantId)
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+    HttpRequestData req, Guid participantId)
   {
     try
     {
@@ -45,14 +45,16 @@ public class ScreeningEligibilityFunction(
       var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
       if (pathwayEnrolments == null)
       {
-        logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
+        logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}",
+          new { ParticipantId = participantId });
         return new NotFoundObjectResult("Unable to find pathway enrolments");
       }
 
       //Check that logged in user has access to participant
       if (pathwayEnrolments.Any(pathwayEnrolments => pathwayEnrolments.Participant.NhsNumber != nhsNumber.ToString()))
       {
-        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}", new { ParticipantId = participantId });
+        logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
+          new { ParticipantId = participantId });
         return new UnauthorizedResult();
       }
 
@@ -63,7 +65,8 @@ public class ScreeningEligibilityFunction(
         return new ForbidResult();
       }
 
-      logger.LogInformation("Found pathway enrolments for Participant: {@ParticipantId}", new { ParticipantId = participantId });
+      logger.LogInformation("Found pathway enrolments for Participant: {@ParticipantId}",
+        new { ParticipantId = participantId });
       return new OkObjectResult(pathwayEnrolments);
     }
     catch (Exception ex)
