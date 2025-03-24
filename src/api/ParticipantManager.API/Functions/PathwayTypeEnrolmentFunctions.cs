@@ -49,7 +49,7 @@ public class PathwayTypeEnrolmentFunctions
         NextActionDate = p.NextActionDate,
         Episodes = p.Episodes,
         ParticipantId = p.ParticipantId,
-        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId, Name = p.Participant.Name}
       })
       .ToListAsync();
 
@@ -80,7 +80,7 @@ public class PathwayTypeEnrolmentFunctions
         NextActionDate = p.NextActionDate,
         Episodes = p.Episodes,
         ParticipantId = p.ParticipantId,
-        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId, Name = p.Participant.Name}
       }).FirstOrDefaultAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
