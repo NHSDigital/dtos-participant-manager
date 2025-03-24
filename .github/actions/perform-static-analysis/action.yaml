@@ -64,5 +64,5 @@ runs:
         echo "🔍 Checking Coverage Files"
         ls -l src/web/coverage/ || dir src\web\coverage\
         echo "🔍 Displaying lcov.info Contents"
-        cat src/web/coverage/lcov.info || echo "❌ lcov.info NOT FOUND!"
+        cat src/web/coverage/lcov.info || echo "lcov.info NOT FOUND!"
 
