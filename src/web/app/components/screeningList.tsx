@@ -15,9 +15,9 @@ export default function ScreeningList({ eligibility }: ScreeningListProps) {
   return (
     <>
       {eligibility.map((item) => {
-        const url = `${createUrlSlug(item.screeningName)}/${item.assignmentId}`;
+        const url = `${createUrlSlug(item.screeningName)}/${item.enrolmentId}`;
         return (
-          <Card key={item.assignmentId} title={item.screeningName} url={url} />
+          <Card key={item.enrolmentId} title={item.screeningName} url={url} />
         );
       })}
     </>

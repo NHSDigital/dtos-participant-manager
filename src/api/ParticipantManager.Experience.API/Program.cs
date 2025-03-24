@@ -6,13 +6,10 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using ParticipantManager.Experience.API;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
-using Serilog;
-using Serilog.Enrichers.Sensitive;
-using Serilog.Formatting.Compact;
+using ParticipantManager.Shared.Extensions;
 
 var appInsightsConnectionString =
   Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
@@ -62,23 +59,7 @@ var host = new HostBuilder()
     services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
     services.AddAuthorization();
   })
-  .UseSerilog((context, services, loggerConfiguration) =>
-  {
-    loggerConfiguration
-      .MinimumLevel.Information()
-      .Enrich.FromLogContext()
-      .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
-      .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
-      .Enrich.WithSensitiveDataMasking(options =>
-      {
-        options.MaskingOperators
-          .Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
-        options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
-        options.MaskingOperators.Add(new EmailAddressMaskingOperator());
-      })
-      .WriteTo.Console(new RenderedCompactJsonFormatter())
-      .WriteTo.ApplicationInsights(appInsightsConnectionString, TelemetryConverter.Traces);
-  })
+  .ConfigureSerilogLogging(appInsightsConnectionString)
   .ConfigureLogging(logging =>
   {
     logging.AddOpenTelemetry(options =>

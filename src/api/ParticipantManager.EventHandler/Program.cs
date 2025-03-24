@@ -10,9 +10,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
-using Serilog;
-using Serilog.Enrichers.Sensitive;
-using Serilog.Formatting.Compact;
+using ParticipantManager.Shared.Extensions;
 
 var appInsightsConnectionString =
   Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
@@ -52,7 +50,7 @@ var host = new HostBuilder()
     }).AddHttpMessageHandler<CorrelationIdHandler>();
     services.AddSingleton(sp =>
     {
-      if(HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
+      if (HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
       {
         var credentials = new Azure.AzureKeyCredential(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_KEY"));
         return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), credentials);
@@ -61,23 +59,7 @@ var host = new HostBuilder()
       return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), new ManagedIdentityCredential());
     });
   })
-  .UseSerilog((context, services, loggerConfiguration) =>
-  {
-    loggerConfiguration
-      .MinimumLevel.Information()
-      .Enrich.FromLogContext()
-      .Enrich.WithCorrelationIdHeader("X-Correlation-ID")
-      .Destructure.With(new NhsNumberHashingPolicy()) // Apply NHS number hashing by default
-      .Enrich.WithSensitiveDataMasking(options =>
-      {
-        options.MaskingOperators
-          .Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
-        options.MaskingOperators.Add(new NhsNumberRegexMaskOperator());
-        options.MaskingOperators.Add(new EmailAddressMaskingOperator());
-      })
-      .WriteTo.Console(new RenderedCompactJsonFormatter())
-      .WriteTo.ApplicationInsights(appInsightsConnectionString, TelemetryConverter.Traces);
-  })
+  .ConfigureSerilogLogging(appInsightsConnectionString)
   .ConfigureLogging(logging =>
   {
     logging.AddOpenTelemetry(options =>
