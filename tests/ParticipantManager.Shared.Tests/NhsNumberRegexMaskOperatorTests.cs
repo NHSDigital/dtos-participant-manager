@@ -22,6 +22,7 @@ public class NhsNumberRegexMaskOperatorTests
 
   [Theory]
   [InlineData("0000000000")]
+  [InlineData("9991234567")]
   [InlineData("9999999999")]
   public void NhsNumberRegexMaskOperator_MasksNhsNumbers(string nhsNumber)
   {
@@ -37,10 +38,10 @@ public class NhsNumberRegexMaskOperatorTests
   }
 
   [Theory]
-  [InlineData("000000000")]   // 9 digits
+  [InlineData("999999999")]   // 9 digits
   [InlineData("123456789A")]  // 9 digits plus 1 letter
   [InlineData("1234567890A")] // 10 digits plus 1 letter
-  [InlineData("99999999999")] // 11 digits
+  [InlineData("12345678901")] // 11 digits
   public void NhsNumberRegexMaskOperator_DoesNotMaskOtherValues(string otherValue)
   {
     // Act

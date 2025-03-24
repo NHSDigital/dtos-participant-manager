@@ -21,7 +21,7 @@ public static class HostBuilderExtensions
           options.MaskingOperators
             .Clear(); // Clearing default masking operators to prevent GUIDs being masked unintentionally
           options.MaskingOperators
-            .Add(new NhsNumberRegexMaskOperator()); // If destructuring wasn't used, then the NHS Number will be masked
+            .Add(new NhsNumberRegexMaskOperator()); // If destructuring isn't used, then the NHS Number will be masked
           options.MaskingOperators.Add(new EmailAddressMaskingOperator());
         })
         .WriteTo.Console(new RenderedCompactJsonFormatter())
