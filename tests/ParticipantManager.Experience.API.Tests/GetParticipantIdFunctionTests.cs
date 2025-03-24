@@ -3,7 +3,6 @@ namespace ParticipantManager.Experience.API.Tests;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -20,13 +19,14 @@ public class GetParticipantIdFunctionTests
   private readonly Mock<ILogger<GetParticipantIdFunction>> _loggerMock;
   private readonly Mock<ITokenService> _mockTokenService = new();
   private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
-  private readonly Guid _validParticipantId = Guid.NewGuid();
+  private readonly Guid _participantId = Guid.NewGuid();
 
   public GetParticipantIdFunctionTests()
   {
     _loggerMock = new Mock<ILogger<GetParticipantIdFunction>>();
     _crudApiClient.Setup(s => s.GetParticipantByNhsNumberAsync(It.IsAny<string>())).ReturnsAsync(MockParticipant);
     _function = new GetParticipantIdFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(true);
   }
 
   [Fact]
@@ -107,7 +107,7 @@ public class GetParticipantIdFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _validParticipantId)).ReturnsAsync(true);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(false);
     var request = SetupRequest.CreateHttpRequest("Bearer token");
 
     // Act
@@ -139,7 +139,7 @@ public class GetParticipantIdFunctionTests
 
     // Assert
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-    Assert.Equal(_validParticipantId, response?.Value);
+    Assert.Equal(_participantId, response?.Value);
   }
 
   [Fact]
@@ -171,7 +171,7 @@ public class GetParticipantIdFunctionTests
   {
     return new ParticipantDto
     {
-      ParticipantId = _validParticipantId,
+      ParticipantId = _participantId,
       Name = "Test User",
       NhsNumber = "12345678"
     };

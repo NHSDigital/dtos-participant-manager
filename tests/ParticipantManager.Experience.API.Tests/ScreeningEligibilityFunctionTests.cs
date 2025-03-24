@@ -27,6 +27,7 @@ public class ScreeningEligibilityFunctionTests
     _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
     _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result).Returns(MockListPathwayEnrolments);
     _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object, _mockFeatureFlagClient.Object);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(true);
   }
 
   [Fact]
@@ -163,7 +164,7 @@ public class ScreeningEligibilityFunctionTests
   }
 
   [Fact]
-  public async Task GetScreeningEligibility_FeatureIsEnabled_ReturnsForbidden()
+  public async Task GetScreeningEligibility_FeatureIsDisabled_ReturnsForbidden()
   {
     // Arrange
     var claims = new List<Claim>
@@ -177,7 +178,7 @@ public class ScreeningEligibilityFunctionTests
     var principal = new ClaimsPrincipal(identity);
 
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
-    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(true);
+    _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId)).ReturnsAsync(false);
 
     // Act
     var response = await _function.GetParticipantEligibility(_request, _participantId);
@@ -204,7 +205,7 @@ public class ScreeningEligibilityFunctionTests
     _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>())).ReturnsAsync(AccessTokenResult.Success(principal));
 
     // Act
-    var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as OkObjectResult;
+    var response = await _function.GetParticipantEligibility(_request, _participantId) as OkObjectResult;
 
     // Assert
     Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);

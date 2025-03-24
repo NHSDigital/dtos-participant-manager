@@ -47,7 +47,7 @@ public class GetParticipantIdFunction(
 
       var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participant.ParticipantId);
 
-      if (enabled)
+      if (!enabled)
       {
         return new ForbidResult();
       }

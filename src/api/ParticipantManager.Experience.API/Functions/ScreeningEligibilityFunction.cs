@@ -60,7 +60,7 @@ public class ScreeningEligibilityFunction(
 
       var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
 
-      if (enabled)
+      if (!enabled)
       {
         return new ForbidResult();
       }
@@ -71,7 +71,7 @@ public class ScreeningEligibilityFunction(
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Invalid: Bad Request, Returned Pathway Enrolments: {PathwayEnrolmentCount}", ex.Data.Count);
+      logger.LogError(ex, "Invalid: Bad Request");
       return new BadRequestObjectResult(ex.Message);
     }
   }
