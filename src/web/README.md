@@ -45,7 +45,7 @@ npm install
 Then, run the development server:
 
 ```bash
-npm dev:secure
+npm run dev:secure
 ```
 
 Open [https://localhost:3000](https://localhost:3000).
