@@ -8,7 +8,13 @@ jest.mock("../lib/auth", () => ({
   getAuthConfig: jest.fn(),
 }));
 
+// Mock the server action
+jest.mock("next/navigation", () => ({
+  useFormStatus: () => ({ pending: false }),
+}));
+
 describe("SignInButton", () => {
+  let consoleError: jest.SpyInstance;
   let mockSignIn: jest.Mock;
 
   beforeEach(() => {
@@ -16,10 +22,13 @@ describe("SignInButton", () => {
     (getAuthConfig as jest.Mock).mockResolvedValue({
       signIn: mockSignIn,
     });
+    // Suppress form action warning
+    consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    consoleError.mockRestore();
   });
 
   it("renders the sign in button with correct text", () => {
