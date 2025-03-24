@@ -15,12 +15,14 @@ public class PathwayTypeEnrolmentFunctions
 {
   private readonly ParticipantManagerDbContext _dbContext;
   private readonly ILogger<PathwayTypeEnrolmentFunctions> _logger;
+  private readonly JsonSerializerOptions _jsonSerializerOptions;
 
   public PathwayTypeEnrolmentFunctions(ILogger<PathwayTypeEnrolmentFunctions> logger,
-    ParticipantManagerDbContext dbContext)
+    ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
   {
     _logger = logger;
     _dbContext = dbContext;
+    _jsonSerializerOptions = jsonSerializerOptions;
   }
 
   [Function("GetPathwayTypeEnrolmentsByParticipantId")]
@@ -47,7 +49,7 @@ public class PathwayTypeEnrolmentFunctions
         NextActionDate = p.NextActionDate,
         Episodes = p.Episodes,
         ParticipantId = p.ParticipantId,
-        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId, Name = p.Participant.Name}
       })
       .ToListAsync();
 
@@ -78,7 +80,7 @@ public class PathwayTypeEnrolmentFunctions
         NextActionDate = p.NextActionDate,
         Episodes = p.Episodes,
         ParticipantId = p.ParticipantId,
-        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId}
+        Participant = new Participant{NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId, Name = p.Participant.Name}
       }).FirstOrDefaultAsync();
 
     if (pathwayTypeEnrolments == null) return new NotFoundObjectResult("Did not find any enrolments");
@@ -92,16 +94,18 @@ public class PathwayTypeEnrolmentFunctions
   {
     _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
 
-    PathwayTypeEnrolment pathwayTypeEnrolment;
+    PathwayTypeEnrolment? pathwayTypeEnrolment;
     var validationResults = new List<ValidationResult>();
 
     try
     {
-      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body,
-        new JsonSerializerOptions
-        {
-          PropertyNameCaseInsensitive = true
-        });
+      pathwayTypeEnrolment = await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body, _jsonSerializerOptions);
+
+      if(pathwayTypeEnrolment == null)
+      {
+          _logger.LogError("Invalid pathwayTypeEnrolment JSON provided. Deserialized to null.");
+          return new BadRequestObjectResult("Invalid pathwayTypeEnrolment JSON provided. Deserialized to null.");
+      }
 
       var context = new ValidationContext(pathwayTypeEnrolment, null, null);
       if (!Validator.TryValidateObject(pathwayTypeEnrolment, context, validationResults, true))

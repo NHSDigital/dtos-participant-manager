@@ -20,7 +20,7 @@ public class PathwayTypeEnrolment
 
   public DateTime? NextActionDate { get; set; }
 
-  public Participant Participant { get; set; }
+  public required Participant Participant { get; set; }
 
   public ICollection<Episode> Episodes { get; set; } = [];
 

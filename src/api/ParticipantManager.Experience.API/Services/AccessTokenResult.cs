@@ -14,17 +14,17 @@ public sealed class AccessTokenResult
   /// <summary>
   ///   Gets the security principal associated with a valid token.
   /// </summary>
-  public ClaimsPrincipal Principal { get; private set; }
+  public ClaimsPrincipal? Principal { get; private set; }
 
   /// <summary>
   ///   Gets the status of the token, i.e. whether it is valid.
   /// </summary>
-  public AccessTokenStatus Status { get; private set; }
+  public AccessTokenStatus? Status { get; private set; }
 
   /// <summary>
   ///   Gets any exception encountered when validating a token.
   /// </summary>
-  public Exception Exception { get; private set; }
+  public Exception? Exception { get; private set; }
 
   /// <summary>
   ///   Returns a valid token.
