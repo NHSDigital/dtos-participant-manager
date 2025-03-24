@@ -45,7 +45,7 @@ public class CreateEnrolmentHandlerTests
     var cloudEvent = new CloudEvent("/services/CreateEnrolment", "ParticipantInvited", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
-      .ReturnsAsync((ParticipantDto)null);
+      .ReturnsAsync((ParticipantDto?)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
       .ReturnsAsync(participantId);
@@ -169,7 +169,7 @@ public class CreateEnrolmentHandlerTests
     var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
-      .ReturnsAsync((ParticipantDto)null);
+      .ReturnsAsync((ParticipantDto?)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
       .ReturnsAsync(participantId);
@@ -204,7 +204,7 @@ public class CreateEnrolmentHandlerTests
     var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto, typeof(CreatePathwayParticipantDto));
 
     _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
-      .ReturnsAsync((ParticipantDto)null);
+      .ReturnsAsync((ParticipantDto?)null);
 
     _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
       .ReturnsAsync(participantId);

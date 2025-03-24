@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Moq;
 using ParticipantManager.API.Models;
 using ParticipantManager.Shared.Client;
@@ -23,7 +24,11 @@ public class CrudApiClientTests
       BaseAddress = new Uri("https://testapi.com")
     };
 
-    _client = new CrudApiClient(_mockLogger.Object, _httpClient);
+    var options = new JsonSerializerOptions {
+          PropertyNameCaseInsensitive = true
+        };
+
+    _client = new CrudApiClient(_mockLogger.Object, _httpClient, options);
   }
 
   [Fact]
