@@ -1,6 +1,7 @@
 namespace ParticipantManager.API.Tests;
 
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +51,6 @@ public class ParticipantFunctionsTests
 
     _dbContext = new ParticipantManagerDbContext(options);
     _logger = new Mock<ILogger<ParticipantFunctions>>();
-    _functionContext = new Mock<FunctionContext>().Object;
     _function = new ParticipantFunctions(_logger.Object, _dbContext, jsonOptions);
   }
 
