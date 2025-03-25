@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json;
 using Azure.Identity;
 using Azure.Messaging.EventGrid;
 using Azure.Monitor.OpenTelemetry.Exporter;
@@ -37,16 +38,17 @@ var host = new HostBuilder()
           options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
-    services.AddHttpContextAccessor();
-    services.AddTransient<CorrelationIdHandler>();
+        services.AddHttpContextAccessor();
+        services.AddTransient<CorrelationIdHandler>();
 
-    services.AddSingleton(new JsonSerializerOptions {
-          PropertyNameCaseInsensitive = true
+        services.AddSingleton(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
         });
 
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
-      client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL") ?? string.Empty);
+      client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL"));
     }).AddHttpMessageHandler<CorrelationIdHandler>();
     services.AddSingleton(sp =>
     {

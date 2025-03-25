@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,12 +38,13 @@ var host = new HostBuilder()
           options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
-    services.AddSingleton(new JsonSerializerOptions {
-          PropertyNameCaseInsensitive = true
+        services.AddSingleton(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
         });
 
-    services.AddHttpContextAccessor();
-    services.AddTransient<CorrelationIdHandler>();
+        services.AddHttpContextAccessor();
+        services.AddTransient<CorrelationIdHandler>();
 
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
@@ -56,18 +58,21 @@ var host = new HostBuilder()
       return new JwksProvider(logger, issuer);
     });
 
-    services.AddSingleton<ITokenService, TokenService>();
-    services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
-    services.AddAuthorization();
-  })
-  .ConfigureSerilogLogging(appInsightsConnectionString)
-  .ConfigureLogging(logging =>
-  {
-    logging.AddOpenTelemetry(options =>
+        services.AddSingleton<ITokenService, TokenService>();
+        services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
+        services.AddAuthorization();
+    })
+    .ConfigureSerilogLogging(appInsightsConnectionString)
+    .ConfigureLogging(logging =>
     {
-      options.AddAzureMonitorLogExporter(options => { options.ConnectionString = appInsightsConnectionString; });
-    });
-  })
-  .Build();
+        logging.AddOpenTelemetry(options =>
+        {
+            options.AddAzureMonitorLogExporter(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
+        });
+    })
+    .Build();
 
 await host.RunAsync();

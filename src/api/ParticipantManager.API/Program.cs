@@ -37,27 +37,31 @@ var host = new HostBuilder()
           options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
-    services.AddSingleton(new JsonSerializerOptions {
-          PropertyNameCaseInsensitive = true
+        services.AddSingleton(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
         });
 
-    services.AddDbContext<ParticipantManagerDbContext>(options =>
-    {
-      if (string.IsNullOrEmpty(databaseConnectionString))
-        throw new InvalidOperationException("The connection string has not been initialized.");
+        services.AddDbContext<ParticipantManagerDbContext>(options =>
+        {
+            if (string.IsNullOrEmpty(databaseConnectionString))
+                throw new InvalidOperationException("The connection string has not been initialized.");
 
-      options.UseSqlServer(databaseConnectionString);
-    });
-    services.AddHttpContextAccessor();
-  })
-  .ConfigureSerilogLogging(appInsightsConnectionString)
-  .ConfigureLogging(logging =>
-  {
-    logging.AddOpenTelemetry(options =>
+            options.UseSqlServer(databaseConnectionString);
+        });
+        services.AddHttpContextAccessor();
+    })
+    .ConfigureSerilogLogging(appInsightsConnectionString)
+    .ConfigureLogging(logging =>
     {
-      options.AddAzureMonitorLogExporter(options => { options.ConnectionString = appInsightsConnectionString; });
-    });
-  })
-  .Build();
+        logging.AddOpenTelemetry(options =>
+        {
+            options.AddAzureMonitorLogExporter(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
+        });
+    })
+    .Build();
 
 await host.RunAsync();

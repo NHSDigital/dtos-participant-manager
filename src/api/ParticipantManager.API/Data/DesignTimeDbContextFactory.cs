@@ -18,9 +18,9 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
     if (string.IsNullOrEmpty(connectionString))
       throw new InvalidOperationException("Connection string 'ParticipantManagerDatabase' is not configured.");
 
-    var optionsBuilder = new DbContextOptionsBuilder<ParticipantManagerDbContext>();
-    optionsBuilder.UseSqlServer(connectionString);
+        var optionsBuilder = new DbContextOptionsBuilder<ParticipantManagerDbContext>();
+        optionsBuilder.UseSqlServer(connectionString);
 
-    return new ParticipantManagerDbContext(optionsBuilder.Options);
-  }
+        return new ParticipantManagerDbContext(optionsBuilder.Options);
+    }
 }
