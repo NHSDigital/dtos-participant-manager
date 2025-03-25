@@ -1,269 +1,207 @@
-using System.Text;
+namespace ParticipantManager.API.Tests;
+
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ParticipantManager.API.Data;
 using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
-
-namespace ParticipantManager.API.Tests;
+using ParticipantManager.TestUtils;
 
 public class ParticipantFunctionsTests
 {
-  private ServiceProvider CreateServiceProvider(string databaseName)
-  {
-    var services = new ServiceCollection();
+    private readonly ParticipantManagerDbContext _dbContext;
+    private readonly Mock<ILogger<ParticipantFunctions>> _logger;
+    private readonly ParticipantFunctions _function;
+    private readonly Participant _mockParticipant;
+    private readonly Participant _mockParticipant2;
+    private readonly SetupRequest _requestSetup = new();
 
-    // Use a unique in-memory database per test to isolate them
-    services.AddDbContext<ParticipantManagerDbContext>(options =>
-      options.UseInMemoryDatabase(databaseName));
-
-    services.AddLogging(builder =>
+    public ParticipantFunctionsTests()
     {
-      builder.AddConsole(); // Use console logging
-      builder.SetMinimumLevel(LogLevel.Debug);
-    });
+        _mockParticipant = new Participant
+        {
+            ParticipantId = Guid.NewGuid(),
+            Name = "Test Ting",
+            DOB = DateTime.Parse("1980-01-01"),
+            NhsNumber = "1234567890"
+        };
 
-    services.AddScoped<ParticipantFunctions>(); // Register the function
+        _mockParticipant2 = new Participant
+        {
+            ParticipantId = Guid.NewGuid(),
+            Name = "Justin Test",
+            DOB = DateTime.Parse("1990-06-15"),
+            NhsNumber = "9876543210"
+        };
 
-    return services.BuildServiceProvider();
-  }
+        // Create a new unique in-memory database for each test
+        var databaseName = Guid.NewGuid().ToString();
+        var options = new DbContextOptionsBuilder<ParticipantManagerDbContext>()
+            .UseInMemoryDatabase(databaseName)
+            .Options;
 
-  private HttpRequestData CreateMockHttpRequest(FunctionContext functionContext, object body)
-  {
-    var json = JsonSerializer.Serialize(body);
-    var byteArray = Encoding.UTF8.GetBytes(json);
-    var memoryStream = new MemoryStream(byteArray);
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
-    var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
-    mockRequest.Setup(r => r.Body).Returns(memoryStream);
-    return mockRequest.Object;
-  }
+        _dbContext = new ParticipantManagerDbContext(options);
+        _logger = new Mock<ILogger<ParticipantFunctions>>();
+        _function = new ParticipantFunctions(_logger.Object, _dbContext, jsonOptions);
+    }
 
-  private HttpRequestData CreateMockHttpRequestWithQuery(FunctionContext functionContext, string queryString)
-  {
-    var requestUrl = new Uri($"http://localhost/api/participants?{queryString}");
-    var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, functionContext);
-    mockRequest.Setup(r => r.Url).Returns(requestUrl);
-    mockRequest.Setup(r => r.Headers).Returns(new HttpHeadersCollection());
-    return mockRequest.Object;
-  }
-
-  [Fact]
-  public async Task CreateParticipant_ShouldAddParticipantToDatabase()
-  {
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
-
-    var fun = new ParticipantFunctions(logger.Object, dbContext);
-
-    // Mock HTTP Request
-    var participant = new Participant
+    [Fact]
+    public async Task CreateParticipant_ValidParticipantData_ReturnsCreatedResult()
     {
-      Name = "Jane Doe",
-      DOB = DateTime.Parse("1985-05-15"),
-      NHSNumber = "1395608539"
-    };
+        // Arrange
+        var request = _requestSetup.CreateMockHttpRequest(_mockParticipant);
 
-    var request = CreateMockHttpRequest(functionContext, participant);
+        // Act
+        var response = await _function.CreateParticipant(request);
 
-    // Act
-    var response = await fun.CreateParticipant(request) as CreatedResult;
+        // Assert
+        var result = Assert.IsType<CreatedResult>(response);
+        Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
+        Assert.Contains(_dbContext.Participants, p => p.NhsNumber == _mockParticipant.NhsNumber);
+    }
 
-    Assert.Equal(StatusCodes.Status201Created, response?.StatusCode);
-    Assert.Contains(dbContext.Participants, p => p.NHSNumber == "1395608539");
-  }
-
-  [Fact]
-  public async Task CreateParticipant_ShouldReturnConflict_WhenNHSNumberAlreadyExists()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
-
-    var fun = new ParticipantFunctions(logger.Object, dbContext);
-
-    // Mock HTTP Request
-    var participant = new Participant
+    [Fact]
+    public async Task GetParticipantById_ValidParticipantId_ReturnsOkWithParticipant()
     {
-      Name = "Jane Doe",
-      DOB = DateTime.Parse("1985-05-15"),
-      NHSNumber = "1395608539"
-    };
+        // Arrange
+        _dbContext.Participants.Add(_mockParticipant);
+        await _dbContext.SaveChangesAsync();
 
-    // Create data in database directly
-    dbContext.Participants.Add(participant);
-    await dbContext.SaveChangesAsync();
+        var request = _requestSetup.CreateMockHttpRequest(null);
 
-    var request = CreateMockHttpRequest(functionContext, participant);
-    // Act
-    var response = await fun.CreateParticipant(request) as ConflictObjectResult;
-    Assert.Equal(StatusCodes.Status409Conflict, response?.StatusCode);
-    Assert.Contains("A Participant with this NHS Number already exists.", response?.Value.ToString());
-  }
+        // Act
+        var response = await _function.GetParticipantById(request, _mockParticipant.ParticipantId);
 
-  [Fact]
-  public async Task GetParticipantById_ShouldReturnParticipant_WhenValidIdProvided()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
+        // Assert
+        var result = Assert.IsType<OkObjectResult>(response);
+        var returnedParticipant = Assert.IsType<Participant>(result.Value);
+        Assert.Equal(_mockParticipant.ParticipantId, returnedParticipant.ParticipantId);
+    }
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
-
-    var participant = new Participant
+    [Fact]
+    public async Task GetParticipantByNhsNumber_ValidNhsNumber_ReturnsOkWithParticipant()
     {
-      Name = "John Doe",
-      DOB = DateTime.Parse("1980-01-01"),
-      NHSNumber = "1234567890"
-    };
+        // Arrange
+        _dbContext.Participants.Add(_mockParticipant2);
+        await _dbContext.SaveChangesAsync();
 
-    dbContext.Participants.Add(participant);
-    await dbContext.SaveChangesAsync();
+        var request = _requestSetup.CreateMockHttpRequestWithQuery($"nhsNumber={_mockParticipant2.NhsNumber}");
 
-    var request = CreateMockHttpRequest(functionContext, null);
+        // Act
+        var response = await _function.GetParticipantByNhsNumber(request);
 
-    // Act
-    var response = await function.GetParticipantById(request, participant.ParticipantId);
+        // Assert
+        var result = Assert.IsType<OkObjectResult>(response);
+        var returnedParticipant = Assert.IsType<Participant>(result.Value);
+        Assert.Equal(_mockParticipant2.NhsNumber, returnedParticipant.NhsNumber);
+    }
 
-    // Assert
-    var result = Assert.IsType<OkObjectResult>(response);
-    var returnedParticipant = Assert.IsType<Participant>(result.Value);
-    Assert.Equal(participant.ParticipantId, returnedParticipant.ParticipantId);
-  }
-
-  [Fact]
-  public async Task GetAssignmentDetailsById_ShouldAssignmentDetails_WhenValidIdProvided()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<PathwayTypeAssignmentFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
-
-    var function = new PathwayTypeAssignmentFunctions(logger.Object, dbContext);
-
-    var participantId = Guid.NewGuid();
-
-    var nhsNumber = "123";
-    var assignmentId = Guid.NewGuid();
-
-    var assignmentDetail = new PathwayTypeAssignment
+    [Theory]
+    [InlineData("nhsNumber=9999999999", typeof(NotFoundObjectResult), "No Participant found with NHS Number")]
+    [InlineData("", typeof(BadRequestObjectResult), "Please provide an NHS Number")]
+    public async Task GetParticipantByNhsNumber_InvalidParameters_ReturnsExpectedErrorResult(
+        string queryParam, Type expectedResultType, string expectedMessage)
     {
-      AssignmentId = assignmentId,
-      ParticipantId = participantId,
-      PathwayId = Guid.NewGuid(),
-      AssignmentDate = DateTime.Now,
-      LapsedDate = DateTime.Now,
-      Status = "test status",
-      NextActionDate = DateTime.Now,
-      PathwayTypeId = Guid.NewGuid(),
-      ScreeningName = "test screening name",
-      PathwayName = "test pathway name",
-      Participant = new Participant
-      {
-        Name = "test Name",
-        NHSNumber = nhsNumber
-      },
-      Episodes = []
-    };
+        // Arrange
+        var request = _requestSetup.CreateMockHttpRequestWithQuery(queryParam);
 
-    dbContext.PathwayTypeAssignments.Add(assignmentDetail);
-    await dbContext.SaveChangesAsync();
+        // Act
+        var response = await _function.GetParticipantByNhsNumber(request);
 
-    var request = CreateMockHttpRequest(functionContext, null);
+        // Assert
+        Assert.IsType(expectedResultType, response);
+        var result = (ObjectResult)response;
+        Assert.Contains(expectedMessage, result.Value?.ToString());
+    }
 
-    // Act
-    var response = await function.GetPathwayAssignmentById(request, nhsNumber, assignmentId);
-
-    // Assert
-    var result = Assert.IsType<OkObjectResult>(response);
-    var returnedPathwayTypeAssignment = Assert.IsType<PathwayTypeAssignment>(result.Value);
-    Assert.Equal(assignmentDetail.AssignmentId, returnedPathwayTypeAssignment.AssignmentId);
-    Assert.Equal(assignmentDetail.Participant.NHSNumber, returnedPathwayTypeAssignment.Participant.NHSNumber);
-  }
-
-  [Fact]
-  public async Task GetParticipantByNhsNumber_ShouldReturnParticipant_WhenValidNhsNumberProvided()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
-
-    var function = new ParticipantFunctions(logger.Object, dbContext);
-
-    var participant = new Participant
+    [Theory]
+    [InlineData("{\"Name\": \"Test User\", \"DOB\": \"1990-01-01\", \"NhsNumber\": \"1234567890",
+        typeof(BadRequestObjectResult), "An error occurred")]
+    public async Task CreateParticipant_InvalidRequestBody_ReturnsBadRequest(
+        string requestBody, Type expectedResultType, string expectedMessage)
     {
-      Name = "Jane Doe",
-      DOB = DateTime.Parse("1990-06-15"),
-      NHSNumber = "9876543210"
-    };
+        // Arrange
+        var mockRequest = _requestSetup.CreateMockHttpRequest(requestBody);
 
-    dbContext.Participants.Add(participant);
-    await dbContext.SaveChangesAsync();
+        // Act
+        var response = await _function.CreateParticipant(mockRequest);
 
-    var request = CreateMockHttpRequestWithQuery(functionContext, "nhsNumber=9876543210");
+        // Assert
+        Assert.IsType(expectedResultType, response);
+        var result = (ObjectResult)response;
+        Assert.Contains(expectedMessage, result.Value?.ToString());
+    }
 
-    // Act
-    var response = await function.GetParticipantByNhsNumber(request);
+    [Theory]
+    [InlineData("", "", "1234567890", typeof(List<ValidationResult>))]
+    [InlineData("John Doe", "", "", typeof(List<ValidationResult>))]
+    [InlineData("", "1980-01-01", "", typeof(List<ValidationResult>))]
+    public async Task CreateParticipant_MissingRequiredFields_ReturnsBadRequestWithValidationErrors(
+        string name, string dobString, string nhsNumber, Type expectedValidationResultType)
+    {
+        // Arrange
+        var invalidParticipant = new Participant() { Name = "", NhsNumber = "" };
 
-    // Assert
-    var result = Assert.IsType<OkObjectResult>(response);
-    var returnedParticipant = Assert.IsType<Participant>(result.Value);
-    Assert.Equal(participant.NHSNumber, returnedParticipant.NHSNumber);
-  }
+        if (!string.IsNullOrEmpty(name))
+            invalidParticipant.Name = name;
 
-  [Fact]
-  public async Task GetParticipantById_ShouldReturnNotFound_WhenParticipantDoesNotExist()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
+        if (!string.IsNullOrEmpty(dobString))
+            invalidParticipant.DOB = DateTime.Parse(dobString);
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
-    var request = CreateMockHttpRequest(functionContext, null);
+        if (!string.IsNullOrEmpty(nhsNumber))
+            invalidParticipant.NhsNumber = nhsNumber;
 
-    // Act
-    var response = await function.GetParticipantById(request, Guid.NewGuid());
+        var request = _requestSetup.CreateMockHttpRequest(invalidParticipant);
 
-    // Assert
-    var result = Assert.IsType<NotFoundObjectResult>(response);
-    Assert.Contains("not found", result.Value.ToString());
-  }
+        // Act
+        var response = await _function.CreateParticipant(request);
 
-  [Fact]
-  public async Task GetParticipantByNhsNumber_ShouldReturnBadRequest_WhenNhsNumberIsMissing()
-  {
-    // Arrange
-    var serviceProvider = CreateServiceProvider(Guid.NewGuid().ToString());
-    var dbContext = serviceProvider.GetRequiredService<ParticipantManagerDbContext>();
-    var logger = new Mock<ILogger<ParticipantFunctions>>();
-    var functionContext = new Mock<FunctionContext>().Object;
+        // Assert
+        var result = Assert.IsType<BadRequestObjectResult>(response);
+        Assert.IsType(expectedValidationResultType, result.Value);
+    }
 
-    var function = new ParticipantFunctions(logger.Object, dbContext);
-    var request = CreateMockHttpRequestWithQuery(functionContext, ""); // No query param
+    [Fact]
+    public async Task CreateParticipant_DuplicateNhsNumber_ReturnsConflict()
+    {
+        // Arrange
+        _dbContext.Participants.Add(_mockParticipant);
+        await _dbContext.SaveChangesAsync();
 
-    // Act
-    var response = await function.GetParticipantByNhsNumber(request);
+        var request = _requestSetup.CreateMockHttpRequest(_mockParticipant);
 
-    // Assert
-    var result = Assert.IsType<BadRequestObjectResult>(response);
-    Assert.Contains("Please provide an NHS Number", result.Value.ToString());
-  }
+        // Act
+        var response = await _function.CreateParticipant(request);
+
+        // Assert
+        var result = Assert.IsType<ConflictObjectResult>(response);
+        Assert.Equal(StatusCodes.Status409Conflict, result.StatusCode);
+        Assert.Contains("A Participant with this NHS Number already exists.", result.Value?.ToString());
+    }
+
+    [Fact]
+    public async Task GetParticipantById_NonMatchingParticipantId_ReturnsNotFound()
+    {
+        // Arrange
+        var participantId = Guid.NewGuid();
+        var request = _requestSetup.CreateMockHttpRequest(null);
+
+        // Act
+        var response = await _function.GetParticipantById(request, participantId);
+
+        // Assert
+        var result = Assert.IsType<NotFoundObjectResult>(response);
+        Assert.NotNull(result);
+        Assert.Contains("not found", result.Value?.ToString());
+    }
 }

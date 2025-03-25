@@ -15,6 +15,7 @@ endif
 WEB_DIR=src/web
 API1_DIR=src/api/ParticipantManager.API
 API2_DIR=src/api/ParticipantManager.Experience.API
+EVENT_HANDLER_DIR=src/api/ParticipantManager.EventHandler
 
 # Define the database container
 SQL_CONTAINER_NAME=participant_database_local
@@ -36,7 +37,13 @@ define cleanup
 endef
 
 # Default command (runs everything)
-all: azure-login db db-migrations api1 api2 web
+all: db db-migrations api1 api2 event-handler web
+
+# Infra target to start the database and apply migrations
+infra: db db-migrations
+	@echo "Infrastructure is up and running."
+
+application: api1 api2 event-handler web
 
 # Ensure Azure CLI is logged in
 azure-login:
@@ -87,19 +94,29 @@ endif
 api1:
 	@echo "Starting ParticipantManager API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API1_DIR)" && start /B dotnet watch run --port $(API_PORT)
+	@cd "$(API1_DIR)" && start /B dotnet run --port $(API_PORT)
 else
-		cd $(API1_DIR) && dotnet watch run --port $(API_PORT) &
+		cd $(API1_DIR) && dotnet run --port $(API_PORT) &
 endif
 
 # Start API2 (Experience API)
 api2:
 	@echo "Starting Experience API..."
 ifeq ($(OS), Windows_NT)
-	@cd "$(API2_DIR)" && start /B dotnet watch run --port $(EXPERIENCE_PORT)
+	@cd "$(API2_DIR)" && start /B dotnet run --port $(EXPERIENCE_PORT)
 else
-		cd $(API2_DIR) && dotnet watch run --port $(EXPERIENCE_PORT) &
+		cd $(API2_DIR) && dotnet run --port $(EXPERIENCE_PORT) &
 endif
+
+# Start Event Handler
+event-handler:
+	@echo "Starting Event Handler..."
+ifeq ($(OS), Windows_NT)
+	@cd "$(EVENT_HANDLER_DIR)" && start /B dotnet run --port $(EVENT_HANDLER_PORT)
+else
+		cd $(EVENT_HANDLER_DIR) && dotnet run --port $(EVENT_HANDLER_PORT) &
+endif
+
 
 # Start SQL Server in Podman/Docker
 db:
@@ -145,10 +162,11 @@ stop:
 
 ifeq ($(OS), Windows_NT)
 	@echo "Stopping dotnet watch windows processes..."
-	@echo "Killing processes on ports $(WEB_PORT), $(API_PORT), and $(EXPERIENCE_PORT)..."
+	@echo "Killing processes on ports $(WEB_PORT), $(API_PORT), $(EVENT_HANDLER_PORT) and $(EXPERIENCE_PORT)..."
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(WEB_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(WEB_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(API_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(API_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(EXPERIENCE_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
+	@powershell -Command "if (Get-NetTCPConnection -LocalPort $(EVENT_HANDLER_PORT) -ErrorAction SilentlyContinue) { Stop-Process -Id (Get-NetTCPConnection -LocalPort $(EVENT_HANDLER_PORT)).OwningProcess -Force -ErrorAction SilentlyContinue }"
 	@echo "Processes killed."
 
 else
@@ -159,7 +177,7 @@ else
 	@sleep 1  # Give it a moment to stop
 
 # Stop processes using port numbers on macOS/Linux
-	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT); do \
+	@for port in $(WEB_PORT) $(API_PORT) $(EXPERIENCE_PORT) $(EVENT_HANDLER_PORT); do \
 			PID=$$(lsof -ti :$$port); \
 			echo "PID: $$PID"; \
 			if [ -n "$$PID" ]; then \
@@ -175,13 +193,6 @@ else
 endif
 
 # Stop the SQL Server container
-
-ifeq ($(OS), Windows_NT)
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>nul || exit 0
-else
-	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
-endif
-
 	@echo "Cleanup completed."
 
-.PHONY: all web api1 api2 db stop-db stop
+.PHONY: all web api1 api2 event-handler db stop-db stop

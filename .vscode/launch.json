@@ -1,11 +1,33 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach to .NET Functions",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Next.js (Full App)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:secure"],
+      "port": 9229,
+      "cwd": "${workspaceFolder}/src/web",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Attach to Next.js (Server)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Attach to Next.js (Client)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://localhost:3001",
+      "webRoot": "${workspaceFolder}",
+      "skipFiles": ["node_modules/**/*.js", "**/node_modules/**"]
+    }
+  ]
 }

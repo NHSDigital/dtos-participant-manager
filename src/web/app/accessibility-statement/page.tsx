@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/app/components/breadcrumb";
 
 export const metadata: Metadata = {
-  title: `Accessibility statement - ${process.env.SERVICE_NAME}`,
+  title: `Accessibility statement - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
@@ -62,9 +62,9 @@ export default async function Page() {
             </p>
             <h2>Reporting accessibility problems with this website</h2>
             <p>
-              We're always looking to improve the accessibility of this website.
-              If you find any problems not listed on this page or think we're
-              not meeting accessibility requirements, please contact{" "}
+              We&apos;re always looking to improve the accessibility of this
+              website. If you find any problems not listed on this page or think
+              we&apos;re not meeting accessibility requirements, please contact{" "}
               <a href="mailto:england.digitalscreening@nhs.net">
                 england.digitalscreening@nhs.net
               </a>
@@ -86,7 +86,7 @@ export default async function Page() {
                 Public Sector Bodies (Websites and Mobile Applications) (No. 2)
                 Accessibility Regulations 2018 on legislation.gov.uk
               </a>{" "}
-              (the "accessibility regulations").
+              (the &quote;accessibility regulations&quot;).
             </p>
             <h2>
               Technical information about this website&apos;s accessibility
@@ -102,8 +102,8 @@ export default async function Page() {
             <h2>Preparation of this accessibility statement</h2>
             <p>This statement was prepared on 2 December 2024.</p>
             <p>
-              This website's accessibility will be reviewed on a regular and
-              continuous basis.
+              This website&apos;s accessibility will be reviewed on a regular
+              and continuous basis.
             </p>
           </div>
         </div>

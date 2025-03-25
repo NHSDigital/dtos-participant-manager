@@ -1,52 +1,65 @@
-using System.Text;
-using Moq;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
+using System;
 using System.Collections.Specialized;
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Moq;
 
 namespace ParticipantManager.TestUtils;
 
 public class SetupRequest
 {
-    private readonly Mock<HttpRequestData> _request;
     private readonly Mock<FunctionContext> _context;
 
     public SetupRequest()
     {
         _context = new Mock<FunctionContext>();
-        _request = new Mock<HttpRequestData>(_context.Object);
     }
 
-    public Mock<HttpRequestData> Setup(string json)
+    /// <summary>
+    /// Creates a mock HTTP request with a JSON body
+    /// </summary>
+    /// <param name="body">The object to serialize as JSON</param>
+    /// <returns>A mock HttpRequestData</returns>
+    public HttpRequestData CreateMockHttpRequest(object? body)
     {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
-
-        _request.Setup(r => r.Body).Returns(bodyStream);
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
-
-        return _request;
+        var json = JsonSerializer.Serialize(body);
+        var byteArray = Encoding.UTF8.GetBytes(json);
+        var memoryStream = new MemoryStream(byteArray);
+        var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, _context.Object);
+        mockRequest.Setup(r => r.Body).Returns(memoryStream);
+        return mockRequest.Object;
     }
 
-    public Mock<HttpRequestData> SetupGet(NameValueCollection queryParams)
+    /// <summary>
+    /// Creates a mock HTTP request with query parameters
+    /// </summary>
+    /// <param name="queryString">The query string (without ?)</param>
+    /// <returns>A mock HttpRequestData</returns>
+    public HttpRequestData CreateMockHttpRequestWithQuery(string queryString)
     {
-        _request.Setup(req => req.Query).Returns(queryParams);
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
-
-        return _request;
+        var requestUrl = new Uri($"http://localhost/api/participants?{queryString}");
+        var mockRequest = new Mock<HttpRequestData>(MockBehavior.Strict, _context.Object);
+        mockRequest.Setup(r => r.Url).Returns(requestUrl);
+        mockRequest.Setup(r => r.Headers).Returns(new HttpHeadersCollection());
+        return mockRequest.Object;
     }
+
+    public static HttpRequestData CreateHttpRequest(string? authHeader)
+    {
+        var context = new Mock<FunctionContext>();
+        var request = new Mock<HttpRequestData>(MockBehavior.Strict, context.Object);
+        var headers = new HttpHeadersCollection(new List<KeyValuePair<string, string>>());
+        if (!string.IsNullOrEmpty(authHeader)) headers.Add("Authorization", $"{authHeader}");
+
+        request.Setup(r => r.Headers).Returns(headers);
+        return request.Object;
+    }
+
+    /// <summary>
+    /// Gets the function context object for test usage
+    /// </summary>
+    public FunctionContext FunctionContext => _context.Object;
 }
