@@ -84,7 +84,7 @@ public class CrudApiClientTests
         // Assert
         Assert.NotNull(ex.InnerException);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
-        Assert.Contains($"Error occurred whilst making request or deserialising object: /api/pathwaytypeenrolments?participantId={participantId}", ex.Message);
+        Assert.Contains($"Deserialization returned null for: /api/pathwaytypeenrolments?participantId={participantId}", ex.InnerException.Message);
     }
 
     [Fact]
