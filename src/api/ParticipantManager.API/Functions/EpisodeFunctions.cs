@@ -7,17 +7,17 @@ namespace ParticipantManager.API.Functions;
 
 public class EpisodeFunctions
 {
-  private readonly ILogger<EpisodeFunctions> _logger;
+    private readonly ILogger<EpisodeFunctions> _logger;
 
-  public EpisodeFunctions(ILogger<EpisodeFunctions> logger)
-  {
-    _logger = logger;
-  }
+    public EpisodeFunctions(ILogger<EpisodeFunctions> logger)
+    {
+        _logger = logger;
+    }
 
-  [Function("EpisodeFunctions")]
-  public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
-  {
-    _logger.LogInformation("C# HTTP trigger function processed a request.");
-    return new OkObjectResult("Welcome to Azure Functions!");
-  }
+    [Function("EpisodeFunctions")]
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+    {
+        _logger.LogInformation("C# HTTP trigger function processed a request.");
+        return new OkObjectResult("Welcome to Azure Functions!");
+    }
 }
