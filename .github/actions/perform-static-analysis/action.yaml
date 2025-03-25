@@ -60,11 +60,3 @@ runs:
         sed -i 's|^SF:|SF:src/web/|g' coverage/lcov.info
         cd ../..
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
-    - name: Debug Coverage Files
-      shell: bash
-      run: |
-        echo "🔍 Checking Coverage Files"
-        ls -l src/web/coverage/ || dir src\web\coverage\
-        echo "🔍 Displaying lcov.info Contents"
-        cat src/web/coverage/lcov.info || echo "lcov.info NOT FOUND!"
-
