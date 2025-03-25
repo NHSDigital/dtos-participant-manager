@@ -11,32 +11,23 @@ using ParticipantManager.API.Models;
 
 namespace ParticipantManager.API.Functions;
 
-public class PathwayTypeEnrolmentFunctions
+public class PathwayTypeEnrolmentFunctions(
+    ILogger<PathwayTypeEnrolmentFunctions> logger,
+    ParticipantManagerDbContext dbContext,
+    JsonSerializerOptions jsonSerializerOptions)
 {
-    private readonly ParticipantManagerDbContext _dbContext;
-    private readonly ILogger<PathwayTypeEnrolmentFunctions> _logger;
-    private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-    public PathwayTypeEnrolmentFunctions(ILogger<PathwayTypeEnrolmentFunctions> logger,
-        ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _jsonSerializerOptions = jsonSerializerOptions;
-    }
-
     [Function("GetPathwayTypeEnrolmentsByParticipantId")]
     public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pathwaytypeenrolments")]
         HttpRequest req)
     {
-        _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
+        logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
 
         var participantId = req.Query["participantId"].ToString();
 
         if (string.IsNullOrEmpty(participantId)) return new BadRequestObjectResult("Missing ParticipantId");
 
-        var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
+        var pathwayTypeEnrolments = await dbContext.PathwayTypeEnrolments
             .Where(p => p.ParticipantId == Guid.Parse(participantId))
             .Select(p => new PathwayTypeEnrolment()
             {
@@ -69,9 +60,9 @@ public class PathwayTypeEnrolmentFunctions
             Route = "participants/{participantId:guid}/pathwaytypeenrolments/{enrolmentId:guid}")]
         HttpRequestData req, Guid participantId, Guid enrolmentId)
     {
-        _logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentById)} processed a request.");
+        logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentById)} processed a request.");
 
-        var pathwayTypeEnrolments = await _dbContext.PathwayTypeEnrolments
+        var pathwayTypeEnrolments = await dbContext.PathwayTypeEnrolments
             .Where(p => p.EnrolmentId == enrolmentId && p.ParticipantId == participantId)
             .Select(p => new PathwayTypeEnrolment()
             {
@@ -102,7 +93,7 @@ public class PathwayTypeEnrolmentFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolment")]
         HttpRequestData req)
     {
-        _logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
+        logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");
 
         PathwayTypeEnrolment? pathwayTypeEnrolment;
         var validationResults = new List<ValidationResult>();
@@ -110,11 +101,11 @@ public class PathwayTypeEnrolmentFunctions
         try
         {
             pathwayTypeEnrolment =
-                await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body, _jsonSerializerOptions);
+                await JsonSerializer.DeserializeAsync<PathwayTypeEnrolment>(req.Body, jsonSerializerOptions);
 
             if (pathwayTypeEnrolment == null)
             {
-                _logger.LogError("Invalid pathwayTypeEnrolment JSON provided. Deserialized to null.");
+                logger.LogError("Invalid pathwayTypeEnrolment JSON provided. Deserialized to null.");
                 return new BadRequestObjectResult("Invalid pathwayTypeEnrolment JSON provided. Deserialized to null.");
             }
 
@@ -127,22 +118,22 @@ public class PathwayTypeEnrolmentFunctions
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to deserialise/validate PathwayTypeEnrolment object");
+            logger.LogError(ex, "Unable to deserialise/validate PathwayTypeEnrolment object");
             return new BadRequestObjectResult(validationResults);
         }
 
         try
         {
-            await _dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
-            await _dbContext.SaveChangesAsync();
+            await dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
+            await dbContext.SaveChangesAsync();
 
-            _logger.LogInformation("Successfully created PathwayTypeEnrolment for Participant",
+            logger.LogInformation("Successfully created PathwayTypeEnrolment for Participant",
                 pathwayTypeEnrolment.ParticipantId);
             return new CreatedResult($"pathwaytypeenrolments/{pathwayTypeEnrolment.EnrolmentId}", pathwayTypeEnrolment);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save PathwayTypeEnrolment to the database");
+            logger.LogError(ex, "Failed to save PathwayTypeEnrolment to the database");
             return new StatusCodeResult(500);
         }
     }
