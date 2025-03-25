@@ -34,7 +34,7 @@ var host = new HostBuilder()
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorMetricExporter(options =>
                 {
-                    options.ConnectionString = appInsightsConnectionString);
+                    options.ConnectionString = appInsightsConnectionString;
                 }));
 
         services.AddSingleton(new JsonSerializerOptions
