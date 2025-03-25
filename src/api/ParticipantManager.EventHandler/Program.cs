@@ -35,7 +35,7 @@ var host = new HostBuilder()
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorMetricExporter(options =>
                 {
-                    options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                    options.ConnectionString = appInsightsConnectionString;
                 }));
 
         services.AddHttpContextAccessor();
