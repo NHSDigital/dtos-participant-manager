@@ -13,7 +13,7 @@ The project consists of a number of Azure functions and a user-interface built i
   - [Table of Contents](#table-of-contents)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
-    - [Configuration](#configuration)
+  - [Configuration](#configuration)
   - [Usage](#usage)
     - [Testing](#testing)
   - [Contact](#contact)
@@ -35,6 +35,9 @@ The following software packages, or their equivalents, are expected to be instal
 - [Docker](https://www.docker.com/) container runtime or a compatible tool, e.g. [Podman](https://podman.io/),
 - [Node.js](https://nodejs.org/en) - LTS
 - [.NET](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) - .NET 9.0
+- [Entity Framework Core tools reference - .NET Core CLI](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
+- [sqlcmd utility](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-bash)
+- [Azure functions core tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
 - [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
 - [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
 
@@ -50,7 +53,7 @@ The following software packages, or their equivalents, are expected to be instal
 - [Python](https://www.python.org/) required to run Git hooks,
 - [`jq`](https://jqlang.github.io/jq/) a lightweight and flexible command-line JSON processor.
 
-### Configuration
+## Configuration
 
 Rename the `.env.example` file to `.env` and populate the missing environment variables which are listed at the top of the file.
 
@@ -58,9 +61,15 @@ Rename the `.env.example` file to `.env` and populate the missing environment va
 
 You can run the Azure functions, database and frontend with `make all`
 
+Once you have the database running in Docker with `make db-migrations` you can then run the application with `make application`.
+
+`make stop` will shut down all the processes.
+
 ### Testing
 
-There are `make` tasks for you to configure to run your tests. Run `make test` to see how they work. You should be able to use the same entry points for local development as in your CI pipeline.
+The full test suite can be ran with `make test`.
+
+Unit tests can be ran with `make test-unit` and linting can be ran with `make test-lint`
 
 ## Contact
 
