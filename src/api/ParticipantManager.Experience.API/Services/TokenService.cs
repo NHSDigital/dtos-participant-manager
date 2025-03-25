@@ -48,7 +48,7 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
                 // Validate the token
                 var handler = new JwtSecurityTokenHandler();
                 logger.LogInformation("About to validate access token");
-                var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+                var result = handler.ValidateToken(token, tokenParams, out var _);
                 var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
                 if (string.IsNullOrEmpty(votClaim) || !votClaim.StartsWith("P9"))
                 {
@@ -73,3 +73,5 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         }
     }
 }
+
+
