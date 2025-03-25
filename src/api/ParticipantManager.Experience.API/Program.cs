@@ -13,8 +13,7 @@ using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
 using ParticipantManager.Shared.Utils;
 
-var appInsightsConnectionString =
-  EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+var appInsightsConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })

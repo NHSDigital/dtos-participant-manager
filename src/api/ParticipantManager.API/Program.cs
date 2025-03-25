@@ -11,10 +11,8 @@ using ParticipantManager.API.Data;
 using ParticipantManager.Shared.Extensions;
 using ParticipantManager.Shared.Utils;
 
-var appInsightsConnectionString =
-  EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+var appInsightsConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 var databaseConnectionString = EnvironmentVariableHelper.GetRequired("ParticipantManagerDatabaseConnectionString");
-
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
