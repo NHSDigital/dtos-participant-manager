@@ -17,11 +17,11 @@ public class PathwayTypeEnrolmentFunctions(
     JsonSerializerOptions jsonSerializerOptions)
 {
     [Function("GetPathwayTypeEnrolmentsByParticipantId")]
-    public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(
+    public async Task<IActionResult> GetPathwayTypeEnrolmentsByParticipantId(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pathwaytypeenrolments")]
         HttpRequest req)
     {
-        logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByNhsNumber)} processed a request.");
+        logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByParticipantId)} processed a request.");
 
         var participantId = req.Query["participantId"].ToString();
 
@@ -29,7 +29,7 @@ public class PathwayTypeEnrolmentFunctions(
 
         var pathwayTypeEnrolments = await dbContext.PathwayTypeEnrolments
             .Where(p => p.ParticipantId == Guid.Parse(participantId))
-            .Select(p => new PathwayTypeEnrolment()
+            .Select(p => new PathwayTypeEnrolment
             {
                 EnrolmentId = p.EnrolmentId,
                 EnrolmentDate = p.EnrolmentDate,
