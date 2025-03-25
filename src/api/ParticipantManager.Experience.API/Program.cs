@@ -10,9 +10,10 @@ using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
+using ParticipantManager.Shared.Utils;
 
 var appInsightsConnectionString =
-  Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
+  EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
   .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
@@ -33,7 +34,7 @@ var host = new HostBuilder()
         .AddAspNetCoreInstrumentation()
         .AddAzureMonitorMetricExporter(options =>
         {
-          options.ConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+          options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
         }));
 
     services.AddSingleton(new JsonSerializerOptions {
@@ -45,13 +46,13 @@ var host = new HostBuilder()
 
     services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
     {
-      client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
+      client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL") ?? string.Empty);
     }).AddHttpMessageHandler<CorrelationIdHandler>();
 
     services.AddSingleton<IJwksProvider>(provider =>
     {
       var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
-      var issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL");
+      var issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
       return new JwksProvider(logger, issuer);
     });
 

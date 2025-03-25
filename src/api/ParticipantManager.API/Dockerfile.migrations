@@ -11,10 +11,8 @@ RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Restore dependencies
-RUN dotnet restore ParticipantManager.API.csproj
-
-# Build the project
-RUN dotnet build ParticipantManager.API.csproj
+RUN dotnet restore ParticipantManager.API.csproj \
+&& dotnet build ParticipantManager.API.csproj
 
 # Ensure the database connection string is passed correctly
 ENTRYPOINT [ "dotnet", "ef", "database", "update" ]

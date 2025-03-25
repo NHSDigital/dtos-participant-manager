@@ -9,7 +9,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
   public ParticipantManagerDbContext CreateDbContext(string[] args)
   {
     // Build configuration to access appsettings.json or environment variables
-    var configuration = new ConfigurationBuilder()
+    new ConfigurationBuilder()
       .SetBasePath(Directory.GetCurrentDirectory())
       .AddJsonFile("local.settings.json", true, true)
       .AddEnvironmentVariables()
