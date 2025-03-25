@@ -97,33 +97,6 @@ public class ScreeningEligibilityFunctionTests
     }
 
     [Fact]
-    public async Task GetScreeningEligibility_PathwayEnrolmentsIsNull_ReturnsNotFound()
-    {
-        // Arrange
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, "12345"),
-            new(ClaimTypes.Email, "user@example.com"),
-            new("nhs_number", "12345678")
-        };
-
-        var identity = new ClaimsIdentity(claims, "Bearer");
-        var principal = new ClaimsPrincipal(identity);
-
-        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId))
-            .ReturnsAsync((List<PathwayEnrolmentDto>?)null);
-
-        // Act
-        var response = await _function.GetScreeningEligibility(_request, _participantId) as NotFoundObjectResult;
-
-        // Assert
-        Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
-        Assert.Equal("Unable to find pathway enrolments", response?.Value);
-    }
-
-    [Fact]
     public async Task GetScreeningEligibility_PathwayEnrolmentsReturnsEmptyCollection_ReturnsOk()
     {
         // Arrange

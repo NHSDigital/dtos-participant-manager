@@ -42,12 +42,6 @@ public class ScreeningEligibilityFunction(
             }
 
             var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
-            if (pathwayEnrolments == null)
-            {
-                logger.LogError("Failed to find pathway enrolments for Participant: {@ParticipantId}",
-                    new { ParticipantId = participantId });
-                return new NotFoundObjectResult("Unable to find pathway enrolments");
-            }
 
             //Check that logged in user has access to participant
             if (pathwayEnrolments.Any(pe => pe.Participant.NhsNumber != nhsNumber))

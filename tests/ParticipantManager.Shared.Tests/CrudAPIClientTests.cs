@@ -71,6 +71,23 @@ public class CrudApiClientTests
     }
 
     [Fact]
+    public async Task GetPathwayEnrolmentsAsync_ShouldReturnInvalidOperationException_WhenDeserializationReturnsNull()
+    {
+        // Arrange
+        _mockHttpMessageHandler.SetupRequest<List<PathwayEnrolmentDto>>(HttpMethod.Get,
+            $"/api/pathwaytypeenrolments?participantId={participantId}",
+            null!);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentsAsync(participantId));
+
+        // Assert
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains($"Error occurred whilst making request or deserialising object: /api/pathwaytypeenrolments?participantId={participantId}", ex.Message);
+    }
+
+    [Fact]
     public async Task GetPathwayEnrolmentByIdAsync_ShouldReturnEnrolment_WhenResponseIsSuccessful()
     {
         // Arrange
