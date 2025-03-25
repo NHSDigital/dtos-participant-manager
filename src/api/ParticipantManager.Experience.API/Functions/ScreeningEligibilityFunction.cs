@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
-using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Functions;
 
@@ -15,7 +14,7 @@ public class ScreeningEligibilityFunction(
     IFeatureFlagClient featureFlagClient)
 {
     [Function("GetScreeningEligibility")]
-    public async Task<IActionResult> GetParticipantEligibility(
+    public async Task<IActionResult> GetScreeningEligibility(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
         HttpRequestData req, Guid participantId)
     {
@@ -51,8 +50,7 @@ public class ScreeningEligibilityFunction(
             }
 
             //Check that logged in user has access to participant
-            if (pathwayEnrolments.Any(pathwayEnrolments =>
-                    pathwayEnrolments.Participant.NhsNumber != nhsNumber.ToString()))
+            if (pathwayEnrolments.Any(pe => pe.Participant.NhsNumber != nhsNumber))
             {
                 logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
                     new { ParticipantId = participantId });

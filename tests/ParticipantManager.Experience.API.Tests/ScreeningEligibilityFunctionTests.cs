@@ -42,7 +42,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Expired());
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -66,7 +66,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -90,7 +90,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.Empty) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.Empty) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -116,7 +116,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync((List<PathwayEnrolmentDto>?)null);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as NotFoundObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as NotFoundObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
@@ -142,7 +142,7 @@ public class ScreeningEligibilityFunctionTests
         _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId)).ReturnsAsync([]);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as OkObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as OkObjectResult;
 
         // Assert
         Assert.IsType<OkObjectResult>(response);
@@ -168,7 +168,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -194,7 +194,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(false);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId);
+        var response = await _function.GetScreeningEligibility(_request, _participantId);
 
         // Assert
         Assert.NotNull(response);
@@ -219,7 +219,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as OkObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as OkObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
@@ -248,7 +248,7 @@ public class ScreeningEligibilityFunctionTests
             .ThrowsAsync(new Exception("Test exception message"));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as BadRequestObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as BadRequestObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
