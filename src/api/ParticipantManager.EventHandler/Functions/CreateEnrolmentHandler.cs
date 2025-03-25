@@ -29,13 +29,13 @@ public class CreateEnrolmentHandler
         _logger.LogInformation("Event type: {Type}, Event subject: {Subject}", cloudEvent.GetType(),
             cloudEvent.Subject);
 
-    CreatePathwayParticipantDto? pathwayParticipantDto;
+        CreatePathwayParticipantDto? pathwayParticipantDto;
 
-    if (cloudEvent.Data == null)
-    {
-      _logger.LogError("Invalid cloudEvent. cloudEvent.Data is null");
-      return;
-    }
+        if (cloudEvent.Data == null)
+        {
+            _logger.LogError("Invalid cloudEvent. cloudEvent.Data is null");
+            return;
+        }
 
         try
         {

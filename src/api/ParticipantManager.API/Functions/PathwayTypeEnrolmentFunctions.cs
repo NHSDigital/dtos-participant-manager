@@ -13,17 +13,17 @@ namespace ParticipantManager.API.Functions;
 
 public class PathwayTypeEnrolmentFunctions
 {
-  private readonly ParticipantManagerDbContext _dbContext;
-  private readonly ILogger<PathwayTypeEnrolmentFunctions> _logger;
-  private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly ParticipantManagerDbContext _dbContext;
+    private readonly ILogger<PathwayTypeEnrolmentFunctions> _logger;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-  public PathwayTypeEnrolmentFunctions(ILogger<PathwayTypeEnrolmentFunctions> logger,
-    ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
-  {
-    _logger = logger;
-    _dbContext = dbContext;
-    _jsonSerializerOptions = jsonSerializerOptions;
-  }
+    public PathwayTypeEnrolmentFunctions(ILogger<PathwayTypeEnrolmentFunctions> logger,
+        ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
+    {
+        _logger = logger;
+        _dbContext = dbContext;
+        _jsonSerializerOptions = jsonSerializerOptions;
+    }
 
     [Function("GetPathwayTypeEnrolmentsByParticipantId")]
     public async Task<IActionResult> GetPathwayTypeEnrolmentsByNhsNumber(

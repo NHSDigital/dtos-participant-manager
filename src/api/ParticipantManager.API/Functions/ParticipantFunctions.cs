@@ -13,16 +13,17 @@ namespace ParticipantManager.API.Functions;
 
 public class ParticipantFunctions
 {
-  private readonly ParticipantManagerDbContext _dbContext;
-  private readonly ILogger<ParticipantFunctions> _logger;
-  private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly ParticipantManagerDbContext _dbContext;
+    private readonly ILogger<ParticipantFunctions> _logger;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-  public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext, JsonSerializerOptions jsonSerializerOptions)
-  {
-    _logger = logger;
-    _dbContext = dbContext;
-    _jsonSerializerOptions = jsonSerializerOptions;
-  }
+    public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext,
+        JsonSerializerOptions jsonSerializerOptions)
+    {
+        _logger = logger;
+        _dbContext = dbContext;
+        _jsonSerializerOptions = jsonSerializerOptions;
+    }
 
     [Function("CreateParticipant")]
     public async Task<IActionResult> CreateParticipant(
@@ -31,18 +32,19 @@ public class ParticipantFunctions
     {
         _logger.LogInformation("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
-    try
-    {
-      // Deserialize the JSON request body into the Participant model
-      var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, _jsonSerializerOptions);
-      if(participant == null)
-      {
-          _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
-          return new BadRequestObjectResult("Invalid participant JSON provided. Deserialized to null.");
-      }
-      // Validate Data Annotations
-      var validationResults = new List<ValidationResult>();
-      var context = new ValidationContext(participant, null, null);
+        try
+        {
+            // Deserialize the JSON request body into the Participant model
+            var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, _jsonSerializerOptions);
+            if(participant == null)
+            {
+                _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
+                return new BadRequestObjectResult("Invalid participant JSON provided. Deserialized to null.");
+            }
+
+            // Validate Data Annotations
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(participant, null, null);
 
             if (!Validator.TryValidateObject(participant, context, validationResults, true))
             {

@@ -17,25 +17,25 @@ var databaseConnectionString = EnvironmentVariableHelper.GetRequired("Participan
 
 
 var host = new HostBuilder()
-  .ConfigureFunctionsWebApplication()
-  .ConfigureServices((context, services) =>
-  {
-    services.AddOpenTelemetry()
-      .ConfigureResource(builder => builder
-        .AddService("ParticipantManager.API"))
-      .WithTracing(builder => builder
-        .AddSource(nameof(ParticipantManager.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
-      .WithMetrics(builder => builder
-        .AddMeter(nameof(ParticipantManager.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorMetricExporter(options =>
-        {
-          options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
-        }));
+    .ConfigureFunctionsWebApplication()
+    .ConfigureServices((context, services) =>
+    {
+        services.AddOpenTelemetry()
+        .ConfigureResource(builder => builder
+            .AddService("ParticipantManager.API"))
+        .WithTracing(builder => builder
+            .AddSource(nameof(ParticipantManager.API))
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
+        .WithMetrics(builder => builder
+            .AddMeter(nameof(ParticipantManager.API))
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddAzureMonitorMetricExporter(options =>
+            {
+                options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+            }));
 
         services.AddSingleton(new JsonSerializerOptions
         {

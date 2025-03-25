@@ -15,9 +15,9 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
     private const string AuthHeaderName = "Authorization";
     private const string BearerPrefix = "Bearer ";
 
-  private readonly string _audience =  EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_CLIENT_ID");
+    private readonly string _audience =  EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_CLIENT_ID");
 
-  private readonly string _issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
+    private readonly string _issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
 
     public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
     {
