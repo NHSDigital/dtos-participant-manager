@@ -49,8 +49,6 @@ public class PathwayTypeEnrolmentFunctions(
             })
             .ToListAsync();
 
-        if (pathwayTypeEnrolments.Count == 0) return new NotFoundObjectResult("Did not find any enrolments");
-
         return new OkObjectResult(pathwayTypeEnrolments);
     }
 
