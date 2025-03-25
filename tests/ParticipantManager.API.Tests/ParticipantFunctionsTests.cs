@@ -1,6 +1,7 @@
 namespace ParticipantManager.API.Tests;
 
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,9 +45,13 @@ public class ParticipantFunctionsTests
         .UseInMemoryDatabase(databaseName)
         .Options;
 
+    var jsonOptions = new JsonSerializerOptions {
+      PropertyNameCaseInsensitive = true
+    };
+
     _dbContext = new ParticipantManagerDbContext(options);
     _logger = new Mock<ILogger<ParticipantFunctions>>();
-    _function = new ParticipantFunctions(_logger.Object, _dbContext);
+    _function = new ParticipantFunctions(_logger.Object, _dbContext, jsonOptions);
   }
 
   [Fact]
@@ -143,7 +148,7 @@ public class ParticipantFunctionsTests
       string name, string dobString, string nhsNumber, Type expectedValidationResultType)
   {
     // Arrange
-    var invalidParticipant = new Participant();
+    var invalidParticipant = new Participant() {Name = "", NhsNumber = ""};
 
     if (!string.IsNullOrEmpty(name))
       invalidParticipant.Name = name;

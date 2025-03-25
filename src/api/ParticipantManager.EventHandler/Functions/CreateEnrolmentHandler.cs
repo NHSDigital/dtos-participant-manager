@@ -30,6 +30,12 @@ public class CreateEnrolmentHandler
 
     CreatePathwayParticipantDto? pathwayParticipantDto;
 
+    if (cloudEvent.Data == null)
+    {
+      _logger.LogError("Invalid cloudEvent. cloudEvent.Data is null");
+      return;
+    }
+
     try
     {
       pathwayParticipantDto = JsonSerializer.Deserialize<CreatePathwayParticipantDto>(cloudEvent.Data.ToString());

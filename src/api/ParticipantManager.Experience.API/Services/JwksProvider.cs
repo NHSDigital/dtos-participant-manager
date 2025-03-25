@@ -8,7 +8,7 @@ namespace ParticipantManager.Experience.API.Services;
 public class JwksProvider(ILogger<JwksProvider> logger, string issuer)
   : IJwksProvider
 {
-  private readonly IConfigurationManager<OpenIdConnectConfiguration> _configurationManager =
+  private readonly ConfigurationManager<OpenIdConnectConfiguration> _configurationManager =
     new ConfigurationManager<OpenIdConnectConfiguration>(
       $"{issuer}/.well-known/openid-configuration",
       new OpenIdConnectConfigurationRetriever(),
