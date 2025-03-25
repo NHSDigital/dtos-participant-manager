@@ -39,7 +39,6 @@ public class CrudApiClient(
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
-
             return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(jsonSerializerOptions);
         }
         catch (Exception ex)
