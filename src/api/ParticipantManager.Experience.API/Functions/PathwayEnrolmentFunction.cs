@@ -46,7 +46,7 @@ public class PathwayEnrolmentFunction(
                 return new NotFoundResult();
             }
 
-            if (pathwayEnrolment.Participant.NhsNumber != nhsNumber.ToString())
+            if (pathwayEnrolment.Participant.NhsNumber != nhsNumber)
             {
                 logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
                     new { ParticipantId = participantId });
