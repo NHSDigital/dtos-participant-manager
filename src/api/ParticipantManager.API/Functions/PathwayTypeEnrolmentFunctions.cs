@@ -125,7 +125,7 @@ public class PathwayTypeEnrolmentFunctions(
             await dbContext.PathwayTypeEnrolments.AddAsync(pathwayTypeEnrolment);
             await dbContext.SaveChangesAsync();
 
-            logger.LogInformation("Successfully created PathwayTypeEnrolment for Participant",
+            logger.LogInformation("Successfully created PathwayTypeEnrolment for Participant: {ParticipantId}",
                 pathwayTypeEnrolment.ParticipantId);
             return new CreatedResult($"pathwaytypeenrolments/{pathwayTypeEnrolment.EnrolmentId}", pathwayTypeEnrolment);
         }
