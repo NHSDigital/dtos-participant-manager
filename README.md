@@ -1,7 +1,7 @@
 # Manage your screening
 
-[![CI/CD Pull Request](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=repository-template&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=repository-template)
+[![CI/CD Pull Request](https://github.com/NHSDigital/dtos-participant-manager/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/NHSDigital/dtos-participant-manager/actions/workflows/cicd-1-pull-request.yaml)
+[![Quality Gate Status](https://sonarcloud.io/component_measures?id=NHSDigital_dtos-participant-manager&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=NHSDigital_dtos-participant-manager)
 
 Manage your screening allows users to see what screening they are eligible for and when their next appointment is due.
 
