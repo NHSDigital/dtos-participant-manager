@@ -4,5 +4,5 @@ namespace ParticipantManager.Experience.API.Services;
 
 public interface IJwksProvider
 {
-  Task<IEnumerable<SecurityKey>> GetSigningKeysAsync();
+    Task<IEnumerable<SecurityKey>> GetSigningKeysAsync();
 }
