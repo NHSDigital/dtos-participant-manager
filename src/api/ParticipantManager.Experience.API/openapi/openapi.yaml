@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: Participant Manager Experience API
+  version: 1.0.0
+  description: API used by Participant Manager front ends to present data.
+
+paths:
+  /participant:
+    get:
+      summary: Get Participant ID
+      operationId: GetParticipantId
+      tags:
+        - Participant
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved the participant ID.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+              example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        '400':
+          description: Bad request. Invalid request format or missing context.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Missing user context in bearer token."
+        '401':
+          description: Authentication is required and has failed or not been provided.
+        '403':
+          description: Authenticated but not authorized to access this resource.
+        '404':
+          description: Participant not found for the authenticated user.
+
+  /participants/{participantId}/pathwayenrolments/{enrolmentId}:
+    get:
+      summary: Get Pathway Enrolment by ID
+      operationId: GetPathwayEnrolmentById
+      tags:
+        - PathwayEnrolments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the participant.
+        - name: enrolmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the enrolment.
+      responses:
+        '200':
+          description: Successfully retrieved the pathway enrolment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrolledPathwayDetailsDto'
+        '400':
+          description: Bad request. Parameters may be invalid.
+        '401':
+          description: Authentication is required and has failed or not been provided.
+        '403':
+          description: Authenticated but not authorized to access this resource.
+        '404':
+          description: The specified enrolment or participant was not found.
+
+  /participant/{participantId}/eligibility:
+    get:
+      summary: Get Screening Eligibility
+      operationId: GetScreeningEligibility
+      tags:
+        - Eligibility
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the participant to check eligibility for.
+      responses:
+        '200':
+          description: Successfully retrieved screening eligibility enrolments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PathwayEnrolmentDto'
+        '400':
+          description: Bad request. Participant ID may be invalid.
+        '401':
+          description: Authentication is required and has failed or not been provided.
+        '403':
+          description: Authenticated but not authorized to access this resource.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    EnrolledPathwayDetailsDto:
+      type: object
+      properties:
+        enrolmentId:
+          type: string
+          format: uuid
+        enrolmentDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        nextActionDate:
+          type: string
+          format: date-time
+          nullable: true
+        screeningName:
+          type: string
+        pathwayTypeName:
+          type: string
+        infoUrl:
+          type: string
+          format: uri
+        participant:
+          $ref: '#/components/schemas/ParticipantDto'
+
+    PathwayEnrolmentDto:
+      type: object
+      properties:
+        enrolmentId:
+          type: string
+        screeningName:
+          type: string
+        participant:
+          $ref: '#/components/schemas/ParticipantDto'
+
+    ParticipantDto:
+      type: object
+      properties:
+        participantId:
+          type: string
+          format: uuid
+        dob:
+          type: string
+          format: date
+        nhsNumber:
+          type: string
+        name:
+          type: string
