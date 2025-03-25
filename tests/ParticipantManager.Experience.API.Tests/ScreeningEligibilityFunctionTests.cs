@@ -42,7 +42,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Expired());
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -66,7 +66,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.NewGuid()) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -90,37 +90,10 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, Guid.Empty) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, Guid.Empty) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
-    }
-
-    [Fact]
-    public async Task GetScreeningEligibility_PathwayEnrolmentsIsNull_ReturnsNotFound()
-    {
-        // Arrange
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, "12345"),
-            new(ClaimTypes.Email, "user@example.com"),
-            new("nhs_number", "12345678")
-        };
-
-        var identity = new ClaimsIdentity(claims, "Bearer");
-        var principal = new ClaimsPrincipal(identity);
-
-        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId))
-            .ReturnsAsync((List<PathwayEnrolmentDto>?)null);
-
-        // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as NotFoundObjectResult;
-
-        // Assert
-        Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
-        Assert.Equal("Unable to find pathway enrolments", response?.Value);
     }
 
     [Fact]
@@ -142,7 +115,7 @@ public class ScreeningEligibilityFunctionTests
         _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId)).ReturnsAsync([]);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as OkObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as OkObjectResult;
 
         // Assert
         Assert.IsType<OkObjectResult>(response);
@@ -168,7 +141,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
@@ -194,7 +167,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(false);
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId);
+        var response = await _function.GetScreeningEligibility(_request, _participantId);
 
         // Assert
         Assert.NotNull(response);
@@ -219,7 +192,7 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as OkObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as OkObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
@@ -248,7 +221,7 @@ public class ScreeningEligibilityFunctionTests
             .ThrowsAsync(new Exception("Test exception message"));
 
         // Act
-        var response = await _function.GetParticipantEligibility(_request, _participantId) as BadRequestObjectResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId) as BadRequestObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);

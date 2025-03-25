@@ -11,34 +11,25 @@ using ParticipantManager.API.Models;
 
 namespace ParticipantManager.API.Functions;
 
-public class ParticipantFunctions
+public class ParticipantFunctions(
+    ILogger<ParticipantFunctions> logger,
+    ParticipantManagerDbContext dbContext,
+    JsonSerializerOptions jsonSerializerOptions)
 {
-    private readonly ParticipantManagerDbContext _dbContext;
-    private readonly ILogger<ParticipantFunctions> _logger;
-    private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-    public ParticipantFunctions(ILogger<ParticipantFunctions> logger, ParticipantManagerDbContext dbContext,
-        JsonSerializerOptions jsonSerializerOptions)
-    {
-        _logger = logger;
-        _dbContext = dbContext;
-        _jsonSerializerOptions = jsonSerializerOptions;
-    }
-
     [Function("CreateParticipant")]
     public async Task<IActionResult> CreateParticipant(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "participants")]
         HttpRequestData req)
     {
-        _logger.LogInformation("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
+        logger.LogInformation("{CreateParticipant} function processed a request.", nameof(CreateParticipant));
 
         try
         {
             // Deserialize the JSON request body into the Participant model
-            var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, _jsonSerializerOptions);
+            var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, jsonSerializerOptions);
             if (participant == null)
             {
-                _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
+                logger.LogError("Invalid participant JSON provided. Deserialized to null.");
                 return new BadRequestObjectResult("Invalid participant JSON provided. Deserialized to null.");
             }
 
@@ -48,30 +39,30 @@ public class ParticipantFunctions
 
             if (!Validator.TryValidateObject(participant, context, validationResults, true))
             {
-                _logger.LogError("Validation failed for Participant creation.");
+                logger.LogError("Validation failed for Participant creation.");
                 return new BadRequestObjectResult(validationResults);
             }
 
             // Check if a Participant with the same NHS Number already exists
-            var existingParticipant = await _dbContext.Participants
+            var existingParticipant = await dbContext.Participants
                 .FirstOrDefaultAsync(p => p.NhsNumber == participant.NhsNumber);
 
             if (existingParticipant != null)
             {
-                _logger.LogError("Attempted to create a duplicate Participant with NHS Number: {@NhsNumber}",
+                logger.LogError("Attempted to create a duplicate Participant with NHS Number: {@NhsNumber}",
                     new { NhsNumber = participant.NhsNumber });
                 return new ConflictObjectResult(new { message = "A Participant with this NHS Number already exists." });
             }
 
-            _dbContext.Participants.Add(participant);
-            await _dbContext.SaveChangesAsync();
-            _logger.LogInformation("Successfully Created Participant, Participant: {@Participant}",
+            dbContext.Participants.Add(participant);
+            await dbContext.SaveChangesAsync();
+            logger.LogInformation("Successfully Created Participant, Participant: {@Participant}",
                 new { NhsNumber = participant.NhsNumber, participant.ParticipantId });
             return new CreatedResult($"/participants/{participant.ParticipantId}", participant);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.",
+            logger.LogError(ex, "{Participant} function processed a request and an exception was thrown.",
                 nameof(CreateParticipant));
             return new BadRequestObjectResult(new { message = "An error occurred while processing the request." });
         }
@@ -83,12 +74,12 @@ public class ParticipantFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId:guid}")]
         HttpRequestData req, Guid participantId)
     {
-        _logger.LogInformation("Fetching Participant with ID: {ParticipantId}", participantId);
+        logger.LogInformation("Fetching Participant with ID: {ParticipantId}", participantId);
 
-        var participant = await _dbContext.Participants.FindAsync(participantId);
+        var participant = await dbContext.Participants.FindAsync(participantId);
         if (participant == null)
         {
-            _logger.LogError("Participant not found: {ParticipantId}", participantId);
+            logger.LogError("Participant not found: {ParticipantId}", participantId);
             return new NotFoundObjectResult($"Participant with ID {participantId} not found.");
         }
 
@@ -101,7 +92,7 @@ public class ParticipantFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants")]
         HttpRequestData req)
     {
-        _logger.LogInformation("Processing Participant search request.");
+        logger.LogInformation("Processing Participant search request.");
 
         // Extract query parameters
         var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
@@ -109,16 +100,16 @@ public class ParticipantFunctions
 
         if (string.IsNullOrEmpty(nhsNumber))
         {
-            _logger.LogError("NHS Number not provided.");
+            logger.LogError("NHS Number not provided.");
             return new BadRequestObjectResult("Please provide an NHS Number.");
         }
 
-        var participant = await _dbContext.Participants
+        var participant = await dbContext.Participants
             .FirstOrDefaultAsync(p => p.NhsNumber == nhsNumber);
 
         if (participant == null)
         {
-            _logger.LogError("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
+            logger.LogError("Participant with NHS Number {@NhsNumber} not found.", new { NhsNumber = nhsNumber });
             return new NotFoundObjectResult($"No Participant found with NHS Number {nhsNumber}.");
         }
 
