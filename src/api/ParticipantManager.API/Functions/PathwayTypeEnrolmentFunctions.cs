@@ -62,7 +62,7 @@ public class PathwayTypeEnrolmentFunctions(
 
         var pathwayTypeEnrolments = await dbContext.PathwayTypeEnrolments
             .Where(p => p.EnrolmentId == enrolmentId && p.ParticipantId == participantId)
-            .Select(p => new PathwayTypeEnrolment()
+            .Select(p => new PathwayTypeEnrolment
             {
                 EnrolmentId = p.EnrolmentId,
                 EnrolmentDate = p.EnrolmentDate,
