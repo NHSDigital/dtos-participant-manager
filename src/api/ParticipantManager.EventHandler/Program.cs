@@ -23,20 +23,20 @@ var host = new HostBuilder()
         services.AddSingleton<FunctionContextAccessor>();
         services.AddOpenTelemetry()
             .ConfigureResource(builder => builder
-            .AddService("ParticipantManager.Experience.API"))
+                .AddService("ParticipantManager.Experience.API"))
             .WithTracing(builder => builder
-            .AddSource(nameof(ParticipantManager.EventHandler))
-            .AddHttpClientInstrumentation()
-            .AddAspNetCoreInstrumentation()
-            .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
+                .AddSource(nameof(ParticipantManager.EventHandler))
+                .AddHttpClientInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
             .WithMetrics(builder => builder
-            .AddMeter(nameof(ParticipantManager.EventHandler))
-            .AddHttpClientInstrumentation()
-            .AddAspNetCoreInstrumentation()
-            .AddAzureMonitorMetricExporter(options =>
-            {
-                options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
-            }));
+                .AddMeter(nameof(ParticipantManager.EventHandler))
+                .AddHttpClientInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddAzureMonitorMetricExporter(options =>
+                {
+                    options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                }));
 
         services.AddHttpContextAccessor();
         services.AddTransient<CorrelationIdHandler>();

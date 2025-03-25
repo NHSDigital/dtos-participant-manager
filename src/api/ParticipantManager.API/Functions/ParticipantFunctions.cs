@@ -36,7 +36,7 @@ public class ParticipantFunctions
         {
             // Deserialize the JSON request body into the Participant model
             var participant = await JsonSerializer.DeserializeAsync<Participant>(req.Body, _jsonSerializerOptions);
-            if(participant == null)
+            if (participant == null)
             {
                 _logger.LogError("Invalid participant JSON provided. Deserialized to null.");
                 return new BadRequestObjectResult("Invalid participant JSON provided. Deserialized to null.");

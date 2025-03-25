@@ -17,26 +17,26 @@ var appInsightsConnectionString =
   EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
-  .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
-  .ConfigureServices((context, services) =>
-  {
-    services.AddSingleton<FunctionContextAccessor>();
-    services.AddOpenTelemetry()
-      .ConfigureResource(builder => builder
-        .AddService("ParticipantManager.Experience.API"))
-      .WithTracing(builder => builder
-        .AddSource(nameof(ParticipantManager.Experience.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
-      .WithMetrics(builder => builder
-        .AddMeter(nameof(ParticipantManager.Experience.API))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddAzureMonitorMetricExporter(options =>
-        {
-          options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
-        }));
+    .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
+    .ConfigureServices((context, services) =>
+    {
+        services.AddSingleton<FunctionContextAccessor>();
+        services.AddOpenTelemetry()
+        .ConfigureResource(builder => builder
+            .AddService("ParticipantManager.Experience.API"))
+        .WithTracing(builder => builder
+            .AddSource(nameof(ParticipantManager.Experience.API))
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddAzureMonitorTraceExporter(options => { options.ConnectionString = appInsightsConnectionString; }))
+        .WithMetrics(builder => builder
+            .AddMeter(nameof(ParticipantManager.Experience.API))
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddAzureMonitorMetricExporter(options =>
+            {
+            options.ConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+            }));
 
         services.AddSingleton(new JsonSerializerOptions
         {
@@ -46,17 +46,17 @@ var host = new HostBuilder()
         services.AddHttpContextAccessor();
         services.AddTransient<CorrelationIdHandler>();
 
-    services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
-    {
-      client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL") ?? string.Empty);
-    }).AddHttpMessageHandler<CorrelationIdHandler>();
+        services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
+        {
+            client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL") ?? string.Empty);
+        }).AddHttpMessageHandler<CorrelationIdHandler>();
 
-    services.AddSingleton<IJwksProvider>(provider =>
-    {
-      var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
-      var issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
-      return new JwksProvider(logger, issuer);
-    });
+        services.AddSingleton<IJwksProvider>(provider =>
+        {
+            var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
+            var issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
+            return new JwksProvider(logger, issuer);
+        });
 
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
