@@ -27,17 +27,17 @@ public class CorrelationIdMiddlewareTests
         _mockAccessor = new Mock<FunctionContextAccessor>();
 
         Log.Logger = new LoggerConfiguration()
-          .WriteTo.InMemory()
-          .CreateLogger();
+            .WriteTo.InMemory()
+            .CreateLogger();
 
         _logger = new LoggerFactory()
-          .AddSerilog(Log.Logger)
-          .CreateLogger<CorrelationIdMiddleware>();
+            .AddSerilog(Log.Logger)
+            .CreateLogger<CorrelationIdMiddleware>();
 
         _mockContext.Setup(c => c.InstanceServices)
-          .Returns(new ServiceCollection()
-          .AddSingleton(_logger)
-          .BuildServiceProvider());
+            .Returns(new ServiceCollection()
+            .AddSingleton(_logger)
+            .BuildServiceProvider());
 
         var items = new Dictionary<object, object>();
         _mockContext.Setup(c => c.Items).Returns(items);
@@ -52,9 +52,9 @@ public class CorrelationIdMiddlewareTests
         var correlationId = Guid.NewGuid();
         var headers = new Dictionary<string, string> { { CorrelationIdHeader, correlationId.ToString() } };
         var bindingData = new Dictionary<string, object?>
-    {
-      { "Headers", JsonSerializer.Serialize(headers) }
-    };
+        {
+            { "Headers", JsonSerializer.Serialize(headers) }
+        };
         _mockContext.Setup(c => c.BindingContext.BindingData).Returns(bindingData);
 
         // Act
@@ -76,9 +76,9 @@ public class CorrelationIdMiddlewareTests
         // Arrange
         var headers = new Dictionary<string, string>();
         var bindingData = new Dictionary<string, object?>
-    {
-      { "Headers", JsonSerializer.Serialize(headers) }
-    };
+        {
+            { "Headers", JsonSerializer.Serialize(headers) }
+        };
         _mockContext.Setup(c => c.BindingContext.BindingData).Returns(bindingData);
 
         // Act
@@ -103,9 +103,9 @@ public class CorrelationIdMiddlewareTests
         // Arrange
         var headers = new Dictionary<string, string?> { { CorrelationIdHeader, headerValue } };
         var bindingData = new Dictionary<string, object?>
-    {
-      { "Headers", JsonSerializer.Serialize(headers) }
-    };
+        {
+            { "Headers", JsonSerializer.Serialize(headers) }
+        };
         _mockContext.Setup(c => c.BindingContext.BindingData).Returns(bindingData);
 
         // Act
