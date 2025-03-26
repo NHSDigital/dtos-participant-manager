@@ -13,14 +13,8 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
 {
     private const string AuthHeaderName = "Authorization";
     private const string BearerPrefix = "Bearer ";
-
-    private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ??
-        throw new InvalidOperationException(
-            "AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
-
-    private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ??
-        throw new InvalidOperationException(
-            "AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
+    private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
+    private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
 
     public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
     {
