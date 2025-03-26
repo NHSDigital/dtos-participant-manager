@@ -8,6 +8,7 @@ paths:
   /participant:
     get:
       summary: Get Participant ID
+      description: Retrieves the Participant ID associated with the authenticated user.
       operationId: GetParticipantId
       tags:
         - Participant
@@ -28,17 +29,20 @@ paths:
             text/plain:
               schema:
                 type: string
-              example: "Missing user context in bearer token."
+              example: "Invalid: Bad Request"
         '401':
           description: Authentication is required and has failed or not been provided.
         '403':
           description: Authenticated but not authorized to access this resource.
         '404':
           description: Participant not found for the authenticated user.
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
 
   /participants/{participantId}/pathwayenrolments/{enrolmentId}:
     get:
       summary: Get Pathway Enrolment by ID
+      description: Retrieves a single Pathway Enrolment for the authenticated user.
       operationId: GetPathwayEnrolmentById
       tags:
         - PathwayEnrolments
@@ -68,16 +72,24 @@ paths:
                 $ref: '#/components/schemas/EnrolledPathwayDetailsDto'
         '400':
           description: Bad request. Parameters may be invalid.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Invalid: Bad Request"
         '401':
           description: Authentication is required and has failed or not been provided.
         '403':
           description: Authenticated but not authorized to access this resource.
         '404':
           description: The specified enrolment or participant was not found.
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
 
   /participant/{participantId}/eligibility:
     get:
       summary: Get Screening Eligibility
+      description: Retrieves a list of screening pathways for which the authenticated user is eligible.
       operationId: GetScreeningEligibility
       tags:
         - Eligibility
@@ -102,10 +114,17 @@ paths:
                   $ref: '#/components/schemas/PathwayEnrolmentDto'
         '400':
           description: Bad request. Participant ID may be invalid.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Invalid: Bad Request"
         '401':
           description: Authentication is required and has failed or not been provided.
         '403':
           description: Authenticated but not authorized to access this resource.
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
 
 components:
   securitySchemes:
