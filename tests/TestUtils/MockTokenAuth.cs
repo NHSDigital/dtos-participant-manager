@@ -110,7 +110,7 @@ namespace TestUtils
             public string? Token { get; set; }
             public Dictionary<string, object>? Payload { get; set; }
             public long ExpiresAt { get; set; }
-            public SecurityKey? SigningKey { get; set; }
+            public required SecurityKey SigningKey { get; set; }
         }
     }
 }
