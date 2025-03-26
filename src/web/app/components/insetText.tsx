@@ -1,11 +1,11 @@
 import { formatDate } from "@/app/lib/utils";
 
 interface InsetTextProps {
-  text: string;
-  date?: string;
+  readonly text: string;
+  readonly date?: string;
 }
 
-export default function InsetText({ text, date }: InsetTextProps) {
+export default function InsetText({ text, date }: Readonly<InsetTextProps>) {
   return (
     <div className="nhsuk-inset-text">
       <span className="nhsuk-u-visually-hidden">Information: </span>

@@ -43,43 +43,9 @@ all: db db-migrations api1 api2 event-handler web
 infra: db db-migrations
 	@echo "Infrastructure is up and running."
 
+# Start all services
 application: api1 api2 event-handler web
-
-# Ensure Azure CLI is logged in
-azure-login:
-	@echo "Checking Azure login status..."
-ifeq ($(OS),Windows_NT)
-	@powershell -Command "& { \
-		$$loginAttempt = az account show 2>$$null; \
-		if (-not $$loginAttempt) { \
-			Write-Host 'Logging into Azure...'; \
-			$$loginResult = az login --use-device-code --output json; \
-			if ($$?) { \
-				Start-Sleep -Seconds 2; \
-				$$account = az account show; \
-				if ($$account) { \
-					Write-Host 'Azure login successful.'; \
-				} else { \
-					Write-Error 'Login verification failed'; \
-					exit 1; \
-				} \
-			} else { \
-				Write-Error 'Azure login failed'; \
-				exit 1; \
-			} \
-		} else { \
-			Write-Host 'Already logged into Azure.'; \
-		} \
-	}"
-else
-	@if ! az account show > /dev/null 2>&1; then \
-		echo "Logging into Azure..."; \
-		az login --output none; \
-		echo "Azure login successful."; \
-	else \
-		echo "Already logged into Azure."; \
-	fi
-endif
+	@echo "Application is up and running."
 
 # Start the Next.js frontend
 web:

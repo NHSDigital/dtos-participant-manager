@@ -3,6 +3,7 @@ import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
 import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
+import { logger } from "@/app/lib/logger";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
 import InsetText from "@/app/components/insetText";
@@ -20,14 +21,17 @@ const getPathwayEnrolment = async (
   enrolmentId: string
 ): Promise<PathwayItem | null> => {
   if (!session?.user?.accessToken) {
-    console.log("No access token found for pathway enrolment");
+    logger.warn(`No access token found for pathway enrolment: ${enrolmentId}`);
     return null;
   }
 
   try {
     return await fetchPathwayEnrolment(session, enrolmentId);
   } catch (error) {
-    console.error("Failed to get pathway enrolment data:", error);
+    logger.error(
+      ` Failed to get pathway enrolment data for: ${enrolmentId}`,
+      error
+    );
     return null;
   }
 };
