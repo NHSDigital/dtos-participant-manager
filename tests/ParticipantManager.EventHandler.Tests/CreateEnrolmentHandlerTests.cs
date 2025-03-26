@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Azure;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid;
@@ -13,6 +14,8 @@ namespace ParticipantManager.EventHandler.Tests;
 public class CreateEnrolmentHandlerTests
 {
     private readonly CreateEnrolmentHandler _handler;
+    private readonly Guid _participantId;
+    private readonly CreatePathwayParticipantDto _pathwayParticipantDto;
     private readonly Mock<ICrudApiClient> _mockCrudApiClient;
     private readonly Mock<EventGridPublisherClient> _mockEventGridPublisherClient;
     private readonly Mock<ILogger<CreateEnrolmentHandler>> _mockLogger;
@@ -27,29 +30,29 @@ public class CreateEnrolmentHandlerTests
             _mockLogger.Object,
             _mockCrudApiClient.Object,
             _mockEventGridPublisherClient.Object);
-    }
 
-    [Fact]
-    public async Task Run_WithValidEvent_CreatesNewParticipantWhenParticipantDoesNotExist()
-    {
-        // Arrange
-        var participantId = Guid.NewGuid();
-        var pathwayParticipantDto = new CreatePathwayParticipantDto
+        _participantId = Guid.NewGuid();
+        _pathwayParticipantDto = new CreatePathwayParticipantDto
         {
             NhsNumber = "1234567890",
             PathwayTypeId = Guid.NewGuid(),
             PathwayTypeName = "Test Pathway",
             ScreeningName = "Test Screening"
         };
+    }
 
-        var cloudEvent = new CloudEvent("/services/CreateEnrolment", "ParticipantInvited", pathwayParticipantDto,
+    [Fact]
+    public async Task Run_WithValidEvent_CreatesNewParticipantWhenParticipantDoesNotExist()
+    {
+        // Arrange
+        var cloudEvent = new CloudEvent("/services/CreateEnrolment", "ParticipantInvited", _pathwayParticipantDto,
             typeof(CreatePathwayParticipantDto));
 
-        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
+        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber))
             .ReturnsAsync((ParticipantDto?)null);
 
         _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
-            .ReturnsAsync(participantId);
+            .ReturnsAsync(_participantId);
 
         _mockCrudApiClient.Setup(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()))
             .ReturnsAsync(true);
@@ -63,13 +66,13 @@ public class CreateEnrolmentHandlerTests
         await _handler.Run(cloudEvent);
 
         // Assert
-        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
+        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.Is<CreatePathwayTypeEnrolmentDto>(dto =>
-            dto.ParticipantId == participantId &&
-            dto.PathwayTypeId == pathwayParticipantDto.PathwayTypeId &&
-            dto.PathwayTypeName == pathwayParticipantDto.PathwayTypeName &&
-            dto.ScreeningName == pathwayParticipantDto.ScreeningName
+            dto.ParticipantId == _participantId &&
+            dto.PathwayTypeId == _pathwayParticipantDto.PathwayTypeId &&
+            dto.PathwayTypeName == _pathwayParticipantDto.PathwayTypeName &&
+            dto.ScreeningName == _pathwayParticipantDto.ScreeningName
         )), Times.Once);
         _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Once);
     }
@@ -78,24 +81,15 @@ public class CreateEnrolmentHandlerTests
     public async Task Run_WithValidEvent_UsesExistingParticipant_WhenParticipantExists()
     {
         // Arrange
-        var participantId = Guid.NewGuid();
-        var pathwayParticipantDto = new CreatePathwayParticipantDto
-        {
-            NhsNumber = "1234567890",
-            PathwayTypeId = Guid.NewGuid(),
-            PathwayTypeName = "Test Pathway",
-            ScreeningName = "Test Screening"
-        };
-
         var existingParticipant = new ParticipantDto
         {
-            ParticipantId = participantId
+            ParticipantId = _participantId
         };
 
-        var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto,
+        var cloudEvent = new CloudEvent("test-source", "test-event", _pathwayParticipantDto,
             typeof(CreatePathwayParticipantDto));
 
-        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
+        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber))
             .ReturnsAsync(existingParticipant);
 
         _mockCrudApiClient.Setup(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()))
@@ -110,27 +104,37 @@ public class CreateEnrolmentHandlerTests
         await _handler.Run(cloudEvent);
 
         // Assert
-        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
+        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.Is<CreatePathwayTypeEnrolmentDto>(dto =>
-            dto.ParticipantId == participantId &&
-            dto.PathwayTypeId == pathwayParticipantDto.PathwayTypeId &&
-            dto.PathwayTypeName == pathwayParticipantDto.PathwayTypeName &&
-            dto.ScreeningName == pathwayParticipantDto.ScreeningName
+            dto.ParticipantId == _participantId &&
+            dto.PathwayTypeId == _pathwayParticipantDto.PathwayTypeId &&
+            dto.PathwayTypeName == _pathwayParticipantDto.PathwayTypeName &&
+            dto.ScreeningName == _pathwayParticipantDto.ScreeningName
         )), Times.Once);
         _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Once);
     }
 
     [Fact]
-    public async Task Run_WithInvalidEventData_LogsErrorAndReturns()
+    public async Task Run_LogsErrorAndReturns_WhenEventDataNull()
     {
         // Arrange
-        var cloudEvent = new CloudEvent("test-source", "test-event", "invalid json data");
+        var cloudEvent = new CloudEvent("/services/CreateEnrolment", "ParticipantInvited", null,
+            typeof(CreatePathwayParticipantDto));
+        cloudEvent.Data = null;
 
         // Act
         await _handler.Run(cloudEvent);
 
         // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Invalid cloudEvent. cloudEvent.Data is null")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
         _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(It.IsAny<string>()), Times.Never);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
@@ -139,15 +143,48 @@ public class CreateEnrolmentHandlerTests
     }
 
     [Fact]
-    public async Task Run_WithNullPathwayParticipantDto_ReturnsEarly()
+    public async Task Run_LogsErrorAndReturns_WhenEventDataInvalidJson()
     {
         // Arrange
-        var cloudEvent = new CloudEvent("test-source", "test-event", "null");
+        var cloudEvent = new CloudEvent("test-source", "test-event", "invalid json data");
 
         // Act
         await _handler.Run(cloudEvent);
 
         // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Unable to deserialize event data to CreateParticipantEnrolmentDto.")),
+                It.IsNotNull<JsonException>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(It.IsAny<string>()), Times.Never);
+        _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
+        _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
+            Times.Never);
+        _mockEventGridPublisherClient.Verify(c => c.SendEventAsync(It.IsAny<CloudEvent>(), default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_LogsErrorAndReturns_WhenEventDataNullJson()
+    {
+        // Arrange
+        var cloudEvent = new CloudEvent("test-source", "test-event", null, typeof(CreatePathwayParticipantDto));
+
+        // Act
+        await _handler.Run(cloudEvent);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Deserialized event data was null.")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
         _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(It.IsAny<string>()), Times.Never);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Never);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
@@ -159,23 +196,14 @@ public class CreateEnrolmentHandlerTests
     public async Task Run_WhenPathwayEnrolmentCreationFails_LogsErrorAndDoesNotSendEvent()
     {
         // Arrange
-        var participantId = Guid.NewGuid();
-        var pathwayParticipantDto = new CreatePathwayParticipantDto
-        {
-            NhsNumber = "1234567890",
-            PathwayTypeId = Guid.NewGuid(),
-            PathwayTypeName = "Test Pathway",
-            ScreeningName = "Test Screening"
-        };
-
-        var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto,
+        var cloudEvent = new CloudEvent("test-source", "test-event", _pathwayParticipantDto,
             typeof(CreatePathwayParticipantDto));
 
-        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
+        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber))
             .ReturnsAsync((ParticipantDto?)null);
 
         _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
-            .ReturnsAsync(participantId);
+            .ReturnsAsync(_participantId);
 
         _mockCrudApiClient.Setup(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()))
             .ReturnsAsync(false);
@@ -184,7 +212,7 @@ public class CreateEnrolmentHandlerTests
         await _handler.Run(cloudEvent);
 
         // Assert
-        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
+        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
             Times.Once);
@@ -195,23 +223,14 @@ public class CreateEnrolmentHandlerTests
     public async Task Run_WhenEventSendingFails_LogsError()
     {
         // Arrange
-        var participantId = Guid.NewGuid();
-        var pathwayParticipantDto = new CreatePathwayParticipantDto
-        {
-            NhsNumber = "1234567890",
-            PathwayTypeId = Guid.NewGuid(),
-            PathwayTypeName = "Test Pathway",
-            ScreeningName = "Test Screening"
-        };
-
-        var cloudEvent = new CloudEvent("test-source", "test-event", pathwayParticipantDto,
+        var cloudEvent = new CloudEvent("test-source", "test-event", _pathwayParticipantDto,
             typeof(CreatePathwayParticipantDto));
 
-        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber))
+        _mockCrudApiClient.Setup(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber))
             .ReturnsAsync((ParticipantDto?)null);
 
         _mockCrudApiClient.Setup(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()))
-            .ReturnsAsync(participantId);
+            .ReturnsAsync(_participantId);
 
         _mockCrudApiClient.Setup(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()))
             .ReturnsAsync(true);
@@ -225,7 +244,7 @@ public class CreateEnrolmentHandlerTests
         await _handler.Run(cloudEvent);
 
         // Assert
-        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(pathwayParticipantDto.NhsNumber), Times.Once);
+        _mockCrudApiClient.Verify(c => c.GetParticipantByNhsNumberAsync(_pathwayParticipantDto.NhsNumber), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreateParticipantAsync(It.IsAny<ParticipantDto>()), Times.Once);
         _mockCrudApiClient.Verify(c => c.CreatePathwayTypeEnrolmentAsync(It.IsAny<CreatePathwayTypeEnrolmentDto>()),
             Times.Once);

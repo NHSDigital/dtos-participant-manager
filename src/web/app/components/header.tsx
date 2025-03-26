@@ -3,12 +3,12 @@ import { getAuthConfig } from "@/app/lib/auth";
 import styles from "@/app/styles/components/header.module.scss";
 
 interface HeaderProps {
-  serviceName?: string;
+  readonly serviceName?: string;
 }
 
 export default async function Header({
   serviceName = process.env.SERVICE_NAME,
-}: HeaderProps) {
+}: Readonly<HeaderProps>) {
   const { auth } = await getAuthConfig();
   const session = await auth();
 

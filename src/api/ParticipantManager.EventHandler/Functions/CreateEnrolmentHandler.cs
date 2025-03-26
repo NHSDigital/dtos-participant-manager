@@ -49,6 +49,7 @@ public class CreateEnrolmentHandler
 
         if (pathwayParticipantDto == null)
         {
+            _logger.LogError("Deserialized event data was null.");
             return;
         }
 
