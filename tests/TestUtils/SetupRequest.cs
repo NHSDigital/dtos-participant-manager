@@ -1,11 +1,8 @@
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 
 
 namespace ParticipantManager.TestUtils;
