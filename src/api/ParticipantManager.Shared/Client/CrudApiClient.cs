@@ -8,9 +8,9 @@ namespace ParticipantManager.Shared.Client;
 public class CrudApiClient(
     ILogger<CrudApiClient> logger,
     HttpClient httpClient,
-    JsonSerializerOptions _jsonSerializerOptions) : ICrudApiClient
+    JsonSerializerOptions jsonSerializerOptions) : ICrudApiClient
 {
-    public async Task<List<PathwayEnrolmentDto>?> GetPathwayEnrolmentsAsync(Guid participantId)
+    public async Task<List<PathwayEnrolmentDto>> GetPathwayEnrolmentsAsync(Guid participantId)
     {
         logger.LogInformation("GetPathwayEnrolmentsAsync");
         var url = $"/api/pathwaytypeenrolments?participantId={participantId}";
@@ -19,7 +19,8 @@ public class CrudApiClient(
         {
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(_jsonSerializerOptions);
+            return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(jsonSerializerOptions)
+                ?? throw new InvalidOperationException($"Deserialization returned null for: {url}");
         }
         catch (Exception ex)
         {
@@ -39,8 +40,7 @@ public class CrudApiClient(
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
-
-            return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(_jsonSerializerOptions);
+            return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(jsonSerializerOptions);
         }
         catch (Exception ex)
         {
@@ -64,7 +64,7 @@ public class CrudApiClient(
                 return null;
             }
 
-            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(_jsonSerializerOptions);
+            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(jsonSerializerOptions);
 
             logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
             return participant;
@@ -88,7 +88,7 @@ public class CrudApiClient(
 
             logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NhsNumber });
 
-            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(_jsonSerializerOptions);
+            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(jsonSerializerOptions);
 
             return participant?.ParticipantId;
         }
