@@ -14,14 +14,6 @@ namespace TestUtils
         /// <param name="expiresIn">Token expiration in seconds (default: 3600)</param>
         /// <param name="issuer">Token issuer (default: "test-issuer")</param>
         /// <param name="keyId">Key ID for the token header (default: "test-key-id")</param>
-        /// <returns>Token information including the bearer token string</returns>
-        /// <summary>
-        /// Generate a mock authorization bearer token using standard JWT libraries
-        /// </summary>
-        /// <param name="audience">Token audience (mandatory)</param>
-        /// <param name="expiresIn">Token expiration in seconds (default: 3600)</param>
-        /// <param name="issuer">Token issuer (default: "test-issuer")</param>
-        /// <param name="keyId">Key ID for the token header (default: "test-key-id")</param>
         /// <param name="additionalClaims">Additional claims to be added to the token</param>
         /// <returns>Token information including the bearer token string</returns>
         public static TokenInfo GenerateToken(
@@ -110,6 +102,7 @@ namespace TestUtils
 
         /// <summary>
         /// Contains token information returned from the token generator
+        /// Kept this in this class as it's only used here for testing.
         /// </summary>
         public class TokenInfo
         {
