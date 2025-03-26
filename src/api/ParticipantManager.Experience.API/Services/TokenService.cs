@@ -13,14 +13,8 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
 {
     private const string AuthHeaderName = "Authorization";
     private const string BearerPrefix = "Bearer ";
-
-    private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ??
-        throw new InvalidOperationException(
-            "AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
-
-    private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ??
-        throw new InvalidOperationException(
-            "AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
+    private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
+    private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
 
     public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
     {
@@ -48,7 +42,7 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
                 // Validate the token
                 var handler = new JwtSecurityTokenHandler();
                 logger.LogInformation("About to validate access token");
-                var result = handler.ValidateToken(token, tokenParams, out var securityToken);
+                var result = handler.ValidateToken(token, tokenParams, out var _);
                 var votClaim = result.Claims.FirstOrDefault(c => c.Type == "vot")?.Value;
                 if (string.IsNullOrEmpty(votClaim) || !votClaim.StartsWith("P9"))
                 {
@@ -73,3 +67,5 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         }
     }
 }
+
+

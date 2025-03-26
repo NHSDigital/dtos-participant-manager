@@ -18,7 +18,7 @@ public class PathwayTypeEnrolmentFunctions(
 {
     [Function("GetPathwayTypeEnrolmentsByParticipantId")]
     public async Task<IActionResult> GetPathwayTypeEnrolmentsByParticipantId(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pathwaytypeenrolments")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwaytypeenrolments")]
         HttpRequestData req)
     {
         logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByParticipantId)} processed a request.");

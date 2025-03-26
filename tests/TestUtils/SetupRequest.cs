@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Specialized;
-using System.IO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
+
 
 namespace ParticipantManager.TestUtils;
 
@@ -57,9 +55,4 @@ public class SetupRequest
         request.Setup(r => r.Headers).Returns(headers);
         return request.Object;
     }
-
-    /// <summary>
-    /// Gets the function context object for test usage
-    /// </summary>
-    public FunctionContext FunctionContext => _context.Object;
 }
