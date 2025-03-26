@@ -6,10 +6,10 @@ interface BreadcrumbItem {
 }
 
 interface BreadcrumbProps {
-  items: BreadcrumbItem[];
+  readonly items: readonly BreadcrumbItem[];
 }
 
-export default function Breadcrumb({ items }: BreadcrumbProps) {
+export default function Breadcrumb({ items }: Readonly<BreadcrumbProps>) {
   const lastItem = items[items.length - 1];
   return (
     <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
