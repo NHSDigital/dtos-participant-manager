@@ -1,5 +1,3 @@
-namespace ParticipantManager.Experience.API.Tests;
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +9,8 @@ using ParticipantManager.Experience.API.Functions;
 using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
+
+namespace ParticipantManager.Experience.API.Tests;
 
 public class PathwayEnrolmentFunctionTests
 {
