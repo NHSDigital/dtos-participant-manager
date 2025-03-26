@@ -106,30 +106,11 @@ namespace TestUtils
         /// </summary>
         public class TokenInfo
         {
-            /// <summary>
-            /// Full bearer token string with "Bearer " prefix
-            /// </summary>
-            public string BearerToken { get; set; }
-
-            /// <summary>
-            /// JWT token string without "Bearer " prefix
-            /// </summary>
-            public string Token { get; set; }
-
-            /// <summary>
-            /// Dictionary containing the token payload values
-            /// </summary>
-            public Dictionary<string, object> Payload { get; set; }
-
-            /// <summary>
-            /// Unix timestamp when the token expires
-            /// </summary>
+            public string? BearerToken { get; set; }
+            public string? Token { get; set; }
+            public Dictionary<string, object>? Payload { get; set; }
             public long ExpiresAt { get; set; }
-
-            /// <summary>
-            /// The security key used to sign the token (for validation)
-            /// </summary>
-            public SecurityKey SigningKey { get; set; }
+            public SecurityKey? SigningKey { get; set; }
         }
     }
 }
