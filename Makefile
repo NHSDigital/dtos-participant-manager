@@ -136,7 +136,7 @@ ifeq ($(OS), Windows_NT)
 	echo "⚙️  Running database migrations..."
 	cmd /c "cd $(API1_DIR) && set ParticipantManagerDatabaseConnectionString=$(ParticipantManagerDatabaseConnectionString) && dotnet ef database update"
 else
-	sleep 10
+	sleep 35
 	until nc -z localhost 1433; do \
 		echo "⏳ Waiting for database to be reachable..."; sleep 3; \
 	done
