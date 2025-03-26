@@ -43,16 +43,14 @@ namespace TestUtils
             // Create base claims for the token
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Iss, issuer),
-                new Claim(JwtRegisteredClaimNames.Aud, audience),
-                new Claim(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(issuedAt).ToString(), ClaimValueTypes.Integer64)
+                new(JwtRegisteredClaimNames.Iss, issuer),
+                new(JwtRegisteredClaimNames.Aud, audience),
+                new(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(issuedAt).ToString(), ClaimValueTypes.Integer64)
             };
 
             // Add any additional claims provided
-            if (additionalClaims != null)
-            {
-                claims.AddRange(additionalClaims);
-            }
+            var additionalClaimsList = additionalClaims == null ? new List<Claim>() : [.. additionalClaims];
+            claims.AddRange(additionalClaimsList);
 
             // Create JWT security token
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -77,16 +75,12 @@ namespace TestUtils
                 { "aud", audience }
             };
 
-            // Add additional claims to the payload dictionary
-            if (additionalClaims != null)
+            foreach (var claim in additionalClaimsList)
             {
-                foreach (var claim in additionalClaims)
+                // Only add if not already present (don't overwrite standard claims)
+                if (!payload.ContainsKey(claim.Type))
                 {
-                    // Only add if not already present (don't overwrite standard claims)
-                    if (!payload.ContainsKey(claim.Type))
-                    {
-                        payload[claim.Type] = claim.Value;
-                    }
+                    payload[claim.Type] = claim.Value;
                 }
             }
 
