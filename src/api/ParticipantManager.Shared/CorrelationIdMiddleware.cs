@@ -19,10 +19,10 @@ public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
     {
         var logger = context.GetLogger<CorrelationIdMiddleware>();
         _functionContextAccessor.FunctionContext = context;
-        if (context.BindingContext.BindingData.TryGetValue("Headers", out var headersObj))
+        if (context.BindingContext.BindingData.TryGetValue("Headers", out var headersObj) && headersObj != null)
         {
-            var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersObj.ToString());
-            if (headers.TryGetValue(CorrelationIdHeader, out var correlationId) && !string.IsNullOrEmpty(correlationId))
+            var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersObj.ToString() ?? "{}");
+            if (headers != null && headers.TryGetValue(CorrelationIdHeader, out var correlationId) && !string.IsNullOrEmpty(correlationId))
             {
                 logger.LogInformation("Using existing correlation ID: {CorrelationId}", correlationId);
                 context.Items[CorrelationIdHeader] = correlationId;
