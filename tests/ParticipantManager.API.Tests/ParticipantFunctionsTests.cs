@@ -1,4 +1,3 @@
-namespace ParticipantManager.API.Tests;
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
@@ -11,6 +10,8 @@ using ParticipantManager.API.Data;
 using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
 using ParticipantManager.TestUtils;
+
+namespace ParticipantManager.API.Tests;
 
 public class ParticipantFunctionsTests
 {
