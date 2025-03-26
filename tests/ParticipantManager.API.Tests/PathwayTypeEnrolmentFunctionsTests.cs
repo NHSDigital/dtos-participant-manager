@@ -22,10 +22,9 @@ public class PathwayTypeEnrolmentFunctionsTests
 
     public PathwayTypeEnrolmentFunctionsTests()
     {
-        // Create a new unique in-memory database for each test
-        var databaseName = Guid.NewGuid().ToString();
+        // Create a new SQLite in-memory database for each test
         var options = new DbContextOptionsBuilder<ParticipantManagerDbContext>()
-            .UseInMemoryDatabase(databaseName)
+            .UseSqlite("DataSource=:memory:")
             .Options;
 
         var jsonOptions = new JsonSerializerOptions
@@ -34,6 +33,8 @@ public class PathwayTypeEnrolmentFunctionsTests
         };
 
         _dbContext = new ParticipantManagerDbContext(options);
+        _dbContext.Database.OpenConnection();
+        _dbContext.Database.EnsureCreated();
         _logger = new Mock<ILogger<PathwayTypeEnrolmentFunctions>>();
         _function = new PathwayTypeEnrolmentFunctions(_logger.Object, _dbContext, jsonOptions);
 
@@ -218,6 +219,28 @@ public class PathwayTypeEnrolmentFunctionsTests
         var result = Assert.IsType<CreatedResult>(response);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         Assert.Equal(1, _dbContext.PathwayTypeEnrolments.Where(e => e.ParticipantId == _participant1.ParticipantId).Count());
+    }
+
+    [Fact]
+    public async Task CreatePathwayTypeEnrolment_ReturnsInternalServerError_WhenParticipantDoesNotExist()
+    {
+        // Arrange
+        var enrolment = new PathwayTypeEnrolment
+        {
+            ParticipantId = Guid.NewGuid(),
+            PathwayTypeId = Guid.NewGuid(),
+            ScreeningName = "Testing",
+            PathwayTypeName = "Testing"
+        };
+        var request = _requestSetup.CreateMockHttpRequest(enrolment);
+
+        // Act
+        var response = await _function.CreatePathwayTypeEnrolment(request);
+
+        // Assert
+        var result = Assert.IsType<StatusCodeResult>(response);
+        Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
+        Assert.Empty(_dbContext.PathwayTypeEnrolments);
     }
 
     private void CreateEnrolmentsForParticipant(Participant participant, int numberOfEnrolments)
