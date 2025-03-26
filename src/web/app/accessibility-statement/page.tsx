@@ -67,7 +67,7 @@ export default async function Page() {
               we&apos;re not meeting accessibility requirements, please contact{" "}
               <a href="mailto:england.digitalscreening@nhs.net">
                 england.digitalscreening@nhs.net
-              </a>
+              </a>{" "}
               . This helps us improve.
             </p>
             <h2>Enforcement procedure</h2>
@@ -76,7 +76,7 @@ export default async function Page() {
               response,{" "}
               <a href="https://www.equalityadvisoryservice.com/">
                 contact the Equality Advisory and Support Service (EASS)
-              </a>
+              </a>{" "}
               .
             </p>
             <p>
@@ -96,7 +96,7 @@ export default async function Page() {
               <a href="http://www.w3.org/TR/WCAG21/">
                 Web Content Accessibility Guidelines (WCAG) version 2.1 AA
                 standard
-              </a>
+              </a>{" "}
               .
             </p>
             <h2>Preparation of this accessibility statement</h2>
