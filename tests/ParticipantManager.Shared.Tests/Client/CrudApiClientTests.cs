@@ -2,10 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using ParticipantManager.API.Models;
-using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.Shared;
+namespace ParticipantManager.Shared.Client;
 
 public class CrudApiClientTests
 {

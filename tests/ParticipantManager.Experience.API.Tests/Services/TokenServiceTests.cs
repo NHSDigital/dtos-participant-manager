@@ -6,7 +6,7 @@ using ParticipantManager.Experience.API.Services;
 using ParticipantManager.TestUtils;
 using TestUtils;
 
-namespace ParticipantManager.Experience.API.Tests
+namespace ParticipantManager.Experience.API.Tests.Services
 {
     public class TokenServiceTests
     {

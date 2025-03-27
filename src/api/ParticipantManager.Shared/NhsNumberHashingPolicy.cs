@@ -1,8 +1,5 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using Serilog.Core;
-using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 
 namespace ParticipantManager.Shared;
@@ -44,27 +41,5 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
 
         result = new StructureValue(structureProperties);
         return true;
-    }
-}
-
-public static class DataMasking
-{
-    public static string HashNhsNumber(string nhsNumber)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            var bytes = Encoding.UTF8.GetBytes(nhsNumber);
-            var hashBytes = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hashBytes);
-        }
-    }
-}
-
-public class NhsNumberRegexMaskOperator : RegexMaskingOperator
-{
-    private const string NhsNumberPattern = @"\b\d{10}\b";
-
-    public NhsNumberRegexMaskOperator() : base(NhsNumberPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled)
-    {
     }
 }

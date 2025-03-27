@@ -71,7 +71,7 @@ public class CorrelationIdMiddlewareTests
     }
 
     [Fact]
-    public async Task Invoke_ShouldCreateCorrelationId_WhenCorelationIdHeaderMissing()
+    public async Task Invoke_ShouldCreateCorrelationId_WhenCorrelationIdHeaderMissing()
     {
         // Arrange
         var headers = new Dictionary<string, string>();
@@ -98,7 +98,7 @@ public class CorrelationIdMiddlewareTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public async Task Invoke_ShouldCreateCorrelationId_WhenCorelationIdHeaderValueEmpty(string? headerValue)
+    public async Task Invoke_ShouldCreateCorrelationId_WhenCorrelationIdHeaderValueEmpty(string? headerValue)
     {
         // Arrange
         var headers = new Dictionary<string, string?> { { CorrelationIdHeader, headerValue } };
