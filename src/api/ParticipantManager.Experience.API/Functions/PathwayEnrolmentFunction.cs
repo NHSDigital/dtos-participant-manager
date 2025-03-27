@@ -50,7 +50,7 @@ public class PathwayEnrolmentFunction(
             {
                 logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
                     new { ParticipantId = participantId });
-                return new UnauthorizedResult();
+                return new ForbidResult();
             }
 
             var enabled = await featureFlagClient.IsFeatureEnabledForParticipant("mays_mvp", participantId);
