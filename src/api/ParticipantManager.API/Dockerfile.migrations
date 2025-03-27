@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 
 WORKDIR /src/dotnet-function-app
 
-# Copy everything to the container
-COPY . ./
+COPY ParticipantManager.API.csproj ./
+COPY ParticipantManager.Shared/ ParticipantManager.Shared/
 
 RUN dotnet tool install --global dotnet-ef
 
@@ -13,10 +13,12 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 # Restore dependencies
 RUN dotnet restore ParticipantManager.API.csproj
 
-# Build the project
+COPY . ./
+
 RUN dotnet build ParticipantManager.API.csproj
 
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
 USER appuser
 
 ENTRYPOINT [ "dotnet", "ef", "database", "update" ]
