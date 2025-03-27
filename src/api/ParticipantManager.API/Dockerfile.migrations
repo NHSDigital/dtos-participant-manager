@@ -3,18 +3,16 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 
 WORKDIR /src/dotnet-function-app
 
-# Copy everything to the container
-COPY . ./
+COPY ParticipantManager.API.csproj ./
+COPY ParticipantManager.Shared/ ParticipantManager.Shared/
 
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef && \
+    export PATH="$PATH:/root/.dotnet/tools" && \
+    dotnet restore ParticipantManager.API.csproj && \
+    dotnet build ParticipantManager.API.csproj && \
+    addgroup --system appgroup && \
+    adduser --system --ingroup appgroup appuser
 
-ENV PATH="$PATH:/root/.dotnet/tools"
+USER appuser
 
-# Restore dependencies
-RUN dotnet restore ParticipantManager.API.csproj
-
-# Build the project
-RUN dotnet build ParticipantManager.API.csproj
-
-# Ensure the database connection string is passed correctly
 ENTRYPOINT [ "dotnet", "ef", "database", "update" ]
