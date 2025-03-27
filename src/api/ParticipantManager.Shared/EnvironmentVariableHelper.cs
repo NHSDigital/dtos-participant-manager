@@ -1,6 +1,6 @@
 using System;
 
-namespace ParticipantManager.Shared.Utils;
+namespace ParticipantManager.Shared;
 
 public static class EnvironmentVariableHelper
 {

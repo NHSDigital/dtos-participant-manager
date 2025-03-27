@@ -1,4 +1,4 @@
-using ParticipantManager.Shared.Utils;
+using ParticipantManager.Shared;
 
 namespace ParticipantManager.Shared;
 

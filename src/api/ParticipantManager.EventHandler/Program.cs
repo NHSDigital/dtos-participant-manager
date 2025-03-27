@@ -11,7 +11,6 @@ using OpenTelemetry.Trace;
 using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
-using ParticipantManager.Shared.Utils;
 
 var appInsightsConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
