@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
-using ParticipantManager.Shared.Extensions;
 
-namespace ParticipantManager.Shared;
+namespace ParticipantManager.Shared.Extensions;
 
 public class HostBuilderExtensionsTests
 {

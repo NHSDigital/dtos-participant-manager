@@ -9,7 +9,7 @@ using ParticipantManager.EventHandler.Functions;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.EventHandler.Tests;
+namespace ParticipantManager.EventHandler.Tests.Functions;
 
 public class CreateEnrolmentHandlerTests
 {
