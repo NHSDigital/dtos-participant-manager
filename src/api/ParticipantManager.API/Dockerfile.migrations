@@ -16,5 +16,7 @@ RUN dotnet restore ParticipantManager.API.csproj
 # Build the project
 RUN dotnet build ParticipantManager.API.csproj
 
-# Ensure the database connection string is passed correctly
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
 ENTRYPOINT [ "dotnet", "ef", "database", "update" ]
