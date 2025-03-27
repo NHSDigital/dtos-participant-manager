@@ -5,8 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ParticipantManager.Experience.API.Services;
 
-public class JwksProvider(ILogger<JwksProvider> logger, string issuer)
-    : IJwksProvider
+public class JwksProvider(ILogger<JwksProvider> logger, string issuer) : IJwksProvider
 {
     private readonly ConfigurationManager<OpenIdConnectConfiguration> _configurationManager =
         new ConfigurationManager<OpenIdConnectConfiguration>(
