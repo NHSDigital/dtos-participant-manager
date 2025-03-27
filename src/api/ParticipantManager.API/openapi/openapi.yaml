@@ -1,0 +1,325 @@
+openapi: 3.0.3
+info:
+  title: Participant API
+  version: 1.0.0
+  description: CRUD API used to manage the underlying data store
+
+paths:
+
+  /participants:
+    post:
+      summary: Create Participant
+      description: Creates a new Participant
+      operationId: Create Participant
+      tags:
+        - Participants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Participant"
+      responses:
+        '201':
+          description: Participant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+        '400':
+          description: Bad request. Supplied participant payload invalid.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Invalid participant JSON provided. Deserialized to null."
+        '409':
+          description: Participant with given NHS Number already exists.
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+    get:
+      summary: Get Participant by NHS Number
+      description: Retrieves a single Participant by their NHS Number
+      operationId: GetParticipantByNhsNumber
+      tags:
+        - Participants
+      parameters:
+        - name: nhsNumber
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "9876543210"
+          description: The NHS Number of the participant to find.
+      responses:
+        '200':
+          description: Successfully retrieved Participant.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+        '400':
+          description: NHS Number not provided
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Please provide an NHS Number."
+        '404':
+          description: No participant found for the specified NHS number
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Participant with NHS Number 9876543210 not found."
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+  /participants/{participantId}:
+    get:
+      summary: Get Participant by Participant ID
+      description: Retrieves a single Participant by their Participant ID
+      operationId: GetParticipantById
+      tags:
+        - Participants
+      parameters:
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the Participant to find.
+      responses:
+        '200':
+          description: Successfully retrieved Participant.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Participant"
+        '404':
+          description: No participant found for the specified NHS number
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Participant with ID 118645aa-3279-4360-9f05-c952d4f06bf7 not found."
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+  /participants/{participantId}/pathwaytypeenrolments/{enrolmentId}:
+    get:
+      summary: Get a single pathway type enrolment by participant ID and enrolment identifier
+      operationId: GetPathwayTypeEnrolmentById
+      tags:
+        - Participants
+        - PathwayTypeEnrolments
+      parameters:
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the Participant for whom to find a pathway type enrolment
+        - name: enrolmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the Enrolment to find.
+      responses:
+        '200':
+          description: Successfully retrieved Pathway Type Enrolment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PathwayTypeEnrolment"
+        '404':
+          description: No pathway type enrolment found for the specified identifiers
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Did not find any enrolments"
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+  /pathwaytypeenrolments:
+    get:
+      summary: Get Pathway Type Enrolments by Participant ID
+      description: Get a list of Pathway Type Enrolments for a Participant
+      operationId: GetPathwayTypeEnrolmentsByParticipantId
+      tags:
+        - PathwayTypeEnrolments
+      parameters:
+        - name: participantId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the Participant for whom to retrieve Pathway Type Enrolments
+      responses:
+        '200':
+          description: List of Pathway Type Enrolments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PathwayTypeEnrolment'
+        '400':
+          description: Participant ID not provided
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Missing ParticipantId"
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+  /pathwaytypeenrolment:
+    post:
+      summary: Create Pathway Type Enrolment
+      description: Creates a new Pathway Type Enrolment
+      operationId: CreatePathwayTypeEnrolment
+      tags:
+        - PathwayTypeEnrolments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PathwayTypeEnrolment"
+      responses:
+        '201':
+          description: Pathway Type Enrolment created successfully
+          content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PathwayTypeEnrolment"
+        '400':
+          description: Bad request. Supplied pathway type enrolment payload invalid.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Invalid pathwayTypeEnrolment JSON provided. Deserialized to null."
+        '500':
+          description: Internal server error. This indicates an unexpected failure in the service.
+
+components:
+  schemas:
+    Participant:
+      type: object
+      required:
+        - name
+        - dob
+        - nhsNumber
+      properties:
+        participantId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: System-generated unique identifier for the Participant
+        name:
+          type: string
+          maxLength: 100
+          description: Name of the Participant
+        dob:
+          type: string
+          format: date
+          description: Date of birth of the Participant
+        nhsNumber:
+          type: string
+          pattern: '^\d{10}$'
+          description: NHS Number (exactly 10 digits)
+
+    PathwayTypeEnrolment:
+      type: object
+      required:
+        - participantId
+        - pathwayTypeId
+        - participant
+        - screeningName
+        - pathwayTypeName
+      properties:
+        enrolmentId:
+          type: string
+          format: uuid
+          readOnly: true
+        participantId:
+          type: string
+          format: uuid
+        pathwayTypeId:
+          type: string
+          format: uuid
+        enrolmentDate:
+          type: string
+          format: date-time
+        lapsedDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          default: Active
+        nextActionDate:
+          type: string
+          format: date-time
+          nullable: true
+        participant:
+          $ref: '#/components/schemas/Participant'
+        episodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Episode'
+        screeningName:
+          type: string
+        pathwayTypeName:
+          type: string
+
+    Episode:
+      type: object
+      required:
+        - enrolmentId
+        - pathwayVersion
+        - status
+      properties:
+        episodeId:
+          type: string
+          format: uuid
+        enrolmentId:
+          type: string
+          format: uuid
+        pathwayVersion:
+          type: string
+        status:
+          type: string
+        encounters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Encounter'
+
+    Encounter:
+      type: object
+      required:
+        - episodeId
+        - date
+        - outcome
+      properties:
+        encounterId:
+          type: string
+          format: uuid
+        episodeId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+        outcome:
+          type: string
+
