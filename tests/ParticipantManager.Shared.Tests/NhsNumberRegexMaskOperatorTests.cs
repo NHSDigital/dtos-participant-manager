@@ -34,7 +34,7 @@ public class NhsNumberRegexMaskOperatorTests
         var logMessage = logEvents.FirstOrDefault()?.RenderMessage();
 
         Assert.DoesNotContain(nhsNumber, logMessage);
-        Assert.Contains($"***MASKED***", logMessage);
+        Assert.Contains("***MASKED***", logMessage);
     }
 
     [Theory]
@@ -52,6 +52,6 @@ public class NhsNumberRegexMaskOperatorTests
         var logMessage = logEvents.FirstOrDefault()?.RenderMessage();
 
         Assert.Contains(otherValue, logMessage);
-        Assert.DoesNotContain($"***MASKED***", logMessage);
+        Assert.DoesNotContain("***MASKED***", logMessage);
     }
 }

@@ -9,7 +9,7 @@ using ParticipantManager.API.Functions;
 using ParticipantManager.API.Models;
 using ParticipantManager.TestUtils;
 
-namespace ParticipantManager.API.Tests;
+namespace ParticipantManager.API.Tests.Functions;
 
 public class PathwayTypeEnrolmentFunctionsTests
 {
