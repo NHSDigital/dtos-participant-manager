@@ -6,18 +6,12 @@ WORKDIR /src/dotnet-function-app
 COPY ParticipantManager.API.csproj ./
 COPY ParticipantManager.Shared/ ParticipantManager.Shared/
 
-RUN dotnet tool install --global dotnet-ef
-
-ENV PATH="$PATH:/root/.dotnet/tools"
-
-# Restore dependencies
-RUN dotnet restore ParticipantManager.API.csproj
-
-COPY . ./
-
-RUN dotnet build ParticipantManager.API.csproj
-
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN dotnet tool install --global dotnet-ef && \
+    export PATH="$PATH:/root/.dotnet/tools" && \
+    dotnet restore ParticipantManager.API.csproj && \
+    dotnet build ParticipantManager.API.csproj && \
+    addgroup --system appgroup && \
+    adduser --system --ingroup appgroup appuser
 
 USER appuser
 
