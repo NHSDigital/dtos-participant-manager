@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,7 +33,7 @@ var host = new HostBuilder()
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorMetricExporter(options =>
                 {
-                options.ConnectionString = appInsightsConnectionString;
+                    options.ConnectionString = appInsightsConnectionString;
                 }));
 
         services.AddSingleton(new JsonSerializerOptions

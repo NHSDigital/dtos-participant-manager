@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json;
 using Azure.Identity;
 using Azure.Messaging.EventGrid;
 using Azure.Monitor.OpenTelemetry.Exporter;
@@ -52,13 +51,14 @@ var host = new HostBuilder()
         }).AddHttpMessageHandler<CorrelationIdHandler>();
         services.AddSingleton(sp =>
         {
-            if (HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
+            var endpoint = new Uri(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_URL"));
+            if (context.HostingEnvironment.IsDevelopment())
             {
                 var credentials = new Azure.AzureKeyCredential(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_KEY"));
-                return new EventGridPublisherClient(new Uri(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_URL")), credentials);
+                return new EventGridPublisherClient(endpoint, credentials);
             }
 
-            return new EventGridPublisherClient(new Uri(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_URL")), new ManagedIdentityCredential());
+            return new EventGridPublisherClient(endpoint, new ManagedIdentityCredential());
         });
     })
     .ConfigureSerilogLogging(appInsightsConnectionString)

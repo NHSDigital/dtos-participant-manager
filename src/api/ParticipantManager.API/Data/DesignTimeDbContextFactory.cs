@@ -9,11 +9,6 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
     public ParticipantManagerDbContext CreateDbContext(string[] args)
     {
         // Build configuration to access appsettings.json or environment variables
-        new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("local.settings.json", true, true)
-            .AddEnvironmentVariables()
-            .Build();
         var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
         if (string.IsNullOrEmpty(connectionString))
         {

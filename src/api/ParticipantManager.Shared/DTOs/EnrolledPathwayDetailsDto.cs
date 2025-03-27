@@ -4,10 +4,10 @@ public class EnrolledPathwayDetailsDto
 {
     public Guid EnrolmentId { get; set; }
     public DateTime EnrolmentDate { get; set; }
-    public string? Status { get; set; }
+    public required string Status { get; set; }
     public DateTime? NextActionDate { get; set; }
-    public string? ScreeningName { get; set; }
-    public string? PathwayTypeName { get; set; }
-    public string InfoUrl => PathwayInfoUrlMapper.GetUrl(PathwayTypeName ?? string.Empty);
-    public ParticipantDto? Participant { get; set; }
+    public required string ScreeningName { get; set; }
+    public required string PathwayTypeName { get; set; }
+    public string InfoUrl => PathwayInfoUrlMapper.GetUrl(PathwayTypeName);
+    public required ParticipantDto Participant { get; set; }
 }
