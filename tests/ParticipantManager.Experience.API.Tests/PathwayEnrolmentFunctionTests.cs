@@ -231,6 +231,7 @@ public class PathwayEnrolmentFunctionTests
             NextActionDate = DateTime.Now,
             Participant = new ParticipantDto
             {
+                Name = "John Doe",
                 NhsNumber = "1234567890"
             }
         };

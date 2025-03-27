@@ -249,6 +249,7 @@ public class ScreeningEligibilityFunctionTests
                 ScreeningName = "BreastScreening",
                 Participant = new ParticipantDto
                 {
+                    Name = "John Doe",
                     NhsNumber = "12345678",
                 }
             },
@@ -258,6 +259,7 @@ public class ScreeningEligibilityFunctionTests
                 ScreeningName = "BowelScreening",
                 Participant = new ParticipantDto
                 {
+                    Name = "John Doe",
                     NhsNumber = "12345678",
                 }
             }

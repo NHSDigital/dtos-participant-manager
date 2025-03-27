@@ -93,7 +93,17 @@ public class CrudApiClientTests
         // Arrange
         var enrolmentId = Guid.NewGuid();
         var expectedEnrolment = new EnrolledPathwayDetailsDto
-            { EnrolmentId = enrolmentId, PathwayTypeName = "test pathway name" };
+        {
+            EnrolmentId = enrolmentId,
+            PathwayTypeName = "test pathway name",
+            Participant = new ParticipantDto
+            {
+                Name = "John Doe",
+                NhsNumber = "1234567890"
+            },
+            Status = "testStatus",
+            ScreeningName = "testScreeningName"
+        };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Get,
             $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}", expectedEnrolment);
@@ -111,7 +121,7 @@ public class CrudApiClientTests
     {
         // Arrange
         var nhsNumber = "1234567890";
-        var expectedParticipant = new ParticipantDto { ParticipantId = Guid.NewGuid(), NhsNumber = nhsNumber };
+        var expectedParticipant = new ParticipantDto { ParticipantId = Guid.NewGuid(), NhsNumber = nhsNumber, Name = "John Doe", };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Get, $"/api/participants?nhsNumber={nhsNumber}",
             expectedParticipant);
@@ -128,8 +138,8 @@ public class CrudApiClientTests
     public async Task CreateParticipantAsync_ShouldReturnParticipantId_WhenSuccessful()
     {
         // Arrange
-        var participantDto = new ParticipantDto { NhsNumber = "1234567890" };
-        var responseDto = new ParticipantDto { ParticipantId = Guid.NewGuid() };
+        var participantDto = new ParticipantDto { NhsNumber = "1234567890", Name = "John Doe", };
+        var responseDto = new ParticipantDto { ParticipantId = Guid.NewGuid(), Name = "John Doe", NhsNumber = "1234567890" };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Post, "/api/participants", responseDto);
 
@@ -148,7 +158,8 @@ public class CrudApiClientTests
         var enrolmentDto = new CreatePathwayTypeEnrolmentDto
         {
             ParticipantId = Guid.NewGuid(),
-            PathwayTypeName = "Test Pathway"
+            PathwayTypeName = "Test Pathway",
+            ScreeningName = "testScreeningName"
         };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Post, "/api/pathwaytypeenrolment", enrolmentDto);

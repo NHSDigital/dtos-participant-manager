@@ -34,6 +34,7 @@ public class CreateEnrolmentHandlerTests
         _participantId = Guid.NewGuid();
         _pathwayParticipantDto = new CreatePathwayParticipantDto
         {
+            Name = "John Doe",
             NhsNumber = "1234567890",
             PathwayTypeId = Guid.NewGuid(),
             PathwayTypeName = "Test Pathway",
@@ -83,7 +84,9 @@ public class CreateEnrolmentHandlerTests
         // Arrange
         var existingParticipant = new ParticipantDto
         {
-            ParticipantId = _participantId
+            ParticipantId = _participantId,
+            Name = "John Doe",
+            NhsNumber = "1243234"
         };
 
         var cloudEvent = new CloudEvent("test-source", "test-event", _pathwayParticipantDto,
