@@ -98,11 +98,13 @@ sequenceDiagram
     activate NextJS
     NextJS->>NHSLogin: Redirect to NHS Login
     activate NHSLogin
+    deactivate NextJS
     NHSLogin->>User: Show NHS Login page
     User->>NHSLogin: Enter credentials
     NHSLogin->>NHSLogin: Validate credentials
     NHSLogin->>NextJS: Redirect with auth code
     deactivate NHSLogin
+    activate NextJs
     NextJS->>NHSLogin: Exchange code for tokens
     activate NHSLogin
     NHSLogin->>NextJS: Return access_token & id_token
