@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAuthConfig } from "@/app/lib/auth";
+import { auth, signOut } from "@/app/lib/auth";
 import styles from "@/app/styles/components/header.module.scss";
 
 interface HeaderProps {
@@ -9,7 +9,6 @@ interface HeaderProps {
 export default async function Header({
   serviceName = process.env.SERVICE_NAME,
 }: Readonly<HeaderProps>) {
-  const { auth } = await getAuthConfig();
   const session = await auth();
 
   return (
@@ -70,7 +69,6 @@ export default async function Header({
                   className={styles["nhsuk-header__account-form"]}
                   action={async () => {
                     "use server";
-                    const { signOut } = await getAuthConfig();
                     await signOut({ redirectTo: "/" });
                   }}
                   method="post"

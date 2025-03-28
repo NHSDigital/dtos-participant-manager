@@ -35,31 +35,6 @@ async function pemToPrivateKey(): Promise<CryptoKey | null> {
   );
 }
 
-// Function to configure NHS Login dynamically
-async function getNhsLoginConfig(): Promise<OAuthConfig<Profile>> {
-  return {
-    id: "nhs-login",
-    name: "NHS login authentication",
-    type: "oidc",
-    issuer: `${process.env.AUTH_NHSLOGIN_ISSUER_URL}`,
-    wellKnown: `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/.well-known/openid-configuration`,
-    clientId: process.env.AUTH_NHSLOGIN_CLIENT_ID,
-    authorization: {
-      params: {
-        scope: "openid profile profile_extended",
-      },
-    },
-    idToken: true,
-    client: {
-      token_endpoint_auth_method: "private_key_jwt",
-      userinfo_signed_response_alg: "RS512",
-    },
-    token: {
-      clientPrivateKey: await pemToPrivateKey(),
-    },
-  };
-}
-
 async function generateClientAssertion(
   privateKey: CryptoKey | null
 ): Promise<string> {
@@ -101,153 +76,171 @@ async function generateClientAssertion(
   return `${signatureInput}.${encodedSignature}`;
 }
 
-// Function to initialize NextAuth dynamically
-export async function getAuthConfig() {
-  const nhsLoginConfig = await getNhsLoginConfig();
-  return NextAuth({
-    providers: [nhsLoginConfig],
-    session: {
-      strategy: "jwt",
-      maxAge: 1800, // 30 minutes [Recommended by NHS login]
+const NHS_LOGIN: OAuthConfig<Profile> = {
+  id: "nhs-login",
+  name: "NHS login authentication",
+  type: "oidc",
+  issuer: `${process.env.AUTH_NHSLOGIN_ISSUER_URL}`,
+  wellKnown: `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/.well-known/openid-configuration`,
+  clientId: process.env.AUTH_NHSLOGIN_CLIENT_ID,
+  authorization: {
+    params: {
+      scope: "openid profile profile_extended",
     },
-    callbacks: {
-      async signIn({ account }) {
-        if (!account || typeof account.id_token !== "string") {
-          return false;
+  },
+  idToken: true,
+  client: {
+    token_endpoint_auth_method: "private_key_jwt",
+    userinfo_signed_response_alg: "RS512",
+  },
+  token: {
+    clientPrivateKey: await pemToPrivateKey(),
+  },
+};
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [NHS_LOGIN],
+  session: {
+    strategy: "jwt",
+    maxAge: 1800, // 30 minutes [Recommended by NHS login]
+  },
+  callbacks: {
+    async signIn({ account }) {
+      if (!account || typeof account.id_token !== "string") {
+        return false;
+      }
+
+      const decodedToken = jwtDecode<DecodedToken>(account.id_token);
+      const AUTH_ISSUER_URL = process.env.AUTH_NHSLOGIN_ISSUER_URL;
+      const AUTH_CLIENT_ID = process.env.AUTH_NHSLOGIN_CLIENT_ID;
+
+      const { iss, aud, identity_proofing_level } = decodedToken;
+
+      const isValidToken =
+        iss === AUTH_ISSUER_URL &&
+        aud === AUTH_CLIENT_ID &&
+        identity_proofing_level === "P9";
+
+      return isValidToken;
+    },
+    async jwt({ token, account, profile }) {
+      if (account?.access_token) {
+        try {
+          const response = await fetch(
+            `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${account.access_token}`,
+              },
+            }
+          );
+          profile = await response.json();
+        } catch (error) {
+          logger.error("Error fetching userinfo:", error);
         }
+      }
+      if (account && profile && account.access_token) {
+        const participantId = await fetchParticipantId(account.access_token);
 
-        const decodedToken = jwtDecode<DecodedToken>(account.id_token);
-        const AUTH_ISSUER_URL = process.env.AUTH_NHSLOGIN_ISSUER_URL;
-        const AUTH_CLIENT_ID = process.env.AUTH_NHSLOGIN_CLIENT_ID;
+        return {
+          ...token,
+          accessToken: account.access_token,
+          expiresAt: account.expires_at,
+          refreshToken: account.refresh_token,
+          firstName: profile.given_name,
+          lastName: profile.family_name,
+          birthDate: profile.birthdate,
+          nhsNumber: profile.nhs_number,
+          identityLevel: profile.identity_proofing_level,
+          participantId: participantId,
+        };
+      } else if (Date.now() < (token.expiresAt as number) * 1000) {
+        return token;
+      } else {
+        try {
+          logger.info("Attempting to retrieve new access token");
+          const clientAssertion = await generateClientAssertion(
+            await pemToPrivateKey()
+          );
+          const requestBody = {
+            grant_type: "refresh_token",
+            refresh_token: token.refreshToken as string,
+            client_assertion_type:
+              "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            client_assertion: clientAssertion,
+          };
 
-        const { iss, aud, identity_proofing_level } = decodedToken;
+          const response = await fetch(
+            `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
+            {
+              method: "POST",
+              body: new URLSearchParams(requestBody),
+            }
+          );
+          const tokensOrError = await response.json();
 
-        const isValidToken =
-          iss === AUTH_ISSUER_URL &&
-          aud === AUTH_CLIENT_ID &&
-          identity_proofing_level === "P9";
+          if (!response.ok) throw tokensOrError;
 
-        return isValidToken;
-      },
-      async jwt({ token, account, profile }) {
-        if (account?.access_token) {
-          try {
-            const response = await fetch(
-              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${account.access_token}`,
-                },
-              }
-            );
-            profile = await response.json();
-          } catch (error) {
-            logger.error("Error fetching userinfo:", error);
-          }
-        }
-        if (account && profile && account.access_token) {
-          const participantId = await fetchParticipantId(account.access_token);
+          const newTokens = tokensOrError as {
+            access_token: string;
+            expires_in: number;
+            refreshToken?: string;
+          };
 
           return {
             ...token,
-            accessToken: account.access_token,
-            expiresAt: account.expires_at,
-            refreshToken: account.refresh_token,
-            firstName: profile.given_name,
-            lastName: profile.family_name,
-            birthDate: profile.birthdate,
-            nhsNumber: profile.nhs_number,
-            identityLevel: profile.identity_proofing_level,
-            participantId: participantId,
+            accessToken: newTokens.access_token,
+            expiresAt: Math.floor(Date.now() / 1000 + newTokens.expires_in),
+            refreshToken: newTokens.refreshToken
+              ? newTokens.refreshToken
+              : token.refreshToken,
           };
-        } else if (Date.now() < (token.expiresAt as number) * 1000) {
-          return token;
-        } else {
-          try {
-            logger.info("Attempting to retrieve new access token");
-            const clientAssertion = await generateClientAssertion(
-              await pemToPrivateKey()
-            );
-            const requestBody = {
-              grant_type: "refresh_token",
-              refresh_token: token.refreshToken as string,
-              client_assertion_type:
-                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-              client_assertion: clientAssertion,
-            };
-
-            const response = await fetch(
-              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/token`,
-              {
-                method: "POST",
-                body: new URLSearchParams(requestBody),
-              }
-            );
-            const tokensOrError = await response.json();
-
-            if (!response.ok) throw tokensOrError;
-
-            const newTokens = tokensOrError as {
-              access_token: string;
-              expires_in: number;
-              refreshToken?: string;
-            };
-
-            return {
-              ...token,
-              accessToken: newTokens.access_token,
-              expiresAt: Math.floor(Date.now() / 1000 + newTokens.expires_in),
-              refreshToken: newTokens.refreshToken
-                ? newTokens.refreshToken
-                : token.refreshToken,
-            };
-          } catch (error) {
-            logger.error("Error refreshing access_token", error);
-            //Returning null here, which effectively blats the session.
-            return null;
-          }
+        } catch (error) {
+          logger.error("Error refreshing access_token", error);
+          //Returning null here, which effectively blats the session.
+          return null;
         }
-      },
-      async session({ session, token }) {
-        if (session.user) {
-          const {
-            firstName,
-            lastName,
-            nhsNumber,
-            identityLevel,
-            accessToken,
-            refreshToken,
-            expiresAt,
-            participantId,
-          } = token;
+      }
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        const {
+          firstName,
+          lastName,
+          nhsNumber,
+          identityLevel,
+          accessToken,
+          refreshToken,
+          expiresAt,
+          participantId,
+        } = token;
 
-          Object.assign(session.user, {
-            firstName,
-            lastName,
-            nhsNumber,
-            identityLevel,
-            accessToken,
-            refreshToken,
-            expiresAt,
-            participantId,
-          });
-        }
-        session.error = token.error as "RefreshTokenError" | undefined;
-        return session;
-      },
+        Object.assign(session.user, {
+          firstName,
+          lastName,
+          nhsNumber,
+          identityLevel,
+          accessToken,
+          refreshToken,
+          expiresAt,
+          participantId,
+        });
+      }
+      session.error = token.error as "RefreshTokenError" | undefined;
+      return session;
     },
-    events: {
-      async session({ session }) {
-        const maxAge = 1800; // 30 minutes [Recommended by NHS login]
-        const now = Math.floor(Date.now() / 1000);
-        session.expires = new Date((now + maxAge) * 1000).toISOString();
-      },
+  },
+  events: {
+    async session({ session }) {
+      const maxAge = 1800; // 30 minutes [Recommended by NHS login]
+      const now = Math.floor(Date.now() / 1000);
+      session.expires = new Date((now + maxAge) * 1000).toISOString();
     },
-    pages: {
-      signIn: "/",
-      signOut: "/",
-      error: "/error",
-    },
-  });
-}
+  },
+  pages: {
+    signIn: "/",
+    signOut: "/",
+    error: "/error",
+  },
+});
