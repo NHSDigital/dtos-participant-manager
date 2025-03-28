@@ -1,6 +1,8 @@
-﻿using System.Text.Json;
+using System.Net;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 using ParticipantManager.API.Models;
 using ParticipantManager.Shared.DTOs;
 
@@ -12,7 +14,7 @@ public class CrudApiClientTests
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private readonly HttpClient _httpClient;
     private readonly CrudApiClient _client;
-    private readonly Guid participantId = Guid.NewGuid();
+    private readonly Guid _participantId = Guid.NewGuid();
 
     public CrudApiClientTests()
     {
@@ -56,11 +58,11 @@ public class CrudApiClientTests
         };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Get,
-            $"/api/pathwaytypeenrolments?participantId={participantId}",
+            $"/api/pathwaytypeenrolments?participantId={_participantId}",
             expectedEnrolments);
 
         // Act
-        var result = await _client.GetPathwayEnrolmentsAsync(participantId);
+        var result = await _client.GetPathwayEnrolmentsAsync(_participantId);
 
         // Assert
         Assert.NotNull(result);
@@ -74,16 +76,16 @@ public class CrudApiClientTests
     {
         // Arrange
         _mockHttpMessageHandler.SetupRequest<List<PathwayEnrolmentDto>>(HttpMethod.Get,
-            $"/api/pathwaytypeenrolments?participantId={participantId}",
+            $"/api/pathwaytypeenrolments?participantId={_participantId}",
             null!);
 
         // Act
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentsAsync(participantId));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentsAsync(_participantId));
 
         // Assert
         Assert.NotNull(ex.InnerException);
         Assert.IsType<InvalidOperationException>(ex.InnerException);
-        Assert.Contains($"Deserialization returned null for: /api/pathwaytypeenrolments?participantId={participantId}", ex.InnerException.Message);
+        Assert.Contains($"Deserialization returned null for: /api/pathwaytypeenrolments?participantId={_participantId}", ex.InnerException.Message);
     }
 
     [Fact]
@@ -105,14 +107,31 @@ public class CrudApiClientTests
         };
 
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Get,
-            $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}", expectedEnrolment);
+            $"/api/participants/{_participantId}/pathwaytypeenrolments/{enrolmentId}", expectedEnrolment);
 
         // Act
-        var result = await _client.GetPathwayEnrolmentByIdAsync(participantId, enrolmentId);
+        var result = await _client.GetPathwayEnrolmentByIdAsync(_participantId, enrolmentId);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(enrolmentId, result.EnrolmentId);
+    }
+
+    [Fact]
+    public async Task GetPathwayEnrolmentByIdAsync_ShouldThrowInvalidOperationException_WhenEnrolmentNotFound()
+    {
+        // Arrange
+        var enrolmentId = Guid.NewGuid();
+        var uri = $"/api/participants/{_participantId}/pathwaytypeenrolments/{enrolmentId}";
+        _mockHttpMessageHandler.SetupRequest(HttpMethod.Get, uri, HttpStatusCode.NotFound);
+
+        // Act
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentByIdAsync(_participantId, enrolmentId));
+
+        // Assert
+        Assert.NotNull(ex.InnerException);
+        Assert.IsType<HttpRequestException>(ex.InnerException);
+        Assert.Contains($"Error occurred whilst making request or deserialising object: {uri}", ex.Message);
     }
 
     [Fact]
@@ -134,6 +153,54 @@ public class CrudApiClientTests
     }
 
     [Fact]
+    public async Task GetParticipantByNhsNumberAsync_ShouldReturnNull_WhenNotFound()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        _mockHttpMessageHandler.SetupRequest<ParticipantDto?>(HttpMethod.Get, $"/api/participants?nhsNumber={nhsNumber}",
+            null, HttpStatusCode.NotFound);
+
+        // Act
+        var result = await _client.GetParticipantByNhsNumberAsync(nhsNumber);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Participant with NhsNumber: ")
+                    && v.ToString()!.EndsWith(" not found")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetParticipantByNhsNumberAsync_ShouldReturnNull_WhenExceptionIsThrown()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        _mockHttpMessageHandler.SetupRequestException<TaskCanceledException>(HttpMethod.Get, $"/api/participants?nhsNumber={nhsNumber}");
+
+        // Act
+        var result = await _client.GetParticipantByNhsNumberAsync(nhsNumber);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.StartsWith($"{nameof(_client.GetParticipantByNhsNumberAsync)} failed to get Participant with")),
+                It.IsAny<TaskCanceledException>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task CreateParticipantAsync_ShouldReturnParticipantId_WhenSuccessful()
     {
         // Arrange
@@ -148,6 +215,56 @@ public class CrudApiClientTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(responseDto.ParticipantId, result);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    public async Task CreateParticipantAsync_ShouldLogErrorAndReturnNull_WhenRequestFails(HttpStatusCode httpStatusCode)
+    {
+        // Arrange
+        var participantDto = new ParticipantDto { NhsNumber = "1234567890", Name = "Test User" };
+
+        _mockHttpMessageHandler.SetupRequest<ParticipantDto?>(HttpMethod.Post, "/api/participants", null!, httpStatusCode);
+
+        // Act
+        var result = await _client.CreateParticipantAsync(participantDto);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.StartsWith("Participant with NhsNumber: ")
+                    && v.ToString()!.EndsWith(" not created")),
+                It.IsAny<HttpRequestException>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task CreateParticipantAsync_ShouldLogErrorAndReturnNull_WhenExceptionOccurs()
+    {
+        // Arrange
+        var participantDto = new ParticipantDto { NhsNumber = "1234567890", Name = "Test User" };
+
+        _mockHttpMessageHandler.SetupRequestException<TaskCanceledException>(HttpMethod.Post, "/api/participants");
+
+        // Act
+        var result = await _client.CreateParticipantAsync(participantDto);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains($"{nameof(_client.CreateParticipantAsync)} failure in response")),
+                It.IsAny<TaskCanceledException>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        Assert.Null(result);
     }
 
     [Fact]
@@ -168,5 +285,36 @@ public class CrudApiClientTests
 
         // Assert
         Assert.True(result);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    public async Task CreatePathwayTypeEnrolmentAsync_ShouldReturnFalse_WhenRequestFails(HttpStatusCode httpStatusCode)
+    {
+        // Arrange
+        var enrolmentDto = new CreatePathwayTypeEnrolmentDto
+        {
+            ParticipantId = Guid.NewGuid(),
+            PathwayTypeName = "Test Pathway",
+            ScreeningName = "Test Screening Name"
+        };
+
+        _mockHttpMessageHandler.SetupRequest<PathwayTypeEnrolment>(HttpMethod.Post, "/api/pathwaytypeenrolment", null!, httpStatusCode);
+
+        // Act
+        var result = await _client.CreatePathwayTypeEnrolmentAsync(enrolmentDto);
+
+        // Assert
+        _mockLogger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.StartsWith($"Failed to create Enrolment for Participant: {enrolmentDto.ParticipantId}, on Pathway: {enrolmentDto.PathwayTypeName}")),
+                It.IsAny<HttpRequestException>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.Once);
+        Assert.False(result);
     }
 }
