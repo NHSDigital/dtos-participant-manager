@@ -45,13 +45,13 @@ var host = new HostBuilder()
 
         services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
+            client.BaseAddress = new Uri(EnvironmentVariables.GetRequired("CRUD_API_URL") ?? string.Empty);
         }).AddHttpMessageHandler<CorrelationIdHandler>();
 
         services.AddSingleton<IJwksProvider>(provider =>
         {
             var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
-            var issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL");
+            var issuer = EnvironmentVariables.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
             return new JwksProvider(logger, issuer);
         });
 
