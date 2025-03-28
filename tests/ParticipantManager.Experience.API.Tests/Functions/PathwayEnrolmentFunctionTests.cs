@@ -10,7 +10,7 @@ using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.Experience.API.Tests;
+namespace ParticipantManager.Experience.API.Tests.Functions;
 
 public class PathwayEnrolmentFunctionTests
 {
@@ -102,7 +102,7 @@ public class PathwayEnrolmentFunctionTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_NhsNumberDoesNotMatch_ReturnsUnauthorized()
+    public async Task GetPathwayEnrolmentById_NhsNumberDoesNotMatch_ReturnsForbidden()
     {
         // Arrange
         var claims = new List<Claim>
@@ -120,10 +120,11 @@ public class PathwayEnrolmentFunctionTests
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
+            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId);
 
         // Assert
-        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+        Assert.NotNull(response);
+        Assert.IsType<ForbidResult>(response);
     }
 
     [Fact]
@@ -230,6 +231,7 @@ public class PathwayEnrolmentFunctionTests
             NextActionDate = DateTime.Now,
             Participant = new ParticipantDto
             {
+                Name = "John Doe",
                 NhsNumber = "1234567890"
             }
         };

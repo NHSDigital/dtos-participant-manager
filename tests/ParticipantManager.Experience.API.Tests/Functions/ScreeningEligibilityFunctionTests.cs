@@ -10,7 +10,7 @@ using ParticipantManager.Experience.API.Services;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
 
-namespace ParticipantManager.Experience.API.Tests;
+namespace ParticipantManager.Experience.API.Tests.Functions;
 
 public class ScreeningEligibilityFunctionTests
 {
@@ -124,7 +124,7 @@ public class ScreeningEligibilityFunctionTests
     }
 
     [Fact]
-    public async Task GetScreeningEligibility_NhsNumberDoesNotMatch_ReturnsUnauthorized()
+    public async Task GetScreeningEligibility_NhsNumberDoesNotMatch_ReturnsForbidden()
     {
         // Arrange
         var claims = new List<Claim>
@@ -141,10 +141,11 @@ public class ScreeningEligibilityFunctionTests
             .ReturnsAsync(AccessTokenResult.Success(principal));
 
         // Act
-        var response = await _function.GetScreeningEligibility(_request, _participantId) as UnauthorizedResult;
+        var response = await _function.GetScreeningEligibility(_request, _participantId);
 
         // Assert
-        Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
+        Assert.NotNull(response);
+        Assert.IsType<ForbidResult>(response);
     }
 
     [Fact]
@@ -248,6 +249,7 @@ public class ScreeningEligibilityFunctionTests
                 ScreeningName = "BreastScreening",
                 Participant = new ParticipantDto
                 {
+                    Name = "John Doe",
                     NhsNumber = "12345678",
                 }
             },
@@ -257,6 +259,7 @@ public class ScreeningEligibilityFunctionTests
                 ScreeningName = "BowelScreening",
                 Participant = new ParticipantDto
                 {
+                    Name = "John Doe",
                     NhsNumber = "12345678",
                 }
             }

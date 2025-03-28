@@ -8,12 +8,11 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using ParticipantManager.API.Data;
+using ParticipantManager.Shared;
 using ParticipantManager.Shared.Extensions;
 
-var appInsightsConnectionString =
-    Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
-var databaseConnectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
-
+var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+var databaseConnectionString = EnvironmentVariables.GetRequired("ParticipantManagerDatabaseConnectionString");
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -33,8 +32,7 @@ var host = new HostBuilder()
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorMetricExporter(options =>
                 {
-                    options.ConnectionString =
-                        Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                    options.ConnectionString = appInsightsConnectionString;
                 }));
 
         services.AddSingleton(new JsonSerializerOptions

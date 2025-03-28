@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -19,11 +19,12 @@ public class PathwayTypeEnrolmentFunctions(
     [Function("GetPathwayTypeEnrolmentsByParticipantId")]
     public async Task<IActionResult> GetPathwayTypeEnrolmentsByParticipantId(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "pathwaytypeenrolments")]
-        HttpRequest req)
+        HttpRequestData req)
     {
         logger.LogInformation($"{nameof(GetPathwayTypeEnrolmentsByParticipantId)} processed a request.");
 
-        var participantId = req.Query["participantId"].ToString();
+        var queryParams = HttpUtility.ParseQueryString(req.Url.Query);
+        var participantId = queryParams["participantId"];
 
         if (string.IsNullOrEmpty(participantId)) return new BadRequestObjectResult("Missing ParticipantId");
 
@@ -43,7 +44,8 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId,
+                    NhsNumber = p.Participant!.NhsNumber,
+                    ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
             })
@@ -76,7 +78,8 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber, ParticipantId = p.Participant.ParticipantId,
+                    NhsNumber = p.Participant!.NhsNumber,
+                    ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
             }).FirstOrDefaultAsync();
