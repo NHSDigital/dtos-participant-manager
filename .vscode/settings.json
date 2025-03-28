@@ -9,5 +9,5 @@
     "**/node_modules/**": true
   },
   "cSpell.language": "en,en-GB",
-  "cSpell.words": ["Nygard", "Pryce's"]
+  "cSpell.words": ["Eventgrid", "eventhandlers", "Nygard", "Pryce's"]
 }

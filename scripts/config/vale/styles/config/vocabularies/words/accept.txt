@@ -21,3 +21,6 @@ pnpm
 sqlcmd
 Nygard
 Pryce's
+Eventgrid
+eventhandlers
+adr
