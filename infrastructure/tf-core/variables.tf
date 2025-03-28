@@ -433,7 +433,7 @@ variable "sqlserver" {
 
     # Database
     dbs = optional(map(object({
-      db_name_suffix = optional(string, "serins")
+      db_name_suffix = optional(string, "participant_database")
       collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
       licence_type   = optional(string, "LicenseIncluded")
       max_gb         = optional(number, 5)
