@@ -38,4 +38,17 @@ public static class HttpMessageHandlerExtensions
 
         return mock;
     }
+
+    public static Mock<HttpMessageHandler> SetupRequestException<TException>(this Mock<HttpMessageHandler> mock, HttpMethod method,
+        string url) where TException : Exception, new()
+    {
+        mock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Method == method && req.RequestUri != null && req.RequestUri.PathAndQuery.Contains(url)),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new TException());
+        return mock;
+    }
 }

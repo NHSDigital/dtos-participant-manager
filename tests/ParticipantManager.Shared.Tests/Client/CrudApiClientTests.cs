@@ -183,13 +183,7 @@ public class CrudApiClientTests
         // Arrange
         var nhsNumber = "1234567890";
 
-        _mockHttpMessageHandler.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Get && req.RequestUri != null && req.RequestUri.PathAndQuery.Contains($"/api/participants?nhsNumber={nhsNumber}")),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ThrowsAsync(new TaskCanceledException());
+        _mockHttpMessageHandler.SetupRequestException<TaskCanceledException>(HttpMethod.Get, $"/api/participants?nhsNumber={nhsNumber}");
 
         // Act
         var result = await _client.GetParticipantByNhsNumberAsync(nhsNumber);
@@ -256,13 +250,7 @@ public class CrudApiClientTests
         // Arrange
         var participantDto = new ParticipantDto { NhsNumber = "1234567890", Name = "Test User" };
 
-        _mockHttpMessageHandler.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Post && req.RequestUri != null && req.RequestUri.PathAndQuery.Contains("/api/participants")),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ThrowsAsync(new TaskCanceledException());
+        _mockHttpMessageHandler.SetupRequestException<TaskCanceledException>(HttpMethod.Post, "/api/participants");
 
         // Act
         var result = await _client.CreateParticipantAsync(participantDto);
