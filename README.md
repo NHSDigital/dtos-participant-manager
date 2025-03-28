@@ -24,11 +24,11 @@ The project consists of a number of Azure functions and a user-interface built i
 
 ## Background
 
-The participant manager was born out of the work done by the VSCR (Vaccinations and Screening Record) team, that identified the need for presenting both vaccination and screening record data in the NHS App. This repository covers the web front end used to surface the Screening record information. This will eventually be made available within the NHS App via a silver party integration pattern.
+The participant manager was born out of the work done by the VSCR (Vaccinations and Screening Record) team, that identified the need for presenting both vaccination and screening record data in the NHS App. This repository covers the web front end used to surface the Screening record information. This will eventually be made available within the NHS App via a web integration pattern.
 
 ## Solution Architecture
 
-The detail solution architecture can be found [here](/docs/solution-design)
+The detailed solution architecture can be found [here](/docs/solution-design)
 
 ## Decision Records
 
