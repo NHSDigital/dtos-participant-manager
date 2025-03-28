@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using ParticipantManager.Shared;
 using HttpRequestData = Microsoft.Azure.Functions.Worker.Http.HttpRequestData;
 
 namespace ParticipantManager.Experience.API.Services;
@@ -13,8 +14,10 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
 {
     private const string AuthHeaderName = "Authorization";
     private const string BearerPrefix = "Bearer ";
-    private readonly string _audience = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_CLIENT_ID") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_CLIENT_ID environment variable is missing.");
-    private readonly string _issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL") ?? throw new InvalidOperationException("AUTH_NHSLOGIN_ISSUER_URL environment variable is missing.");
+
+    private readonly string _audience = EnvironmentVariables.GetRequired("AUTH_NHSLOGIN_CLIENT_ID");
+
+    private readonly string _issuer = EnvironmentVariables.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
 
     public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
     {
