@@ -70,5 +70,3 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
         }
     }
 }
-
-
