@@ -12,8 +12,7 @@ using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
 
-var appInsightsConnectionString =
-    Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
+var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -34,8 +33,7 @@ var host = new HostBuilder()
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorMetricExporter(options =>
                 {
-                    options.ConnectionString =
-                        Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                    options.ConnectionString = appInsightsConnectionString;
                 }));
 
         services.AddHttpContextAccessor();
@@ -48,20 +46,18 @@ var host = new HostBuilder()
 
         services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
+            client.BaseAddress = new Uri(EnvironmentVariables.GetRequired("CRUD_API_URL"));
         }).AddHttpMessageHandler<CorrelationIdHandler>();
         services.AddSingleton(sp =>
         {
-            if (HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
+            var endpoint = new Uri(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_URL"));
+            if (context.HostingEnvironment.IsDevelopment())
             {
-                var credentials =
-                    new Azure.AzureKeyCredential(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_KEY"));
-                return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")),
-                    credentials);
+                var credentials = new Azure.AzureKeyCredential(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_KEY"));
+                return new EventGridPublisherClient(endpoint, credentials);
             }
 
-            return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")),
-                new ManagedIdentityCredential());
+            return new EventGridPublisherClient(endpoint, new ManagedIdentityCredential());
         });
     })
     .ConfigureSerilogLogging(appInsightsConnectionString)
