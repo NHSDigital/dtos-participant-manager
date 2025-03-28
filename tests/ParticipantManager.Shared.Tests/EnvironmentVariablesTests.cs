@@ -1,8 +1,6 @@
-using ParticipantManager.Shared;
-
 namespace ParticipantManager.Shared;
 
-public class EnvironmentVariableHelperTests
+public class EnvironmentVariablesTests
 {
     private const string TestKey = "TEST_ENV_VAR";
 
@@ -10,11 +8,11 @@ public class EnvironmentVariableHelperTests
     public void GetRequired_ReturnsValue_WhenVariableIsSet()
     {
         // Arrange
-        var expected = "SomeValue";
+        const string expected = "SomeValue";
         Environment.SetEnvironmentVariable(TestKey, expected);
 
         // Act
-        var result = EnvironmentVariableHelper.GetRequired(TestKey);
+        var result = EnvironmentVariables.GetRequired(TestKey);
 
         // Assert
         Assert.Equal(expected, result);
@@ -28,7 +26,7 @@ public class EnvironmentVariableHelperTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            EnvironmentVariableHelper.GetRequired(TestKey));
+            EnvironmentVariables.GetRequired(TestKey));
 
         Assert.Contains($"Environment variable '{TestKey}' is not set", exception.Message);
     }
@@ -41,7 +39,7 @@ public class EnvironmentVariableHelperTests
 
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() =>
-            EnvironmentVariableHelper.GetRequired(TestKey));
+            EnvironmentVariables.GetRequired(TestKey));
 
         Assert.Contains($"Environment variable '{TestKey}' is not set", exception.Message);
     }

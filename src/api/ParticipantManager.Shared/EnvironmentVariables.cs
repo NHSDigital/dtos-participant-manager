@@ -1,8 +1,6 @@
-using System;
-
 namespace ParticipantManager.Shared;
 
-public static class EnvironmentVariableHelper
+public static class EnvironmentVariables
 {
     /// <summary>
     /// Gets an environment variable by name. Throws if not found.

@@ -12,7 +12,7 @@ using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
 
-var appInsightsConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -46,14 +46,14 @@ var host = new HostBuilder()
 
         services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
         {
-            client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL"));
+            client.BaseAddress = new Uri(EnvironmentVariables.GetRequired("CRUD_API_URL"));
         }).AddHttpMessageHandler<CorrelationIdHandler>();
         services.AddSingleton(sp =>
         {
-            var endpoint = new Uri(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_URL"));
+            var endpoint = new Uri(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_URL"));
             if (context.HostingEnvironment.IsDevelopment())
             {
-                var credentials = new Azure.AzureKeyCredential(EnvironmentVariableHelper.GetRequired("EVENT_GRID_TOPIC_KEY"));
+                var credentials = new Azure.AzureKeyCredential(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_KEY"));
                 return new EventGridPublisherClient(endpoint, credentials);
             }
 
