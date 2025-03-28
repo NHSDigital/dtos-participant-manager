@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Header from "@/app/components/header";
-import { getAuthConfig } from "@/app/lib/auth";
+import { auth } from "@/app/lib/auth";
 
 // Mock Next.js navigation and form action
 jest.mock("next/navigation", () => ({
@@ -12,7 +12,7 @@ jest.mock("next/navigation", () => ({
 
 // Mock the auth module
 jest.mock("@/app/lib/auth", () => ({
-  getAuthConfig: jest.fn(),
+  auth: jest.fn(),
 }));
 
 describe("Header", () => {
@@ -31,9 +31,7 @@ describe("Header", () => {
   });
 
   it("renders header with service name", async () => {
-    (getAuthConfig as jest.Mock).mockResolvedValue({
-      auth: jest.fn().mockResolvedValue(null),
-    });
+    (auth as jest.Mock).mockResolvedValue(null);
 
     render(await Header({}));
 
@@ -48,9 +46,7 @@ describe("Header", () => {
     };
 
     beforeEach(() => {
-      (getAuthConfig as jest.Mock).mockResolvedValue({
-        auth: jest.fn().mockResolvedValue({ user: mockUser }),
-      });
+      (auth as jest.Mock).mockResolvedValue({ user: mockUser });
     });
 
     it("displays user name", async () => {
@@ -85,9 +81,7 @@ describe("Header", () => {
 
   describe("when user is not authenticated", () => {
     beforeEach(() => {
-      (getAuthConfig as jest.Mock).mockResolvedValue({
-        auth: jest.fn().mockResolvedValue(null),
-      });
+      (auth as jest.Mock).mockResolvedValue(null);
     });
 
     it("does not display account navigation", async () => {
@@ -102,9 +96,7 @@ describe("Header", () => {
   });
 
   it("uses custom service name when provided", async () => {
-    (getAuthConfig as jest.Mock).mockResolvedValue({
-      auth: jest.fn().mockResolvedValue(null),
-    });
+    (auth as jest.Mock).mockResolvedValue(null);
 
     const customServiceName = "Custom Service";
     render(await Header({ serviceName: customServiceName }));

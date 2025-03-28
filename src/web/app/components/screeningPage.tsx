@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
-import { getAuthConfig } from "@/app/lib/auth";
+import { auth } from "@/app/lib/auth";
 import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
 import { logger } from "@/app/lib/logger";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -40,7 +40,6 @@ export default async function ScreeningPage({
   screeningType,
   params,
 }: ScreeningPageProps & { params: Promise<{ enrolmentId: string }> }) {
-  const { auth } = await getAuthConfig();
   const session = await auth();
   const breadcrumbItems = [{ label: "Home", url: "/screening" }];
   const resolvedParams = await params;

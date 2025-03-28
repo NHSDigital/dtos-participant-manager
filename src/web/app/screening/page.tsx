@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAuthConfig } from "@/app/lib/auth";
+import { auth } from "@/app/lib/auth";
 import { getEligibility } from "@/app/lib/getEligibility";
 import ScreeningList from "@/app/components/screeningList";
 
@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const { auth } = await getAuthConfig();
   const session = await auth();
   const eligibility = session?.user ? await getEligibility(session) : null;
 

@@ -1,9 +1,8 @@
-import { getAuthConfig } from "@/app/lib/auth";
+import { signIn } from "@/app/lib/auth";
 import styles from "@/app/styles/components/signIn.module.scss";
 
 async function handleSignIn() {
   "use server";
-  const { signIn } = await getAuthConfig();
   await signIn("nhs-login", { redirectTo: "/screening" });
 }
 
