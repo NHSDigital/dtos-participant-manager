@@ -13,19 +13,19 @@ public class CrudApiClient(
     public async Task<List<PathwayEnrolmentDto>> GetPathwayEnrolmentsAsync(Guid participantId)
     {
         logger.LogInformation("GetPathwayEnrolmentsAsync");
-        var url = $"/api/pathwaytypeenrolments?participantId={participantId}";
+        var uri = $"/api/pathwaytypeenrolments?participantId={participantId}";
 
         try
         {
-            var response = await httpClient.GetAsync(url);
+            var response = await httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<PathwayEnrolmentDto>>(jsonSerializerOptions)
-                ?? throw new InvalidOperationException($"Deserialization returned null for: {url}");
+                ?? throw new InvalidOperationException($"Deserialization returned null for: {uri}");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "GetPathwayEnrolmentsAsync");
-            throw new InvalidOperationException($"Error occurred whilst making request or deserialising object: {url}",
+            throw new InvalidOperationException($"Error occurred whilst making request or deserialising object: {uri}",
                 ex);
         }
     }
@@ -33,11 +33,11 @@ public class CrudApiClient(
     public async Task<EnrolledPathwayDetailsDto?> GetPathwayEnrolmentByIdAsync(Guid participantId, Guid enrolmentId)
     {
         logger.LogInformation("GetPathwayEnrolmentByIdAsync");
-        var url = $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}";
+        var uri = $"/api/participants/{participantId}/pathwaytypeenrolments/{enrolmentId}";
 
         try
         {
-            var response = await httpClient.GetAsync(url);
+            var response = await httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<EnrolledPathwayDetailsDto>(jsonSerializerOptions);
@@ -45,7 +45,7 @@ public class CrudApiClient(
         catch (Exception ex)
         {
             logger.LogError(ex, "GetPathwayEnrolmentByIdAsync");
-            throw new InvalidOperationException($"Error occurred whilst making request or deserialising object: {url}",
+            throw new InvalidOperationException($"Error occurred whilst making request or deserialising object: {uri}",
                 ex);
         }
     }
@@ -53,9 +53,11 @@ public class CrudApiClient(
     public async Task<ParticipantDto?> GetParticipantByNhsNumberAsync(string nhsNumber)
     {
         logger.LogInformation($"Running {nameof(GetParticipantByNhsNumberAsync)}");
+        var uri = $"/api/participants?nhsNumber={nhsNumber}";
+
         try
         {
-            var response = await httpClient.GetAsync($"/api/participants?nhsNumber={nhsNumber}");
+            var response = await httpClient.GetAsync(uri);
             logger.LogInformation("Get Participant with NhsNumber: {@NhsNumber}", new { nhsNumber });
 
             if (!response.IsSuccessStatusCode)
@@ -64,7 +66,8 @@ public class CrudApiClient(
                 return null;
             }
 
-            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(jsonSerializerOptions);
+            var participant = await response.Content.ReadFromJsonAsync<ParticipantDto>(jsonSerializerOptions)
+                ?? throw new InvalidOperationException($"Deserialization returned null for: {uri}");
 
             logger.LogInformation("Participant with NhsNumber: {@NhsNumber} found", new { nhsNumber });
             return participant;
@@ -80,10 +83,11 @@ public class CrudApiClient(
     public async Task<Guid?> CreateParticipantAsync(ParticipantDto participantDto)
     {
         logger.LogInformation($"Running {nameof(CreateParticipantAsync)}");
+        var uri = "/api/participants";
 
         try
         {
-            var response = await httpClient.PostAsJsonAsync($"/api/participants", participantDto);
+            var response = await httpClient.PostAsJsonAsync(uri, participantDto);
             response.EnsureSuccessStatusCode();
 
             logger.LogInformation("Participant with NhsNumber: {@NhsNumber} created", new { participantDto.NhsNumber });
@@ -108,20 +112,21 @@ public class CrudApiClient(
     public async Task<bool> CreatePathwayTypeEnrolmentAsync(CreatePathwayTypeEnrolmentDto pathwayTypeEnrolmentDto)
     {
         logger.LogInformation($"Running {nameof(CreatePathwayTypeEnrolmentAsync)}");
+        var uri = "/api/pathwaytypeenrolment";
 
         try
         {
-            var response = await httpClient.PostAsJsonAsync($"/api/pathwaytypeenrolment", pathwayTypeEnrolmentDto);
+            var response = await httpClient.PostAsJsonAsync(uri, pathwayTypeEnrolmentDto);
             response.EnsureSuccessStatusCode();
-            logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayName}",
+            logger.LogInformation("Enrolment created for Participant: {ParticipantId}, on Pathway: {PathwayTypeName}",
                 pathwayTypeEnrolmentDto.ParticipantId, pathwayTypeEnrolmentDto.PathwayTypeName);
             return true;
         }
         catch (Exception ex)
         {
             logger.LogError(ex,
-                "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayName}",
-                new { pathwayTypeEnrolmentDto.ParticipantId }, pathwayTypeEnrolmentDto.PathwayTypeName);
+                "Failed to create Enrolment for Participant: {ParticipantId}, on Pathway: {PathwayTypeName}",
+                pathwayTypeEnrolmentDto.ParticipantId, pathwayTypeEnrolmentDto.PathwayTypeName);
             return false;
         }
     }

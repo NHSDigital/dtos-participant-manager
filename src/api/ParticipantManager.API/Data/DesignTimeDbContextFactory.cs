@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace ParticipantManager.API.Data;
 
@@ -8,7 +7,6 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
 {
     public ParticipantManagerDbContext CreateDbContext(string[] args)
     {
-        // Build configuration to access appsettings.json or environment variables
         var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
         if (string.IsNullOrEmpty(connectionString))
         {
