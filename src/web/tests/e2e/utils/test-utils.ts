@@ -45,17 +45,38 @@ export class TestUtils {
   }
 
   static async setupTestData() {
-    // TODO: Add test data setup SQL
     const setupSql = `
-      -- Add your test data setup SQL here
+      -- Create test user
+      INSERT INTO Users (Id, Email, FirstName, LastName, CreatedAt, UpdatedAt)
+      VALUES (
+        'test-user-id',
+        'test.user@example.com',
+        'Test',
+        'User',
+        GETUTCDATE(),
+        GETUTCDATE()
+      );
+
+      -- Create test enrolment
+      INSERT INTO Enrolments (Id, UserId, Status, CreatedAt, UpdatedAt)
+      VALUES (
+        'test-enrolment-id',
+        'test-user-id',
+        'Active',
+        GETUTCDATE(),
+        GETUTCDATE()
+      );
+
+      -- Add any additional test data as needed
     `;
     await this.executeSql(setupSql);
   }
 
   static async cleanupTestData() {
-    // TODO: Add test data cleanup SQL
     const cleanupSql = `
-      -- Add your test data cleanup SQL here
+      -- Clean up test data in reverse order of creation
+      DELETE FROM Enrolments WHERE Id = 'test-enrolment-id';
+      DELETE FROM Users WHERE Id = 'test-user-id';
     `;
     await this.executeSql(cleanupSql);
   }
