@@ -47,31 +47,32 @@ For the Alpha we have essentially 5 components: -
 
 - Single datastore with 3 tables within it
 
-```mermaid
+````mermaid
 erDiagram
-    PARTICIPANT ||--o{ ENROLLMENT : has
-    ENROLLMENT ||--o{ EPISODE : includes
+    PARTICIPANT ||--o{ PATHWAY_TYPE_ENROLMENT : has
+    PATHWAY_TYPE_ENROLMENT ||--o{ EPISODE : has
 
     PARTICIPANT {
-        uuid id PK
-        string name
-        date date_of_birth
+        Guid ParticipantId PK
+        string NhsNumber
+        date DateOfBirth
+        // other fields...
     }
 
-    ENROLLMENT {
-        uuid id PK
-        uuid participant_id FK
-        string program
-        date enrolled_at
+    PATHWAY_TYPE_ENROLMENT {
+        Guid EnrolmentId PK
+        Guid ParticipantId FK
+        string PathwayType
+        // other fields...
     }
 
     EPISODE {
-        uuid id PK
-        uuid enrollment_id FK
-        string status
-        date started_at
+        Guid EpisodeId PK
+        Guid EnrolmentId FK
+        string PathwayVersion
+        string Status
+        // other fields...
     }
-```
 
 - Database structure is managed using the Entity Framework Code First approach and therefore management of database schema changes is managed by Entity Framework
 
@@ -80,9 +81,54 @@ erDiagram
 - Invocation of functionality within Participant Manager is provided by invoking events. The Event handler here listens to events on a Product specific Service Bus
 - The event handler will talk to the Participant API to affect changes in the database layer
 
-### 3. Infrastructure
+## Sequence Diagrams
 
-The application is deployed using infrastructure as code (IaC) with Terraform:
+### User Logging In
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NextJS
+    participant NHSLogin
+    participant ExperienceAPI
+    participant ParticipantAPI
+    participant Database
+
+    activate User
+    User->>NextJS: Click "Continue to NHS login"
+    activate NextJS
+    NextJS->>NHSLogin: Redirect to NHS Login
+    activate NHSLogin
+    NHSLogin->>User: Show NHS Login page
+    User->>NHSLogin: Enter credentials
+    NHSLogin->>NHSLogin: Validate credentials
+    NHSLogin->>NextJS: Redirect with auth code
+    deactivate NHSLogin
+    NextJS->>NHSLogin: Exchange code for tokens
+    activate NHSLogin
+    NHSLogin->>NextJS: Return access_token & id_token
+    deactivate NHSLogin
+    NextJS->>NHSLogin: Request userinfo
+    activate NHSLogin
+    NHSLogin->>NextJS: Return user profile
+    deactivate NHSLogin
+    NextJS->>ExperienceAPI: Get participant ID
+    activate ExperienceAPI
+    ExperienceAPI->>ParticipantAPI: Get participant by NHS number
+    activate ParticipantAPI
+    ParticipantAPI->>Database: Query participant
+    activate Database
+    Database-->>ParticipantAPI: Return participant
+    deactivate Database
+    ParticipantAPI-->>ExperienceAPI: Return participant ID
+    deactivate ParticipantAPI
+    ExperienceAPI-->>NextJS: Return participant ID
+    deactivate ExperienceAPI
+    NextJS->>User: Show screening page
+    deactivate NextJS
+````
+
+### User retrieving eligibility data
 
 ## Architecture Patterns
 
@@ -105,23 +151,25 @@ The application is deployed using infrastructure as code (IaC) with Terraform:
 - External services are invoked using an Event Bases Architecture
 - Participant manager assumes that the sequencing of commands is important and will listen to events on a Service Bus queue
 
-## Security
+## Non Functional Aspects
 
-### 1. Authentication & Authorisation
+### 1. Security
+
+#### Authentication & Authorisation
 
 - Web user interface is secured using NHS Login and follows the OIDC Web Flow
 - Only P9 users can access the service as the data being presented is medically sensitive
 - The communication from the Nextjs application code to the Participant Experience API is secured using the Access Token provided by NHS Login
 - Access from the experience layer to the crud operations is secured using the in-built azure function level permissions
 
-### 2. Data Security
+#### Data Security
 
 - Encrypted data transmission
 - Secure storage of sensitive information
 - Regular security audits
 - Azure Key Vault integration
 
-## Monitoring & Logging
+### 2. Monitoring & Logging
 
 - Centralized logging system
 - Application monitoring
@@ -129,23 +177,27 @@ The application is deployed using infrastructure as code (IaC) with Terraform:
 - Azure Application Insights integration
 - Azure Functions monitoring
 
-## Scalability
+### 3.Scalability
 
 - Horizontal scaling of services
 - Load balancing
 - Caching strategies
 - Azure Functions scaling optimization
 
-## Performance
+### 4.Performance
 
 - Performance optimization
 - Caching implementation
 - Database optimization
 - Azure Functions performance tuning
 
-## Maintenance
+### 5.Maintenance
 
 - Regular security updates
 - Dependency management
 - Monitoring improvements
 - Azure Functions runtime updates
+
+```
+
+```
