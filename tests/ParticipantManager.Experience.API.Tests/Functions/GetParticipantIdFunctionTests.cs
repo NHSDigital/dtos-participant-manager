@@ -10,7 +10,7 @@ using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.DTOs;
 using ParticipantManager.TestUtils;
 
-namespace ParticipantManager.Experience.API.Tests;
+namespace ParticipantManager.Experience.API.Tests.Functions;
 
 public class GetParticipantIdFunctionTests
 {

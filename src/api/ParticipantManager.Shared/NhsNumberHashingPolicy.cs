@@ -1,8 +1,5 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using Serilog.Core;
-using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 
 namespace ParticipantManager.Shared;
@@ -11,8 +8,10 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
 {
     private const string NhsNumberPattern = @"\b\d{10}\b";
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromSeconds(5);
+
     private static readonly Regex NhsNumberRegex =
-        new(NhsNumberPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        new(NhsNumberPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.NonBacktracking, RegexTimeout);
 
     private static readonly bool DisableHashing =
         Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
@@ -44,27 +43,5 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
 
         result = new StructureValue(structureProperties);
         return true;
-    }
-}
-
-public static class DataMasking
-{
-    public static string HashNhsNumber(string nhsNumber)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            var bytes = Encoding.UTF8.GetBytes(nhsNumber);
-            var hashBytes = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hashBytes);
-        }
-    }
-}
-
-public class NhsNumberRegexMaskOperator : RegexMaskingOperator
-{
-    private const string NhsNumberPattern = @"\b\d{10}\b";
-
-    public NhsNumberRegexMaskOperator() : base(NhsNumberPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled)
-    {
     }
 }
