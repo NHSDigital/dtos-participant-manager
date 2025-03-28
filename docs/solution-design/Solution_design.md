@@ -47,7 +47,7 @@ For the Alpha we have essentially 5 components: -
 
 - Single datastore with 3 tables within it
 
-````mermaid
+```mermaid
 erDiagram
     PARTICIPANT ||--o{ PATHWAY_TYPE_ENROLMENT : has
     PATHWAY_TYPE_ENROLMENT ||--o{ EPISODE : has
@@ -70,6 +70,8 @@ erDiagram
         string PathwayVersion
         string Status
     }
+
+```
 
 - Database structure is managed using the Entity Framework Code First approach and therefore management of database schema changes is managed by Entity Framework
 
@@ -123,7 +125,7 @@ sequenceDiagram
     deactivate ExperienceAPI
     NextJS->>User: Show screening page
     deactivate NextJS
-````
+```
 
 ### User retrieving eligibility data
 
@@ -194,7 +196,3 @@ sequenceDiagram
 - Dependency management
 - Monitoring improvements
 - Azure Functions runtime updates
-
-```
-
-```
