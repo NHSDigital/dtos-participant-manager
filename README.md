@@ -11,6 +11,9 @@ The project consists of a number of Azure functions and a user-interface built i
 
 - [Manage your screening](#manage-your-screening)
   - [Table of Contents](#table-of-contents)
+  - [Background](#background)
+  - [Solution Architecture](#solution-architecture)
+  - [Decision Records](#decision-records)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
@@ -18,6 +21,26 @@ The project consists of a number of Azure functions and a user-interface built i
     - [Testing](#testing)
   - [Contact](#contact)
   - [Licence](#licence)
+
+## Background
+
+The participant manager was born out of the work done by the VSCR (Vaccinations and Screening Record) team, that identified the need for presenting both vaccination and screening record data in the NHS App. This repository covers the web front end used to surface the Screening record information. This will eventually be made available within the NHS App via a web integration pattern.
+
+## Solution Architecture
+
+The detailed solution architecture can be found [here](/docs/solution-design)
+
+## Decision Records
+
+All key decision records are covered in the ADR section [here](/docs/adr/). These are intentionally supposed to be lightweight choices the team have made within the engineering red lines, following the Michael Nygard [format](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) . Anything that steps outside of that has been covered in the internal confluence [site](https://nhsd-confluence.digital.nhs.uk/display/DTS/Architecture+Decisions+-+January+2024+onwards)
+
+When adding a new ADR it is possible to execute it using a simple tool called adr-tools defined in the pre-requisites section
+
+```shell
+  adr new <<Name of your decision record>>
+```
+
+This will create an incremental decision within the repository for you to complete.
 
 ## Setup
 
@@ -39,6 +62,7 @@ The following software packages, or their equivalents, are expected to be instal
 - [sqlcmd utility](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-bash)
 - [Azure functions core tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
 - [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
+- [adr-tools](https://github.com/npryce/adr-tools)
 - [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
 
 > [!NOTE]<br>
