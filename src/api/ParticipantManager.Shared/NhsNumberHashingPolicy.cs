@@ -8,8 +8,10 @@ public class NhsNumberHashingPolicy : IDestructuringPolicy
 {
     private const string NhsNumberPattern = @"\b\d{10}\b";
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromSeconds(5);
+
     private static readonly Regex NhsNumberRegex =
-        new(NhsNumberPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        new(NhsNumberPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.NonBacktracking, RegexTimeout);
 
     private static readonly bool DisableHashing =
         Environment.GetEnvironmentVariable("DISABLE_NHS_HASHING")?.ToLower() == "false";
