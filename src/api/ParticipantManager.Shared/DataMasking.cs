@@ -7,11 +7,8 @@ public static class DataMasking
 {
     public static string HashNhsNumber(string nhsNumber)
     {
-        using (var sha256 = SHA256.Create())
-        {
-            var bytes = Encoding.UTF8.GetBytes(nhsNumber);
-            var hashBytes = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hashBytes);
-        }
+        var bytes = Encoding.UTF8.GetBytes(nhsNumber);
+        var hashBytes = SHA256.HashData(bytes);
+        return Convert.ToBase64String(hashBytes);
     }
 }

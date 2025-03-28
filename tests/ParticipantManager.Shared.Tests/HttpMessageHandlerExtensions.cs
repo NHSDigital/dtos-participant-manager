@@ -29,7 +29,7 @@ public static class HttpMessageHandlerExtensions
     {
         mock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.Method == method && req.RequestUri.AbsolutePath == url),
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == method && req.RequestUri != null && req.RequestUri.AbsolutePath == url),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage
             {
