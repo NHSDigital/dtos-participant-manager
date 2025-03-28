@@ -43,8 +43,6 @@ namespace ParticipantManager.Experience.API.Tests
             Assert.NotNull(result);
             Assert.Equal(_mockSigningKeys.Count, result.Count());
             Assert.Equal(_mockSigningKeys, result);
-
-            // Verify the mock was called
             _configManagerMock.Verify(m => m.GetConfigurationAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
