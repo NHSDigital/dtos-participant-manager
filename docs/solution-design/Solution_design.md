@@ -104,7 +104,7 @@ sequenceDiagram
     NHSLogin->>NHSLogin: Validate credentials
     NHSLogin->>NextJS: Redirect with auth code
     deactivate NHSLogin
-    activate NextJs
+    activate NextJS
     NextJS->>NHSLogin: Exchange code for tokens
     activate NHSLogin
     NHSLogin->>NextJS: Return access_token & id_token
@@ -130,6 +130,37 @@ sequenceDiagram
 ```
 
 ### User retrieving eligibility data
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NextJS
+    participant ExperienceAPI
+    participant NHSLogin
+    participant ParticipantAPI
+    participant Database
+
+    User->>NextJS: Request screening data
+    NextJS->>ExperienceAPI: GET /participant/{id}/eligibility
+    Note over NextJS,ExperienceAPI: Bearer token in Authorization header
+
+    ExperienceAPI->>NHSLogin: GET /.well-known/openid-configuration
+    NHSLogin-->>ExperienceAPI: Return OIDC configuration
+    ExperienceAPI->>NHSLogin: GET /jwks
+    NHSLogin-->>ExperienceAPI: Return JWKS keys
+    ExperienceAPI->>ExperienceAPI: Validate token signature using JWKS
+    ExperienceAPI->>ExperienceAPI: Validate token claims (iss, aud, exp)
+    ExperienceAPI->>ExperienceAPI: Extract NHS number from token
+
+    ExperienceAPI->>ParticipantAPI: GET /participant/{id}/pathway-enrolments
+    ParticipantAPI->>Database: Query pathway enrolments
+    Database-->>ParticipantAPI: Return enrolments
+    ParticipantAPI->>ParticipantAPI: Validate NHS number matches
+    ParticipantAPI-->>ExperienceAPI: Return enrolments
+    ExperienceAPI-->>NextJS: Return screening data
+    NextJS->>User: Display screening information
+
+```
 
 ## Architecture Patterns
 
