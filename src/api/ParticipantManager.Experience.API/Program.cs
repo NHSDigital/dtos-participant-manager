@@ -11,7 +11,7 @@ using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
 
-var appInsightsConnectionString = EnvironmentVariableHelper.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
+var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
@@ -45,13 +45,13 @@ var host = new HostBuilder()
 
         services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
         {
-            client.BaseAddress = new Uri(EnvironmentVariableHelper.GetRequired("CRUD_API_URL") ?? string.Empty);
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
         }).AddHttpMessageHandler<CorrelationIdHandler>();
 
         services.AddSingleton<IJwksProvider>(provider =>
         {
             var logger = provider.GetRequiredService<ILogger<JwksProvider>>();
-            var issuer = EnvironmentVariableHelper.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
+            var issuer = Environment.GetEnvironmentVariable("AUTH_NHSLOGIN_ISSUER_URL");
             return new JwksProvider(logger, issuer);
         });
 
