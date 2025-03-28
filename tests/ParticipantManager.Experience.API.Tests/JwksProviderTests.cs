@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using ParticipantManager.Experience.API.Services;
@@ -7,32 +10,42 @@ namespace ParticipantManager.Experience.API.Tests
 {
     public class JwksProviderTests
     {
-        private readonly Mock<IJwksProvider> _jwksProviderMock;
+        private readonly Mock<IConfigurationManager<OpenIdConnectConfiguration>> _configManagerMock = new();
+        private readonly OpenIdConnectConfiguration _mockConfiguration;
+        private readonly Mock<ILogger<JwksProvider>> _logger = new();
         private readonly List<SecurityKey> _mockSigningKeys;
+        private readonly JwksProvider _jwksProvider;
 
         public JwksProviderTests()
         {
-            _jwksProviderMock = new Mock<IJwksProvider>();
-            _mockSigningKeys = [new X509SecurityKey(GenerateSelfSignedCertificate())];
-            _jwksProviderMock.Setup(p => p.GetSigningKeysAsync()).ReturnsAsync(_mockSigningKeys);
+            var certificate = GenerateSelfSignedCertificate();
+            var signingKey = new X509SecurityKey(certificate);
+            _mockSigningKeys = new List<SecurityKey> { signingKey };
+
+            _mockConfiguration = new OpenIdConnectConfiguration
+            {
+                Issuer = "https://example.com",
+                JwksUri = "https://example.com/.well-known/jwks"
+            };
+
+            _mockConfiguration.SigningKeys.Add(signingKey);
+            _configManagerMock.Setup(m => m.GetConfigurationAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_mockConfiguration);
+            _jwksProvider = new JwksProvider(_logger.Object, "test", _configManagerMock.Object);
         }
 
         [Fact]
         public async Task GetSigningKeysAsync_ValidConfiguration_ReturnsExpectedKeys()
         {
-            // Arrange
-            var jwksProvider = _jwksProviderMock.Object;
-
             // Act
-            var result = await jwksProvider.GetSigningKeysAsync();
+            var result = await _jwksProvider.GetSigningKeysAsync();
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<List<SecurityKey>>(result);
             Assert.Equal(_mockSigningKeys.Count, result.Count());
             Assert.Equal(_mockSigningKeys, result);
 
-            _jwksProviderMock.Verify(p => p.GetSigningKeysAsync(), Times.Once);
+            // Verify the mock was called
+            _configManagerMock.Verify(m => m.GetConfigurationAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         private static X509Certificate2 GenerateSelfSignedCertificate()
