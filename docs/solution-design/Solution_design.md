@@ -6,43 +6,83 @@ The DTOS Participant Manager is a modern web application designed to manage part
 
 ## Container Diagram
 
-![Participant Manager Container Diagram](https://github.com/NHSDigital/dtos-solution-architecture/blob/main/images/ParticipantManager.png)
+![Participant Manager Container Diagram](https://github.com/NHSDigital/dtos-solution-architecture/blob/main/images/ParticipantManager_Alpha.png)
+
+For the Alpha we have essentially 5 components: -
+
+- Participant Facing Web Application
+- Participant Experience API
+- Participant API
+- Participant Manager Product Event Handler
+- Participant Manager Data Store
 
 ## System Components
 
-### 1. Frontend (Web Application)
+### 1. Participant Facing Web Application
 
+- Provides a logged in user interface for participants to view their screening information
 - Located in `src/web/`
-- Modern web application built with React/TypeScript
-- Provides user interface for participant management
-- Communicates with backend API through REST endpoints
+- Modern web application built with Nextjs
+- The nextjs implementation is Server Side Rendered, which removes the dependency on javascript on the client
+- It uses NHS Login as it's Identity provider and follows the standard OIDC protocol for integration
+- Communicates only with the experience API to return data for the user to see.
 
-### 2. Backend (API)
+### 2. Participant Experience API
 
-- Located in `src/api/`
-- Built with C# and .NET
-- Azure Functions-based serverless API
-- Handles business logic and data management
-- Implements authentication and authorization
-- Manages data persistence and retrieval
-- Leverages Azure Functions triggers for event-driven operations
+- Acts as an aggregation function to pull data from various sources in order to support a seamless participant experience
+- Located in `src/api/ParticipantManager.Experience.API`
+- Built with C#, it is a single Azure function, with multiple HTTP endpoints
+- It is secured using NHS Login's access token
+- It is currently only pulling data using the Participant Manager API, but the expectation is for this to increase as we look to pull data from multiple sources
+
+### 3. Participant API
+
+- Provides a CRUD interface to interact with the underlying Data Entities (Participant/PathwayEnrollment/Episode)
+- Located in `src/api/ParticipantManager.API`
+- Built with C#, it is a single Azure function, with multiple HTTP endpoints
+- It is not internet accessible and can only be called by the Experience API, but this is controlled at a Function level
+- It queries data from the database using Entity Framework
+
+### 4. Participant Data Store
+
+- Single datastore with 3 tables within it
+
+```mermaid
+erDiagram
+    PARTICIPANT ||--o{ ENROLLMENT : has
+    ENROLLMENT ||--o{ EPISODE : includes
+
+    PARTICIPANT {
+        uuid id PK
+        string name
+        date date_of_birth
+    }
+
+    ENROLLMENT {
+        uuid id PK
+        uuid participant_id FK
+        string program
+        date enrolled_at
+    }
+
+    EPISODE {
+        uuid id PK
+        uuid enrollment_id FK
+        string status
+        date started_at
+    }
+```
+
+- Database structure is managed using the Entity Framework Code First approach and therefore management of database schema changes is managed by Entity Framework
+
+### 5. ParticipantManager Product Event Handler
+
+- Invocation of functionality within Participant Manager is provided by invoking events. The Event handler here listens to events on a Product specific Service Bus
+- The event handler will talk to the Participant API to affect changes in the database layer
 
 ### 3. Infrastructure
 
 The application is deployed using infrastructure as code (IaC) with Terraform:
-
-#### Core Infrastructure (`infrastructure/tf-core/`)
-
-- Manages core infrastructure components
-- Handles networking, security, and basic service setup
-- Implements core Azure resources including Azure Functions
-- Manages Azure App Service configurations
-
-#### Audit Infrastructure (`infrastructure/tf-audit/`)
-
-- Manages audit-related infrastructure
-- Handles logging and monitoring setup
-- Implements audit-specific Azure resources
 
 ## Architecture Patterns
 
@@ -60,21 +100,19 @@ The application is deployed using infrastructure as code (IaC) with Terraform:
 - Automated deployment and management
 - Azure Functions app configuration management
 
-### 3. Containerization
+### 3. Event based invocation
 
-- Application components containerized using Docker
-- Container orchestration through Docker Compose
-- Consistent deployment across environments
-- Azure Functions container support
+- External services are invoked using an Event Bases Architecture
+- Participant manager assumes that the sequencing of commands is important and will listen to events on a Service Bus queue
 
 ## Security
 
-### 1. Authentication & Authorization
+### 1. Authentication & Authorisation
 
-- Secure user authentication
-- Role-based access control
-- API security with JWT tokens
-- Azure AD integration for authentication
+- Web user interface is secured using NHS Login and follows the OIDC Web Flow
+- Only P9 users can access the service as the data being presented is medically sensitive
+- The communication from the Nextjs application code to the Participant Experience API is secured using the Access Token provided by NHS Login
+- Access from the experience layer to the crud operations is secured using the in-built azure function level permissions
 
 ### 2. Data Security
 
@@ -83,25 +121,7 @@ The application is deployed using infrastructure as code (IaC) with Terraform:
 - Regular security audits
 - Azure Key Vault integration
 
-## Development & Deployment
-
-### 1. Development Environment
-
-- Local development using Docker Compose
-- Hot-reloading for frontend development
-- Automated testing setup
-- Azure Functions Core Tools for local development
-- .NET SDK and C# development tools
-
-### 2. CI/CD Pipeline
-
-- Automated builds and tests
-- Continuous integration through GitHub Actions
-- Automated deployment to Azure
-- Azure Functions deployment automation
-- .NET build and test automation
-
-### 3. Monitoring & Logging
+## Monitoring & Logging
 
 - Centralized logging system
 - Application monitoring
@@ -109,44 +129,21 @@ The application is deployed using infrastructure as code (IaC) with Terraform:
 - Azure Application Insights integration
 - Azure Functions monitoring
 
-## Dependencies
-
-### 1. External Services
-
-- Azure Cloud Services
-  - Azure Functions
-  - Azure App Service
-  - Azure Key Vault
-  - Azure Application Insights
-- Database Services
-- Authentication Services
-
-### 2. Development Tools
-
-- Node.js/TypeScript (Frontend)
-- C# and .NET SDK (Backend)
-- Azure Functions Core Tools
-- Docker
-- Terraform
-- Azure CLI
-
-## Future Considerations
-
-### 1. Scalability
+## Scalability
 
 - Horizontal scaling of services
 - Load balancing
 - Caching strategies
 - Azure Functions scaling optimization
 
-### 2. Performance
+## Performance
 
 - Performance optimization
 - Caching implementation
 - Database optimization
 - Azure Functions performance tuning
 
-### 3. Maintenance
+## Maintenance
 
 - Regular security updates
 - Dependency management
