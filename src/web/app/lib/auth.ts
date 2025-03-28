@@ -17,7 +17,7 @@ async function pemToPrivateKey(): Promise<CryptoKey | null> {
   }
 
   // Remove headers and convert to binary
-  const pemContents = pem.replace(/[\r\n\s]|-{5}[A-Z\s]+-{5}/g, "").trim();
+  const pemContents = pem.replace(/\s|-{5}[A-Z\s]+-{5}/g, "").trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");

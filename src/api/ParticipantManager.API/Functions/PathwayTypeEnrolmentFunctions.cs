@@ -44,7 +44,7 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber,
+                    NhsNumber = p.Participant!.NhsNumber,
                     ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
@@ -78,7 +78,7 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber,
+                    NhsNumber = p.Participant!.NhsNumber,
                     ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
