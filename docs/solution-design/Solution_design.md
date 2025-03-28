@@ -56,14 +56,12 @@ erDiagram
         Guid ParticipantId PK
         string NhsNumber
         date DateOfBirth
-        // other fields...
     }
 
     PATHWAY_TYPE_ENROLMENT {
         Guid EnrolmentId PK
         Guid ParticipantId FK
         string PathwayType
-        // other fields...
     }
 
     EPISODE {
@@ -71,7 +69,6 @@ erDiagram
         Guid EnrolmentId FK
         string PathwayVersion
         string Status
-        // other fields...
     }
 
 - Database structure is managed using the Entity Framework Code First approach and therefore management of database schema changes is managed by Entity Framework
