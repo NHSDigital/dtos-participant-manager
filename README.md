@@ -62,7 +62,7 @@ The following software packages, or their equivalents, are expected to be instal
 - [sqlcmd utility](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-bash)
 - [Azure functions core tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
 - [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
-- [adr](https://github.com/npryce/adr-tools)
+- [adr-tools](https://github.com/npryce/adr-tools)
 - [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
 
 > [!NOTE]<br>

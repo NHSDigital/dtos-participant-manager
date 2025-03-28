@@ -12,8 +12,8 @@ There are multiple queueing solutions within Azure. We need one that can handle 
 
 ## Decision
 
-Use EventGrid as the queueing solution
+Use Eventgrid as the queueing solution
 
 ## Consequences
 
-The eventhandlers will listen and respond to topics on the eventgrid
+The eventhandlers will listen and respond to topics on the Eventgrid
