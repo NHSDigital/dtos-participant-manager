@@ -40,7 +40,7 @@ When adding a new ADR it is possible to execute it using a simple tool called ad
   adr new <<Name of your decision record>>
 ```
 
-This will create an incremental decision within the repo for you to complete.
+This will create an incremental decision within the repository for you to complete.
 
 ## Setup
 

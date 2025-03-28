@@ -19,3 +19,5 @@ Trufflehog
 npm
 pnpm
 sqlcmd
+Nygard
+Pryce's
