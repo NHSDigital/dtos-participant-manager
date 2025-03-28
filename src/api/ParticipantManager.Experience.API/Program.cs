@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Azure.Monitor.OpenTelemetry.Exporter;
+using Flagsmith;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -56,6 +57,8 @@ var host = new HostBuilder()
         });
 
         services.AddSingleton<ITokenService, TokenService>();
+        services.AddSingleton<IFlagsmithClient>(sp =>
+            new FlagsmithClient(EnvironmentVariables.GetRequired("FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY")));
         services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
         services.AddAuthorization();
     })
