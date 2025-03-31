@@ -12,9 +12,10 @@ var appInsightsConnectionString =
   Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
 
 var host = new HostBuilder()
-  .ConfigureFunctionsWebApplication()
+  .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
   .ConfigureServices((context, services) =>
   {
+    services.AddSingleton<FunctionContextAccessor>();
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();
 

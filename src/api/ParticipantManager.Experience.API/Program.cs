@@ -14,6 +14,7 @@ var host = new HostBuilder()
   .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
   .ConfigureServices((context, services) =>
   {
+    services.AddSingleton<FunctionContextAccessor>();
     services.AddHttpContextAccessor();
     services.AddTransient<CorrelationIdHandler>();
 
