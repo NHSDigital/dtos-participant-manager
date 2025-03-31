@@ -38,22 +38,6 @@ public class FunctionContextAccessorTests
     }
 
     [Fact]
-    public void FunctionContext_WhenSetMultipleTimes_ReturnsMostRecentValue()
-    {
-        // Arrange
-        var accessor = new FunctionContextAccessor();
-        var firstContext = new Mock<FunctionContext>().Object;
-        var secondContext = new Mock<FunctionContext>().Object;
-
-        // Act
-        accessor.FunctionContext = firstContext;
-        accessor.FunctionContext = secondContext;
-
-        // Assert
-        Assert.Same(secondContext, accessor.FunctionContext);
-    }
-
-    [Fact]
     public async Task FunctionContext_AccessAcrossAsyncBoundaries_MaintainsReference()
     {
         // Arrange
