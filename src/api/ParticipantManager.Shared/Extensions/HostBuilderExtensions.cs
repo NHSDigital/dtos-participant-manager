@@ -40,7 +40,7 @@ public static class HostBuilderExtensions
         {
             services.AddOpenTelemetry()
           .ConfigureResource(builder => builder
-            .AddService("ParticipantManager.API"))
+            .AddService(sourceName))
           .WithTracing(builder => builder
             .AddSource(sourceName)
             .AddHttpClientInstrumentation()
@@ -52,8 +52,8 @@ public static class HostBuilderExtensions
             .AddAspNetCoreInstrumentation()
             .AddAzureMonitorMetricExporter(options =>
             {
-                  options.ConnectionString = appInsightsConnectionString;
-              }));
+                options.ConnectionString = appInsightsConnectionString;
+            }));
         });
     }
 }
