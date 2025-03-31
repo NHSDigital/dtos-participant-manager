@@ -13,7 +13,7 @@ public static class HttpMessageHandlerExtensions
         mock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == method && req.RequestUri != null && req.RequestUri.PathAndQuery.Contains(url)),
+                    req.Method == method && req.RequestUri != null && req.RequestUri.PathAndQuery.Equals(url)),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage
             {
@@ -45,7 +45,7 @@ public static class HttpMessageHandlerExtensions
         mock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == method && req.RequestUri != null && req.RequestUri.PathAndQuery.Contains(url)),
+                    req.Method == method && req.RequestUri != null && req.RequestUri.PathAndQuery.Equals(url)),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ThrowsAsync(new TException());

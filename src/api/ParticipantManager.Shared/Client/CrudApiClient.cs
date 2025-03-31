@@ -83,7 +83,7 @@ public class CrudApiClient(
     public async Task<Guid?> CreateParticipantAsync(ParticipantDto participantDto)
     {
         logger.LogInformation($"Running {nameof(CreateParticipantAsync)}");
-        var uri = "/api/participants";
+        const string uri = "/api/participants";
 
         try
         {
@@ -112,7 +112,7 @@ public class CrudApiClient(
     public async Task<bool> CreatePathwayTypeEnrolmentAsync(CreatePathwayTypeEnrolmentDto pathwayTypeEnrolmentDto)
     {
         logger.LogInformation($"Running {nameof(CreatePathwayTypeEnrolmentAsync)}");
-        var uri = "/api/pathwaytypeenrolment";
+        const string uri = "/api/pathwaytypeenrolments";
 
         try
         {
