@@ -19,3 +19,10 @@ Trufflehog
 npm
 pnpm
 sqlcmd
+Nygard
+Pryce's
+Eventgrid
+eventhandlers
+ADR
+adr-tools
+
