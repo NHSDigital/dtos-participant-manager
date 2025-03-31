@@ -8,7 +8,7 @@ export async function fetchPatientScreeningEligibility(
   const correlationId = crypto.randomUUID();
 
   try {
-    const url = `${process.env.EXPERIENCE_API_URL}/api/participant/${session.user?.participantId}/eligibility`;
+    const url = `${process.env.EXPERIENCE_API_URL}/api/participants/${session.user?.participantId}/eligibility`;
     logger.info({ url, correlationId }, "Making eligibility API request");
     const response = await fetch(url, {
       method: "GET",
@@ -93,7 +93,7 @@ export async function fetchParticipantId(
   const correlationId = crypto.randomUUID();
 
   try {
-    const url = `${process.env.EXPERIENCE_API_URL}/api/participant`;
+    const url = `${process.env.EXPERIENCE_API_URL}/api/participants/me/id`;
     logger.info({ url, correlationId }, "Making get participant id API request");
     const response = await fetch(url, {
       method: "GET",

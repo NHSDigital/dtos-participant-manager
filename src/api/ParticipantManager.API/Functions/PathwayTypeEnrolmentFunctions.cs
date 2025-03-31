@@ -91,7 +91,7 @@ public class PathwayTypeEnrolmentFunctions(
 
     [Function("CreatePathwayTypeEnrolment")]
     public async Task<IActionResult> CreatePathwayTypeEnrolment(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolment")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolments")]
         HttpRequestData req)
     {
         logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");

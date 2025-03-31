@@ -5,7 +5,7 @@ info:
   description: API used by Participant Manager front ends to present data.
 
 paths:
-  /participant:
+  /participants/me/id:
     get:
       summary: Get Participant ID
       description: Retrieves the Participant ID associated with the authenticated user.
@@ -86,7 +86,7 @@ paths:
         '500':
           description: Internal server error. This indicates an unexpected failure in the service.
 
-  /participant/{participantId}/eligibility:
+  /participants/{participantId}/eligibility:
     get:
       summary: Get Screening Eligibility
       description: Retrieves a list of screening pathways for which the authenticated user is eligible.
