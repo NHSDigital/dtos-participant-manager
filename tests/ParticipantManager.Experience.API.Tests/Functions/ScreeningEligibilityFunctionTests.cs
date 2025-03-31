@@ -25,8 +25,8 @@ public class ScreeningEligibilityFunctionTests
     public ScreeningEligibilityFunctionTests()
     {
         _loggerMock = new Mock<ILogger<ScreeningEligibilityFunction>>();
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(It.IsAny<Guid>()).Result)
-            .Returns(MockListPathwayEnrolments);
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentsAsync(It.IsAny<Guid>()).Result)
+            .Returns(MockListPathwayTypeEnrolments);
         _function = new ScreeningEligibilityFunction(_loggerMock.Object, _crudApiClient.Object,
             _mockTokenService.Object,
             _mockFeatureFlagClient.Object);
@@ -97,7 +97,7 @@ public class ScreeningEligibilityFunctionTests
     }
 
     [Fact]
-    public async Task GetScreeningEligibility_PathwayEnrolmentsReturnsEmptyCollection_ReturnsOk()
+    public async Task GetScreeningEligibility_PathwayTypeEnrolmentsReturnsEmptyCollection_ReturnsOk()
     {
         // Arrange
         var claims = new List<Claim>
@@ -112,7 +112,7 @@ public class ScreeningEligibilityFunctionTests
 
         _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
             .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId)).ReturnsAsync([]);
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentsAsync(_participantId)).ReturnsAsync([]);
 
         // Act
         var response = await _function.GetScreeningEligibility(_request, _participantId) as OkObjectResult;
@@ -197,7 +197,7 @@ public class ScreeningEligibilityFunctionTests
 
         // Assert
         Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-        var enrollments = response?.Value as List<PathwayEnrolmentDto>;
+        var enrollments = response?.Value as List<PathwayTypeEnrolmentDto>;
         Assert.NotNull(enrollments);
         Assert.Equal(2, enrollments.Count);
     }
@@ -218,7 +218,7 @@ public class ScreeningEligibilityFunctionTests
 
         _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
             .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentsAsync(_participantId))
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentsAsync(_participantId))
             .ThrowsAsync(new Exception("Test exception message"));
 
         // Act
@@ -239,9 +239,9 @@ public class ScreeningEligibilityFunctionTests
         return request.Object;
     }
 
-    private List<PathwayEnrolmentDto> MockListPathwayEnrolments()
+    private List<PathwayTypeEnrolmentDto> MockListPathwayTypeEnrolments()
     {
-        return new List<PathwayEnrolmentDto>
+        return new List<PathwayTypeEnrolmentDto>
         {
             new()
             {

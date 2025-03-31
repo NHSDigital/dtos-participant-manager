@@ -44,7 +44,7 @@ export async function fetchPatientScreeningEligibility(
   }
 }
 
-export async function fetchPathwayEnrolment(
+export async function fetchPathwayTypeEnrolment(
   session: Session,
   enrolmentId: string
 ): Promise<PathwayResponse> {
@@ -52,7 +52,7 @@ export async function fetchPathwayEnrolment(
 
   try {
     const participantId = session.user?.participantId;
-    const url = `${process.env.EXPERIENCE_API_URL}/api/participants/${participantId}/pathwayenrolments/${enrolmentId}`;
+    const url = `${process.env.EXPERIENCE_API_URL}/api/participants/${participantId}/pathwaytypeenrolments/${enrolmentId}`;
     logger.info({ url, correlationId }, "Making pathway API request");
     logger.info(`session.user.participantId: ${session.user?.participantId}`);
     const response = await fetch(url, {
@@ -69,7 +69,7 @@ export async function fetchPathwayEnrolment(
         `Failed to get pathway data: ${response.statusText}`
       );
       throw new Error(
-        `Error fetching pathway enrolment data: ${response.statusText}`
+        `Error fetching pathway type enrolment data: ${response.statusText}`
       );
     }
 

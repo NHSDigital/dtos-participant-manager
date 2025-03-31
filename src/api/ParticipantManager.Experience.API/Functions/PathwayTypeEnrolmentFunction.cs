@@ -7,16 +7,16 @@ using ParticipantManager.Shared.Client;
 
 namespace ParticipantManager.Experience.API.Functions;
 
-public class PathwayEnrolmentFunction(
-    ILogger<PathwayEnrolmentFunction> logger,
+public class PathwayTypeEnrolmentFunction(
+    ILogger<PathwayTypeEnrolmentFunction> logger,
     ICrudApiClient crudApiClient,
     ITokenService tokenService,
     IFeatureFlagClient featureFlagClient)
 {
-    [Function("GetPathwayEnrolmentById")]
-    public async Task<IActionResult> GetPathwayEnrolmentById(
+    [Function("GetPathwayTypeEnrolmentById")]
+    public async Task<IActionResult> GetPathwayTypeEnrolmentById(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get",
-            Route = "participants/{participantId}/pathwayenrolments/{enrolmentid}")]
+            Route = "participants/{participantId}/pathwaytypeenrolments/{enrolmentid}")]
         HttpRequestData req, Guid participantId, Guid enrolmentId)
     {
         try
@@ -38,15 +38,15 @@ public class PathwayEnrolmentFunction(
                 return new UnauthorizedResult();
             }
 
-            var pathwayEnrolment = await crudApiClient.GetPathwayEnrolmentByIdAsync(participantId, enrolmentId);
-            if (pathwayEnrolment == null)
+            var pathwayTypeEnrolment = await crudApiClient.GetPathwayTypeEnrolmentByIdAsync(participantId, enrolmentId);
+            if (pathwayTypeEnrolment == null)
             {
-                logger.LogError("Failed to find pathway enrolment for Request {@Request}",
+                logger.LogError("Failed to find pathway type enrolment for Request {@Request}",
                     new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
                 return new NotFoundResult();
             }
 
-            if (pathwayEnrolment.Participant.NhsNumber != nhsNumber)
+            if (pathwayTypeEnrolment.Participant.NhsNumber != nhsNumber)
             {
                 logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
                     new { ParticipantId = participantId });
@@ -60,9 +60,9 @@ public class PathwayEnrolmentFunction(
                 return new ForbidResult();
             }
 
-            logger.LogInformation("Found pathway enrolment for Request {@Request}",
+            logger.LogInformation("Found pathway type enrolment for Request {@Request}",
                 new { NhsNumber = nhsNumber, EnrolmentId = enrolmentId });
-            return new OkObjectResult(pathwayEnrolment);
+            return new OkObjectResult(pathwayTypeEnrolment);
         }
         catch (Exception ex)
         {

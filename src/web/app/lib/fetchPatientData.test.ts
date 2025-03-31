@@ -1,6 +1,6 @@
 import {
   fetchPatientScreeningEligibility,
-  fetchPathwayEnrolment,
+  fetchPathwayTypeEnrolment,
   fetchParticipantId,
 } from "@/app/lib/fetchPatientData";
 import { logger } from "@/app/lib/logger";
@@ -102,7 +102,7 @@ describe("fetchPatientData", () => {
     });
   });
 
-  describe("fetchPathwayEnrolment", () => {
+  describe("fetchPathwayTypeEnrolment", () => {
     const mockEnrolmentId = "test-enrolment";
     const mockPathwayData = {
       id: mockEnrolmentId,
@@ -115,11 +115,11 @@ describe("fetchPatientData", () => {
         json: () => Promise.resolve(mockPathwayData),
       });
 
-      const result = await fetchPathwayEnrolment(mockSession, mockEnrolmentId);
+      const result = await fetchPathwayTypeEnrolment(mockSession, mockEnrolmentId);
 
       expect(result).toEqual(mockPathwayData);
       expect(global.fetch).toHaveBeenCalledWith(
-        `https://api.test/api/participants/test-participant-id/pathwayenrolments/${mockEnrolmentId}`,
+        `https://api.test/api/participants/test-participant-id/pathwaytypeenrolments/${mockEnrolmentId}`,
         {
           method: "GET",
           headers: {
@@ -142,9 +142,9 @@ describe("fetchPatientData", () => {
       });
 
       await expect(
-        fetchPathwayEnrolment(mockSession, mockEnrolmentId)
+        fetchPathwayTypeEnrolment(mockSession, mockEnrolmentId)
       ).rejects.toThrow(
-        `Error fetching pathway enrolment data: ${errorMessage}`
+        `Error fetching pathway type enrolment data: ${errorMessage}`
       );
     });
   });
