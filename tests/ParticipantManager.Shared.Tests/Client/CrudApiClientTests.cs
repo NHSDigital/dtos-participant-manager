@@ -34,7 +34,7 @@ public class CrudApiClientTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentsAsync_ShouldReturnEnrolments_WhenResponseIsSuccessful()
+    public async Task GetPathwayTypeEnrolmentsAsync_ShouldReturnEnrolments_WhenResponseIsSuccessful()
     {
         // Arrange
         var expectedEnrolments = new List<PathwayTypeEnrolment>()
@@ -62,7 +62,7 @@ public class CrudApiClientTests
             expectedEnrolments);
 
         // Act
-        var result = await _client.GetPathwayEnrolmentsAsync(_participantId);
+        var result = await _client.GetPathwayTypeEnrolmentsAsync(_participantId);
 
         // Assert
         Assert.NotNull(result);
@@ -72,15 +72,15 @@ public class CrudApiClientTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentsAsync_ShouldReturnInvalidOperationException_WhenDeserializationReturnsNull()
+    public async Task GetPathwayTypeEnrolmentsAsync_ShouldReturnInvalidOperationException_WhenDeserializationReturnsNull()
     {
         // Arrange
-        _mockHttpMessageHandler.SetupRequest<List<PathwayEnrolmentDto>>(HttpMethod.Get,
+        _mockHttpMessageHandler.SetupRequest<List<PathwayTypeEnrolmentDto>>(HttpMethod.Get,
             $"/api/pathwaytypeenrolments?participantId={_participantId}",
             null!);
 
         // Act
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentsAsync(_participantId));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayTypeEnrolmentsAsync(_participantId));
 
         // Assert
         Assert.NotNull(ex.InnerException);
@@ -89,7 +89,7 @@ public class CrudApiClientTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentByIdAsync_ShouldReturnEnrolment_WhenResponseIsSuccessful()
+    public async Task GetPathwayTypeEnrolmentByIdAsync_ShouldReturnEnrolment_WhenResponseIsSuccessful()
     {
         // Arrange
         var enrolmentId = Guid.NewGuid();
@@ -110,7 +110,7 @@ public class CrudApiClientTests
             $"/api/participants/{_participantId}/pathwaytypeenrolments/{enrolmentId}", expectedEnrolment);
 
         // Act
-        var result = await _client.GetPathwayEnrolmentByIdAsync(_participantId, enrolmentId);
+        var result = await _client.GetPathwayTypeEnrolmentByIdAsync(_participantId, enrolmentId);
 
         // Assert
         Assert.NotNull(result);
@@ -118,7 +118,7 @@ public class CrudApiClientTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentByIdAsync_ShouldThrowInvalidOperationException_WhenEnrolmentNotFound()
+    public async Task GetPathwayTypeEnrolmentByIdAsync_ShouldThrowInvalidOperationException_WhenEnrolmentNotFound()
     {
         // Arrange
         var enrolmentId = Guid.NewGuid();
@@ -126,7 +126,7 @@ public class CrudApiClientTests
         _mockHttpMessageHandler.SetupRequest(HttpMethod.Get, uri, HttpStatusCode.NotFound);
 
         // Act
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayEnrolmentByIdAsync(_participantId, enrolmentId));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPathwayTypeEnrolmentByIdAsync(_participantId, enrolmentId));
 
         // Assert
         Assert.NotNull(ex.InnerException);

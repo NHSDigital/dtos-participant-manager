@@ -153,7 +153,7 @@ sequenceDiagram
     ExperienceAPI->>ExperienceAPI: Extract NHS number from token
 
     ExperienceAPI->>ParticipantAPI: GET /participant/{id}/pathway-enrolments
-    ParticipantAPI->>Database: Query pathway enrolments
+    ParticipantAPI->>Database: Query pathway type enrolments
     Database-->>ParticipantAPI: Return enrolments
     ParticipantAPI->>ParticipantAPI: Validate NHS number matches
     ParticipantAPI-->>ExperienceAPI: Return enrolments

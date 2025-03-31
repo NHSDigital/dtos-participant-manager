@@ -196,7 +196,7 @@ public class CreateEnrolmentHandlerTests
     }
 
     [Fact]
-    public async Task Run_WhenPathwayEnrolmentCreationFails_LogsErrorAndDoesNotSendEvent()
+    public async Task Run_WhenPathwayTypeEnrolmentCreationFails_LogsErrorAndDoesNotSendEvent()
     {
         // Arrange
         var cloudEvent = new CloudEvent("test-source", "test-event", _pathwayParticipantDto,
