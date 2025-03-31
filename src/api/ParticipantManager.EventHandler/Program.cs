@@ -15,7 +15,7 @@ using ParticipantManager.Shared.Extensions;
 var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
     .ConfigureServices((context, services) =>
     {
         services.AddSingleton<FunctionContextAccessor>();
