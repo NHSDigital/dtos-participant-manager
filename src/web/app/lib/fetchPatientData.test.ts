@@ -55,7 +55,7 @@ describe("fetchPatientData", () => {
 
       expect(result).toEqual(mockEligibilityData);
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://api.test/api/participant/test-participant-id/eligibility",
+        "https://api.test/api/participants/test-participant-id/eligibility",
         {
           method: "GET",
           headers: {
@@ -162,7 +162,7 @@ describe("fetchPatientData", () => {
 
       expect(result).toBe(mockParticipantId);
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://api.test/api/participant",
+        "https://api.test/api/participants/me/id",
         {
           method: "GET",
           headers: {

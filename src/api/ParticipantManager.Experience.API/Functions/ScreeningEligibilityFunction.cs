@@ -15,7 +15,7 @@ public class ScreeningEligibilityFunction(
 {
     [Function("GetScreeningEligibility")]
     public async Task<IActionResult> GetScreeningEligibility(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId}/eligibility")]
         HttpRequestData req, Guid participantId)
     {
         try
