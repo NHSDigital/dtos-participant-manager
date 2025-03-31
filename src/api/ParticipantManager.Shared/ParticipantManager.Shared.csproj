@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
     <PackageReference Include="AzureFunctions.Extensions.Middleware" Version="4.0.1" />
     <PackageReference Include="Flagsmith" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
