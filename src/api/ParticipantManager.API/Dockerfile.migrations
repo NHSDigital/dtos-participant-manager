@@ -1,18 +1,16 @@
 # Use .NET 9 SDK for building and running migrations
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
-
 WORKDIR /src/dotnet-function-app
+
+RUN apt-get update && apt-get install -y libpq-dev
 
 COPY ParticipantManager.API.csproj ./
 COPY ParticipantManager.Shared/ ParticipantManager.Shared/
-
 RUN dotnet tool install --global dotnet-ef && \
     export PATH="$PATH:/root/.dotnet/tools" && \
     dotnet restore ParticipantManager.API.csproj && \
     dotnet build ParticipantManager.API.csproj && \
     addgroup --system appgroup && \
     adduser --system --ingroup appgroup appuser
-
 USER appuser
-
 ENTRYPOINT [ "dotnet", "ef", "database", "update" ]

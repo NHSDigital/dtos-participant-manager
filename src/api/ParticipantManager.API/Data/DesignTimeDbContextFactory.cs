@@ -7,14 +7,15 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
 {
     public ParticipantManagerDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
+        // var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
+        var connectionString = "Host=localhost;Port=5432;Database=participant_database;Username=postgres;Password=yourpassword;";
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException("Connection string 'ParticipantManagerDatabase' is not configured.");
         }
 
         var optionsBuilder = new DbContextOptionsBuilder<ParticipantManagerDbContext>();
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new ParticipantManagerDbContext(optionsBuilder.Options);
     }
