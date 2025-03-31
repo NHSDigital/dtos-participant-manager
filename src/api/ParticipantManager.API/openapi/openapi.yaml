@@ -181,7 +181,6 @@ paths:
         '500':
           description: Internal server error. This indicates an unexpected failure in the service.
 
-  /pathwaytypeenrolment:
     post:
       summary: Create Pathway Type Enrolment
       description: Creates a new Pathway Type Enrolment

@@ -278,7 +278,7 @@ public class CrudApiClientTests
             ScreeningName = "testScreeningName"
         };
 
-        _mockHttpMessageHandler.SetupRequest(HttpMethod.Post, "/api/pathwaytypeenrolment", enrolmentDto);
+        _mockHttpMessageHandler.SetupRequest(HttpMethod.Post, "/api/pathwaytypeenrolments", enrolmentDto);
 
         // Act
         var result = await _client.CreatePathwayTypeEnrolmentAsync(enrolmentDto);
@@ -301,7 +301,7 @@ public class CrudApiClientTests
             ScreeningName = "Test Screening Name"
         };
 
-        _mockHttpMessageHandler.SetupRequest<PathwayTypeEnrolment>(HttpMethod.Post, "/api/pathwaytypeenrolment", null!, httpStatusCode);
+        _mockHttpMessageHandler.SetupRequest<PathwayTypeEnrolment>(HttpMethod.Post, "/api/pathwaytypeenrolments", null!, httpStatusCode);
 
         // Act
         var result = await _client.CreatePathwayTypeEnrolmentAsync(enrolmentDto);
