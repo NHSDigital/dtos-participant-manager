@@ -6,7 +6,7 @@ namespace ParticipantManager.Shared
     public class FunctionContextAccessorTests
     {
         [Fact]
-        public void FunctionContext_WhenSet_ShouldBeRetrievable()
+        public void FunctionContext_WhenSet_BeRetrievable()
         {
             // Arrange
             var accessor = new FunctionContextAccessor();
@@ -21,7 +21,7 @@ namespace ParticipantManager.Shared
         }
 
         [Fact]
-        public void FunctionContext_WhenSetToNull_ShouldReturnNull()
+        public void FunctionContext_WhenSetToNull_ReturnsNull()
         {
             // Arrange
             var accessor = new FunctionContextAccessor();
@@ -38,7 +38,7 @@ namespace ParticipantManager.Shared
         }
 
         [Fact]
-        public void FunctionContext_WhenSetMultipleTimes_ShouldReturnMostRecentValue()
+        public void FunctionContext_WhenSetMultipleTimes_ReturnsMostRecentValue()
         {
             // Arrange
             var accessor = new FunctionContextAccessor();
@@ -74,7 +74,7 @@ namespace ParticipantManager.Shared
         }
 
         [Fact]
-        public void FunctionContext_WhenReplacingNonNullContext_ShouldClearPreviousContext()
+        public void FunctionContext_WhenReplacingNonNullContext_ClearPreviousContext()
         {
             // Arrange
             var accessor = new FunctionContextAccessor();
