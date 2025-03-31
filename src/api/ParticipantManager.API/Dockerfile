@@ -14,4 +14,8 @@ FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated9.0 AS p
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true \
     ASPNETCORE_ENVIRONMENT=Production
+
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
 COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]

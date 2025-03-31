@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.Identity;
 using Azure.Messaging.EventGrid;
 using Azure.Monitor.OpenTelemetry.Exporter;
@@ -8,41 +9,48 @@ using ParticipantManager.Shared;
 using ParticipantManager.Shared.Client;
 using ParticipantManager.Shared.Extensions;
 
-var appInsightsConnectionString =
-  Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") ?? string.Empty;
+var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONINSIGHTS_CONNECTION_STRING");
 
 var host = new HostBuilder()
-  .ConfigureFunctionsWebApplication(worker => { worker.UseMiddleware<CorrelationIdMiddleware>(); })
-  .ConfigureServices((context, services) =>
-  {
-    services.AddSingleton<FunctionContextAccessor>();
-    services.AddHttpContextAccessor();
-    services.AddTransient<CorrelationIdHandler>();
+    .ConfigureFunctionsWebApplication()
+    .ConfigureServices((context, services) =>
+    {
+        services.AddHttpContextAccessor();
+        services.AddTransient<CorrelationIdHandler>();
 
-    services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
-    {
-      client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("CRUD_API_URL") ?? string.Empty);
-    }).AddHttpMessageHandler<CorrelationIdHandler>();
-    services.AddSingleton(sp =>
-    {
-      if (HostEnvironmentEnvExtensions.IsDevelopment(context.HostingEnvironment))
-      {
-        var credentials = new Azure.AzureKeyCredential(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_KEY"));
-        return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), credentials);
-      }
+        services.AddSingleton(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
 
-      return new EventGridPublisherClient(new Uri(Environment.GetEnvironmentVariable("EVENT_GRID_TOPIC_URL")), new ManagedIdentityCredential());
-    });
-  })
-  .ConfigureOpenTelemetry(nameof(ParticipantManager.EventHandler), appInsightsConnectionString)
-  .ConfigureSerilogLogging(appInsightsConnectionString)
-  .ConfigureLogging(logging =>
-  {
-    logging.AddOpenTelemetry(options =>
+        services.AddHttpClient<ICrudApiClient, CrudApiClient>((sp, client) =>
+        {
+            client.BaseAddress = new Uri(EnvironmentVariables.GetRequired("CRUD_API_URL"));
+        }).AddHttpMessageHandler<CorrelationIdHandler>();
+        services.AddSingleton(sp =>
+        {
+            var endpoint = new Uri(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_URL"));
+            if (context.HostingEnvironment.IsDevelopment())
+            {
+                var credentials = new Azure.AzureKeyCredential(EnvironmentVariables.GetRequired("EVENT_GRID_TOPIC_KEY"));
+                return new EventGridPublisherClient(endpoint, credentials);
+            }
+
+            return new EventGridPublisherClient(endpoint, new ManagedIdentityCredential());
+        });
+    })
+    .ConfigureOpenTelemetry(nameof(ParticipantManager.EventHandler), appInsightsConnectionString)
+    .ConfigureSerilogLogging(appInsightsConnectionString)
+    .ConfigureLogging(logging =>
     {
-      options.AddAzureMonitorLogExporter(options => { options.ConnectionString = appInsightsConnectionString; });
-    });
-  })
-  .Build();
+        logging.AddOpenTelemetry(options =>
+        {
+            options.AddAzureMonitorLogExporter(options =>
+            {
+                options.ConnectionString = appInsightsConnectionString;
+            });
+        });
+    })
+    .Build();
 
 await host.RunAsync();

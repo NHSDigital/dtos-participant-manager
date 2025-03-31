@@ -7,40 +7,40 @@ namespace ParticipantManager.Shared;
 
 public class CorrelationIdMiddleware : IFunctionsWorkerMiddleware
 {
-  private const string CorrelationIdHeader = "X-Correlation-ID";
-  private readonly FunctionContextAccessor _functionContextAccessor;
+    private const string CorrelationIdHeader = "X-Correlation-ID";
+    private readonly FunctionContextAccessor _functionContextAccessor;
 
-  public CorrelationIdMiddleware(FunctionContextAccessor contextAccessor)
-  {
-    _functionContextAccessor = contextAccessor;
-  }
-
-  public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
-  {
-    var logger = context.GetLogger<CorrelationIdMiddleware>();
-    _functionContextAccessor.FunctionContext = context;
-    if (context.BindingContext.BindingData.TryGetValue("Headers", out var headersObj))
+    public CorrelationIdMiddleware(FunctionContextAccessor contextAccessor)
     {
-      var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersObj.ToString());
-      if (headers.TryGetValue(CorrelationIdHeader, out var correlationId) && !string.IsNullOrEmpty(correlationId))
-      {
-        logger.LogInformation("Using existing correlation ID: {CorrelationId}", correlationId);
-        context.Items[CorrelationIdHeader] = correlationId;
-      }
-      else
-      {
-        correlationId = Guid.NewGuid().ToString();
-        logger.LogInformation("Generated new correlation ID: {CorrelationId}", correlationId);
-        context.Items[CorrelationIdHeader] = correlationId;
-      }
-    }
-    else
-    {
-      var correlationId = Guid.NewGuid().ToString();
-      logger.LogInformation("Generated correlation ID as headers were missing: {CorrelationId}", correlationId);
-      context.Items[CorrelationIdHeader] = correlationId;
+        _functionContextAccessor = contextAccessor;
     }
 
-    await next(context);
-  }
+    public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
+    {
+        var logger = context.GetLogger<CorrelationIdMiddleware>();
+        _functionContextAccessor.FunctionContext = context;
+        if (context.BindingContext.BindingData.TryGetValue("Headers", out var headersObj) && headersObj != null)
+        {
+            var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(headersObj.ToString() ?? "{}");
+            if (headers != null && headers.TryGetValue(CorrelationIdHeader, out var correlationId) && !string.IsNullOrEmpty(correlationId))
+            {
+                logger.LogInformation("Using existing correlation ID: {CorrelationId}", correlationId);
+                context.Items[CorrelationIdHeader] = correlationId;
+            }
+            else
+            {
+                correlationId = Guid.NewGuid().ToString();
+                logger.LogInformation("Generated new correlation ID: {CorrelationId}", correlationId);
+                context.Items[CorrelationIdHeader] = correlationId;
+            }
+        }
+        else
+        {
+            var correlationId = Guid.NewGuid().ToString();
+            logger.LogInformation("Generated correlation ID as headers were missing: {CorrelationId}", correlationId);
+            context.Items[CorrelationIdHeader] = correlationId;
+        }
+
+        await next(context);
+    }
 }

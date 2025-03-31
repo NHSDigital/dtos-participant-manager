@@ -17,7 +17,7 @@ async function pemToPrivateKey(): Promise<CryptoKey | null> {
   }
 
   // Remove headers and convert to binary
-  const pemContents = pem.replace(/[\r\n\s]+|-{5}[A-Z\s]+?-{5}/g, "").trim();
+  const pemContents = pem.replace(/\s|-{5}[A-Z\s]+-{5}/g, "").trim();
 
   // Convert base64 to buffer
   const keyBuffer = Buffer.from(pemContents, "base64");
@@ -238,7 +238,7 @@ export async function getAuthConfig() {
       },
     },
     events: {
-      async session({ session, token }) {
+      async session({ session }) {
         const maxAge = 1800; // 30 minutes [Recommended by NHS login]
         const now = Math.floor(Date.now() / 1000);
         session.expires = new Date((now + maxAge) * 1000).toISOString();
