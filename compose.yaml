@@ -1,25 +1,4 @@
 services:
-  ### ✅ PostgreSQL Database ###
-  postgres-db:
-    container_name: "postgres-db"
-    image: postgres:16
-    restart: always
-    environment:
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   ### ✅ API Backend (Azure Functions in .NET 9) ###
   backend-api:
     container_name: "backend-api"
@@ -28,9 +7,6 @@ services:
       dockerfile: ParticipantManager.API/Dockerfile
     platform: linux/amd64
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
@@ -95,6 +71,3 @@ services:
 networks:
   backend:
     driver: bridge
-
-volumes:
-  postgres_data:
