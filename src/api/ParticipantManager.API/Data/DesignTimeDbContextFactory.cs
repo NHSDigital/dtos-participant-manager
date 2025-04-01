@@ -8,6 +8,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Participan
     public ParticipantManagerDbContext CreateDbContext(string[] args)
     {
         var connectionString = Environment.GetEnvironmentVariable("ParticipantManagerDatabaseConnectionString");
+
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException("Connection string 'ParticipantManagerDatabase' is not configured.");

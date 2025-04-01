@@ -17,7 +17,7 @@ namespace ParticipantManager.API.Migrations
                 {
                     ParticipantId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    DOB = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DOB = table.Column<DateOnly>(type: "date", nullable: false),
                     NhsNumber = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -32,10 +32,10 @@ namespace ParticipantManager.API.Migrations
                     EnrolmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParticipantId = table.Column<Guid>(type: "uuid", nullable: false),
                     PathwayTypeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    EnrolmentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LapsedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EnrolmentDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    LapsedDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    NextActionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    NextActionDate = table.Column<DateOnly>(type: "date", nullable: true),
                     ScreeningName = table.Column<string>(type: "text", nullable: false),
                     PathwayTypeName = table.Column<string>(type: "text", nullable: false)
                 },

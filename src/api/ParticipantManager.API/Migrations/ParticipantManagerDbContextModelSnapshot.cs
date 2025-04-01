@@ -55,8 +55,8 @@ namespace ParticipantManager.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("DOB")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("DOB")
+                        .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -78,14 +78,14 @@ namespace ParticipantManager.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("EnrolmentDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("EnrolmentDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("LapsedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("LapsedDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("NextActionDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("NextActionDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ParticipantId")
                         .HasColumnType("uuid");

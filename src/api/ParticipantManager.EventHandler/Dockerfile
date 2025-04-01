@@ -1,11 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
 WORKDIR /src/dotnet-function-app
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libpq-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 COPY ./ParticipantManager.Shared/ParticipantManager.Shared.csproj ../ParticipantManager.Shared/
 COPY ./ParticipantManager.EventHandler/ParticipantManager.EventHandler.csproj .
 RUN dotnet restore
