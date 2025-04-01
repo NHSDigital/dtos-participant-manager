@@ -19,6 +19,7 @@ The project consists of a number of Azure functions and a user-interface built i
   - [Configuration](#configuration)
   - [Usage](#usage)
     - [Testing](#testing)
+  - [OpenAPI Specifications](#openapi-specifications)
   - [Contact](#contact)
   - [Licence](#licence)
 
@@ -94,6 +95,13 @@ Once you have the database running in Docker with `make db-migrations` you can t
 The full test suite can be ran with `make test`.
 
 Unit tests can be ran with `make test-unit` and linting can be ran with `make test-lint`
+
+## OpenAPI Specifications
+
+The following OpenAPI Specifications exist for Participant Manager components:
+
+- Participant Experience API - [Raw](https://raw.githubusercontent.com/NHSDigital/dtos-participant-manager/refs/heads/main/src/api/ParticipantManager.API/openapi/openapi.yaml) / [Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/NHSDigital/dtos-participant-manager/refs/heads/main/src/api/ParticipantManager.API/openapi/openapi.yaml)
+- Participant API - [Raw](https://raw.githubusercontent.com/NHSDigital/dtos-participant-manager/refs/heads/main/src/api/ParticipantManager.Experience.API/openapi/openapi.yaml) / [Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/NHSDigital/dtos-participant-manager/refs/heads/main/src/api/ParticipantManager.Experience.API/openapi/openapi.yaml)
 
 ## Contact
 

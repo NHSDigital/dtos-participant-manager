@@ -12,30 +12,30 @@ using ParticipantManager.Shared.DTOs;
 
 namespace ParticipantManager.Experience.API.Tests.Functions;
 
-public class PathwayEnrolmentFunctionTests
+public class PathwayTypeEnrolmentFunctionTests
 {
     private readonly Mock<ICrudApiClient> _crudApiClient = new();
-    private readonly PathwayEnrolmentFunction _function;
-    private readonly Mock<ILogger<PathwayEnrolmentFunction>> _loggerMock;
+    private readonly PathwayTypeEnrolmentFunction _function;
+    private readonly Mock<ILogger<PathwayTypeEnrolmentFunction>> _loggerMock;
     private readonly Mock<ITokenService> _mockTokenService = new();
     private readonly Mock<IFeatureFlagClient> _mockFeatureFlagClient = new();
     private readonly Guid _participantId = Guid.NewGuid();
     private readonly Guid _enrolmentId = Guid.NewGuid();
     private readonly HttpRequestData _request = CreateHttpRequest("");
 
-    public PathwayEnrolmentFunctionTests()
+    public PathwayTypeEnrolmentFunctionTests()
     {
-        _loggerMock = new Mock<ILogger<PathwayEnrolmentFunction>>();
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
+        _loggerMock = new Mock<ILogger<PathwayTypeEnrolmentFunction>>();
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>()).Result)
             .Returns(MockPathwayDetails);
-        _function = new PathwayEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object,
+        _function = new PathwayTypeEnrolmentFunction(_loggerMock.Object, _crudApiClient.Object, _mockTokenService.Object,
             _mockFeatureFlagClient.Object);
         _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant(It.IsAny<string>(), It.IsAny<Guid>()))
             .ReturnsAsync(true);
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_InvalidToken_ReturnsUnauthorized()
+    public async Task GetPathwayTypeEnrolmentById_InvalidToken_ReturnsUnauthorized()
     {
         // Arrange
         _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
@@ -43,14 +43,14 @@ public class PathwayEnrolmentFunctionTests
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_NoNhsNumber_ReturnsUnauthorized()
+    public async Task GetPathwayTypeEnrolmentById_NoNhsNumber_ReturnsUnauthorized()
     {
         // Arrange
         var claims = new List<Claim>
@@ -68,14 +68,14 @@ public class PathwayEnrolmentFunctionTests
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId) as UnauthorizedResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status401Unauthorized, response?.StatusCode);
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_PathwayEnrolmentIsNull_ReturnsNotFound()
+    public async Task GetPathwayTypeEnrolmentById_PathwayTypeEnrolmentIsNull_ReturnsNotFound()
     {
         // Arrange
         var claims = new List<Claim>
@@ -90,19 +90,19 @@ public class PathwayEnrolmentFunctionTests
 
         _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
             .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentByIdAsync(_participantId, _enrolmentId))
             .Returns(Task.FromResult<EnrolledPathwayDetailsDto?>(null));
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as NotFoundResult;
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId) as NotFoundResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status404NotFound, response?.StatusCode);
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_NhsNumberDoesNotMatch_ReturnsForbidden()
+    public async Task GetPathwayTypeEnrolmentById_NhsNumberDoesNotMatch_ReturnsForbidden()
     {
         // Arrange
         var claims = new List<Claim>
@@ -120,7 +120,7 @@ public class PathwayEnrolmentFunctionTests
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId);
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId);
 
         // Assert
         Assert.NotNull(response);
@@ -128,7 +128,7 @@ public class PathwayEnrolmentFunctionTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_FeatureToggleIsDisabled_ReturnsForbidden()
+    public async Task GetPathwayTypeEnrolmentById_FeatureToggleIsDisabled_ReturnsForbidden()
     {
         // Arrange
         var claims = new List<Claim>
@@ -147,7 +147,7 @@ public class PathwayEnrolmentFunctionTests
             .ReturnsAsync(false);
 
         // Act
-        var response = await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId);
+        var response = await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId);
 
         // Assert
         Assert.NotNull(response);
@@ -155,7 +155,7 @@ public class PathwayEnrolmentFunctionTests
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_ValidToken_ReturnsOk()
+    public async Task GetPathwayTypeEnrolmentById_ValidToken_ReturnsOk()
     {
         // Arrange
         var claims = new List<Claim>
@@ -172,16 +172,16 @@ public class PathwayEnrolmentFunctionTests
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as OkObjectResult;
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId) as OkObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status200OK, response?.StatusCode);
-        var pathwayEnrolmentDto = response?.Value as EnrolledPathwayDetailsDto;
-        Assert.Equal(pathwayEnrolmentDto?.ScreeningName, pathwayEnrolmentDto?.ScreeningName);
+        var pathwayTypeEnrolmentDto = response?.Value as EnrolledPathwayDetailsDto;
+        Assert.Equal(pathwayTypeEnrolmentDto?.ScreeningName, pathwayTypeEnrolmentDto?.ScreeningName);
     }
 
     [Fact]
-    public async Task GetPathwayEnrolmentById_ExceptionIsThrown_ReturnsBadRequest()
+    public async Task GetPathwayTypeEnrolmentById_ExceptionIsThrown_ReturnsBadRequest()
     {
         // Arrange
         var claims = new List<Claim>
@@ -195,12 +195,12 @@ public class PathwayEnrolmentFunctionTests
 
         _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
             .ReturnsAsync(AccessTokenResult.Success(principal));
-        _crudApiClient.Setup(s => s.GetPathwayEnrolmentByIdAsync(_participantId, _enrolmentId))
+        _crudApiClient.Setup(s => s.GetPathwayTypeEnrolmentByIdAsync(_participantId, _enrolmentId))
             .ThrowsAsync(new Exception("Test exception message"));
 
         // Act
         var response =
-            await _function.GetPathwayEnrolmentById(_request, _participantId, _enrolmentId) as BadRequestObjectResult;
+            await _function.GetPathwayTypeEnrolmentById(_request, _participantId, _enrolmentId) as BadRequestObjectResult;
 
         // Assert
         Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
