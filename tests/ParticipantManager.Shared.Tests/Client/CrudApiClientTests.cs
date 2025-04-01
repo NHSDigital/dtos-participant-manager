@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 using ParticipantManager.API.Models;
 using ParticipantManager.Shared.DTOs;
 
@@ -41,10 +40,10 @@ public class CrudApiClientTests
         {
             new PathwayTypeEnrolment
             {
-                EnrolmentDate = DateTime.Now,
-                LapsedDate = DateTime.Now,
+                EnrolmentDate = DateOnly.FromDateTime(DateTime.Today),
+                LapsedDate = DateOnly.FromDateTime(DateTime.Today),
                 Status = "test status",
-                NextActionDate = DateTime.Now,
+                NextActionDate = DateOnly.FromDateTime(DateTime.Today),
                 PathwayTypeId = Guid.NewGuid(),
                 ScreeningName = "test screening name",
                 PathwayTypeName = "test pathway name",
