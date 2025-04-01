@@ -11,7 +11,7 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
-      ParticipantManagerDatabaseConnectionString: "Host=${DATABASE_HOST};Port=5432;Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD};"
+      ParticipantManagerDatabaseConnectionString: "Host=${DATABASE_HOST};Port=${DATABASE_PORT};Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD};"
     ports:
       - "${API_PORT}:80"
     networks:
