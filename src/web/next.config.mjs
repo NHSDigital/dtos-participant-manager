@@ -3,7 +3,8 @@ const nextConfig = {
   output: "standalone",
   serverExternalPackages: ["pino", "pino-pretty"],
   sassOptions: {
-    silenceDeprecations: ["legacy-js-api"],
+    quietDeps: true,
+    includePaths: ["./node_modules/nhsuk-frontend"],
   },
 };
 
