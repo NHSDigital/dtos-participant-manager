@@ -38,8 +38,7 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
                     ValidateIssuer = true,
                     RequireSignedTokens = false,
                     ValidateIssuerSigningKey = false,
-                    ValidateLifetime = false,
-                    //TODO Make sure this is set to true
+                    ValidateLifetime = true,
                     IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
                 };
                 // Validate the token
