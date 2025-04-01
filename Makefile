@@ -112,7 +112,7 @@ else
 	echo "⚙️  Running database migrations..."
 	cd $(API1_DIR) && ParticipantManagerDatabaseConnectionString="$(ParticipantManagerDatabaseConnectionString)" dotnet ef database update
 	echo "🌱 Seeding initial test data..."
-	PGPASSWORD=$(DATABASE_PASSWORD) psql -h $(DATABASE_HOST) -U $(DATABASE_USER) -d $(DATABASE_NAME) -f $(INITIAL_SEED_SCRIPT)
+	$(DOCKER) exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(DATABASE_USER) -d $(DATABASE_NAME) < $(INITIAL_SEED_SCRIPT)
 endif
 
 # Stop PostgreSQL
