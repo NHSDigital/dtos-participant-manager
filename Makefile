@@ -100,7 +100,7 @@ ifeq ($(OS), Windows_NT)
 	powershell -Command "while (-not (Test-NetConnection -ComputerName localhost -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded) { Write-Host '⏳ Waiting for database to be reachable...'; Start-Sleep -Seconds 3 }"
 	echo "✅ Database is ready!"
 	echo "⚙️  Running database migrations..."
-	cmd /c "cd $(API1_DIR) && set ParticipantManagerDatabaseConnectionString=$(ParticipantManagerDatabaseConnectionString) && dotnet ef database update"
+	cmd /c "cd $(API1_DIR) && dotnet ef database update --connection $(ParticipantManagerDatabaseConnectionString)"
 	echo "🌱 Seeding initial test data..."
 	cmd /c "$(DOCKER) exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(DATABASE_USER) -d $(DATABASE_NAME) < $(INITIAL_SEED_SCRIPT)"
 else
