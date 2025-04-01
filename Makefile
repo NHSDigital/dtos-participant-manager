@@ -110,7 +110,7 @@ else
 	done
 	echo "✅ Database is ready!"
 	echo "⚙️  Running database migrations..."
-	cd $(API1_DIR) && ParticipantManagerDatabaseConnectionString="$(ParticipantManagerDatabaseConnectionString)" dotnet ef database update
+	cd $(API1_DIR) && dotnet ef database update --connection "$(ParticipantManagerDatabaseConnectionString)"
 	echo "🌱 Seeding initial test data..."
 	$(DOCKER) exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(DATABASE_USER) -d $(DATABASE_NAME) < $(INITIAL_SEED_SCRIPT)
 endif
