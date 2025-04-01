@@ -10,11 +10,6 @@ RUN dotnet publish -c Release -o /home/site/wwwroot
 
 FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated9.0 AS production
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libpq-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true \
     ASPNETCORE_ENVIRONMENT=Production

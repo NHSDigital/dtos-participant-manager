@@ -12,7 +12,7 @@ public class PathwayTypeEnrolment
     [Required]
     public Guid PathwayTypeId { get; set; }
 
-    public DateOnly EnrolmentDate { get; set; }
+    public DateOnly EnrolmentDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     public DateOnly? LapsedDate { get; set; }
 
