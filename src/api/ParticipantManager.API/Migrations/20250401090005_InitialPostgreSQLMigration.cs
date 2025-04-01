@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace ParticipantManager.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgreSqlMigration : Migration
+    public partial class InitialPostgreSQLMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,31 +71,6 @@ namespace ParticipantManager.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Encounters",
-                columns: table => new
-                {
-                    EncounterId = table.Column<Guid>(type: "uuid", nullable: false),
-                    EpisodeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Outcome = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Encounters", x => x.EncounterId);
-                    table.ForeignKey(
-                        name: "FK_Encounters_Episodes_EpisodeId",
-                        column: x => x.EpisodeId,
-                        principalTable: "Episodes",
-                        principalColumn: "EpisodeId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Encounters_EpisodeId",
-                table: "Encounters",
-                column: "EpisodeId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_Episodes_PathwayTypeEnrolmentEnrolmentId",
                 table: "Episodes",
@@ -109,9 +85,6 @@ namespace ParticipantManager.API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Encounters");
-
             migrationBuilder.DropTable(
                 name: "Episodes");
 

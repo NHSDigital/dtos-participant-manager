@@ -12,8 +12,8 @@ using ParticipantManager.API.Data;
 namespace ParticipantManager.API.Migrations
 {
     [DbContext(typeof(ParticipantManagerDbContext))]
-    [Migration("20250331175253_InitialPostgreSQLMigration")]
-    partial class InitialPostgreSqlMigration
+    [Migration("20250401090005_InitialPostgreSQLMigration")]
+    partial class InitialPostgreSQLMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,29 +24,6 @@ namespace ParticipantManager.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.Property<Guid>("EncounterId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("EpisodeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Outcome")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("EncounterId");
-
-                    b.HasIndex("EpisodeId");
-
-                    b.ToTable("Encounters");
-                });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
@@ -138,15 +115,6 @@ namespace ParticipantManager.API.Migrations
                     b.ToTable("PathwayTypeEnrolments");
                 });
 
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.HasOne("ParticipantManager.API.Models.Episode", null)
-                        .WithMany("Encounters")
-                        .HasForeignKey("EpisodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
                     b.HasOne("ParticipantManager.API.Models.PathwayTypeEnrolment", "PathwayTypeEnrolment")
@@ -167,11 +135,6 @@ namespace ParticipantManager.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Participant");
-                });
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
-                {
-                    b.Navigation("Encounters");
                 });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Participant", b =>
