@@ -15,7 +15,7 @@ public class GetParticipantIdFunction(
 {
     [Function("GetParticipantId")]
     public async Task<IActionResult> GetParticipantId(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/me/id")]
         HttpRequestData req)
     {
         try

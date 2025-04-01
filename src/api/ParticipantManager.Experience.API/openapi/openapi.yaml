@@ -5,7 +5,7 @@ info:
   description: API used by Participant Manager front ends to present data.
 
 paths:
-  /participant:
+  /participants/me/id:
     get:
       summary: Get Participant ID
       description: Retrieves the Participant ID associated with the authenticated user.
@@ -39,13 +39,13 @@ paths:
         '500':
           description: Internal server error. This indicates an unexpected failure in the service.
 
-  /participants/{participantId}/pathwayenrolments/{enrolmentId}:
+  /participants/{participantId}/pathwaytypeenrolments/{enrolmentId}:
     get:
-      summary: Get Pathway Enrolment by ID
-      description: Retrieves a single Pathway Enrolment for the authenticated user.
-      operationId: GetPathwayEnrolmentById
+      summary: Get Pathway Type Enrolment by ID
+      description: Retrieves a single Pathway Type Enrolment for the authenticated user.
+      operationId: GetPathwayTypeEnrolmentById
       tags:
-        - PathwayEnrolments
+        - PathwayTypeEnrolments
       security:
         - BearerAuth: []
       parameters:
@@ -65,7 +65,7 @@ paths:
           description: The ID of the enrolment.
       responses:
         '200':
-          description: Successfully retrieved the pathway enrolment.
+          description: Successfully retrieved the pathway type enrolment.
           content:
             application/json:
               schema:
@@ -86,7 +86,7 @@ paths:
         '500':
           description: Internal server error. This indicates an unexpected failure in the service.
 
-  /participant/{participantId}/eligibility:
+  /participants/{participantId}/eligibility:
     get:
       summary: Get Screening Eligibility
       description: Retrieves a list of screening pathways for which the authenticated user is eligible.
@@ -111,7 +111,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PathwayEnrolmentDto'
+                  $ref: '#/components/schemas/PathwayTypeEnrolmentDto'
         '400':
           description: Bad request. Participant ID may be invalid.
           content:
@@ -159,7 +159,7 @@ components:
         participant:
           $ref: '#/components/schemas/ParticipantDto'
 
-    PathwayEnrolmentDto:
+    PathwayTypeEnrolmentDto:
       type: object
       properties:
         enrolmentId:

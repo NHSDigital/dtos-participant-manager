@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Session } from "next-auth";
 import type { PathwayItem } from "@/app/types";
 import { getAuthConfig } from "@/app/lib/auth";
-import { fetchPathwayEnrolment } from "@/app/lib/fetchPatientData";
+import { fetchPathwayTypeEnrolment } from "@/app/lib/fetchPatientData";
 import { logger } from "@/app/lib/logger";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Card from "@/app/components/card";
@@ -16,20 +16,20 @@ export const generateMetadata = (screeningType: string): Metadata => ({
   title: `${screeningType} screening - ${process.env.SERVICE_NAME} - NHS`,
 });
 
-const getPathwayEnrolment = async (
+const getPathwayTypeEnrolment = async (
   session: Session | null,
   enrolmentId: string
 ): Promise<PathwayItem | null> => {
   if (!session?.user?.accessToken) {
-    logger.warn(`No access token found for pathway enrolment: ${enrolmentId}`);
+    logger.warn(`No access token found for pathway type enrolment: ${enrolmentId}`);
     return null;
   }
 
   try {
-    return await fetchPathwayEnrolment(session, enrolmentId);
+    return await fetchPathwayTypeEnrolment(session, enrolmentId);
   } catch (error) {
     logger.error(
-      ` Failed to get pathway enrolment data for: ${enrolmentId}`,
+      ` Failed to get pathway type enrolment data for: ${enrolmentId}`,
       error
     );
     return null;
@@ -45,8 +45,8 @@ export default async function ScreeningPage({
   const breadcrumbItems = [{ label: "Home", url: "/screening" }];
   const resolvedParams = await params;
   const enrolmentId = resolvedParams.enrolmentId;
-  const pathwayEnrolment = session?.user
-    ? await getPathwayEnrolment(session, enrolmentId)
+  const pathwayTypeEnrolment = session?.user
+    ? await getPathwayTypeEnrolment(session, enrolmentId)
     : null;
 
   return (
@@ -56,18 +56,18 @@ export default async function ScreeningPage({
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
             <h1>{screeningType} screening</h1>
-            {pathwayEnrolment?.nextActionDate ? (
+            {pathwayTypeEnrolment?.nextActionDate ? (
               <InsetText
-                text={`Your next ${pathwayEnrolment.screeningName} is due by`}
-                date={pathwayEnrolment.nextActionDate}
+                text={`Your next ${pathwayTypeEnrolment.screeningName} is due by`}
+                date={pathwayTypeEnrolment.nextActionDate}
               />
             ) : (
               <InsetText text="You have no upcoming invitations." />
             )}
-            {pathwayEnrolment?.infoUrl && (
+            {pathwayTypeEnrolment?.infoUrl && (
               <Card
-                title={`About ${pathwayEnrolment.screeningName}`}
-                url={pathwayEnrolment.infoUrl}
+                title={`About ${pathwayTypeEnrolment.screeningName}`}
+                url={pathwayTypeEnrolment.infoUrl}
               />
             )}
           </div>

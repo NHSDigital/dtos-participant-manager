@@ -44,7 +44,7 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber,
+                    NhsNumber = p.Participant!.NhsNumber,
                     ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
@@ -78,7 +78,7 @@ public class PathwayTypeEnrolmentFunctions(
                 ParticipantId = p.ParticipantId,
                 Participant = new Participant
                 {
-                    NhsNumber = p.Participant.NhsNumber,
+                    NhsNumber = p.Participant!.NhsNumber,
                     ParticipantId = p.Participant.ParticipantId,
                     Name = p.Participant.Name
                 }
@@ -91,7 +91,7 @@ public class PathwayTypeEnrolmentFunctions(
 
     [Function("CreatePathwayTypeEnrolment")]
     public async Task<IActionResult> CreatePathwayTypeEnrolment(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolment")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "pathwaytypeenrolments")]
         HttpRequestData req)
     {
         logger.LogInformation($"{nameof(CreatePathwayTypeEnrolment)} processed a request.");

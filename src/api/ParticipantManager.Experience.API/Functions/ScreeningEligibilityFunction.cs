@@ -15,7 +15,7 @@ public class ScreeningEligibilityFunction(
 {
     [Function("GetScreeningEligibility")]
     public async Task<IActionResult> GetScreeningEligibility(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participant/{participantId}/eligibility")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "participants/{participantId}/eligibility")]
         HttpRequestData req, Guid participantId)
     {
         try
@@ -41,10 +41,10 @@ public class ScreeningEligibilityFunction(
                 return new UnauthorizedResult();
             }
 
-            var pathwayEnrolments = await crudApiClient.GetPathwayEnrolmentsAsync(participantId);
+            var pathwayTypeEnrolments = await crudApiClient.GetPathwayTypeEnrolmentsAsync(participantId);
 
             //Check that logged in user has access to participant
-            if (pathwayEnrolments.Any(pe => pe.Participant.NhsNumber != nhsNumber))
+            if (pathwayTypeEnrolments.Any(pe => pe.Participant.NhsNumber != nhsNumber))
             {
                 logger.LogError("Logged in user does not have access to this record: {@ParticipantId}",
                     new { ParticipantId = participantId });
@@ -58,9 +58,9 @@ public class ScreeningEligibilityFunction(
                 return new ForbidResult();
             }
 
-            logger.LogInformation("Found pathway enrolments for Participant: {@ParticipantId}",
+            logger.LogInformation("Found pathway type enrolments for Participant: {@ParticipantId}",
                 new { ParticipantId = participantId });
-            return new OkObjectResult(pathwayEnrolments);
+            return new OkObjectResult(pathwayTypeEnrolments);
         }
         catch (Exception ex)
         {

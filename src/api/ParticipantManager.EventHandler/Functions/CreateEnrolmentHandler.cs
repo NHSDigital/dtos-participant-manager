@@ -59,7 +59,7 @@ public class CreateEnrolmentHandler
             ? await _crudApiClient.CreateParticipantAsync(pathwayParticipantDto)
             : participantDto.ParticipantId;
 
-        var pathwayEnrolmentDto = new CreatePathwayTypeEnrolmentDto
+        var pathwayTypeEnrolmentDto = new CreatePathwayTypeEnrolmentDto
         {
             ParticipantId = participantId.Value,
             PathwayTypeId = pathwayParticipantDto.PathwayTypeId,
@@ -67,13 +67,13 @@ public class CreateEnrolmentHandler
             ScreeningName = pathwayParticipantDto.ScreeningName
         };
 
-        var succeeded = await _crudApiClient.CreatePathwayTypeEnrolmentAsync(pathwayEnrolmentDto);
+        var succeeded = await _crudApiClient.CreatePathwayTypeEnrolmentAsync(pathwayTypeEnrolmentDto);
 
         if (!succeeded)
         {
             _logger.LogError(
                 "Failed to create PathwayTypeEnrolment for Participant: {Participant}, PathwayTypeName: {PathwayTypeName}",
-                pathwayEnrolmentDto.ParticipantId, pathwayEnrolmentDto.PathwayTypeName);
+                pathwayTypeEnrolmentDto.ParticipantId, pathwayTypeEnrolmentDto.PathwayTypeName);
             return;
         }
 
