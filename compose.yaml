@@ -1,6 +1,6 @@
 services:
   ### ✅ PostgreSQL Database ###
-  postgres:
+  postgres-db:
     container_name: "postgres-db"
     image: postgres:16
     restart: always
