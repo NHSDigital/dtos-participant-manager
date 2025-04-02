@@ -258,17 +258,17 @@ components:
           format: uuid
         enrolmentDate:
           type: string
-          format: date-time
+          format: date
         lapsedDate:
           type: string
-          format: date-time
+          format: date
           nullable: true
         status:
           type: string
           default: Active
         nextActionDate:
           type: string
-          format: date-time
+          format: date
           nullable: true
         participant:
           $ref: '#/components/schemas/Participant'
