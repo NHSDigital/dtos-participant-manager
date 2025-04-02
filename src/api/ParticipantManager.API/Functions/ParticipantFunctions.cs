@@ -113,6 +113,35 @@ public class ParticipantFunctions(
             return new NotFoundObjectResult($"No Participant found with NHS Number {nhsNumber}.");
         }
 
+        Foo();
+        Bar();
+
         return new OkObjectResult(participant);
+    }
+
+    private void Foo() {
+        Console.WriteLine("Hello World");
+        Console.WriteLine("Another line");
+        Console.WriteLine("A third line");
+        Console.WriteLine("A fourth line");
+        Console.WriteLine("A fifth line");
+        Console.WriteLine("A sixth line");
+        Console.WriteLine("A seventh line");
+        Console.WriteLine("An eighth line");
+        Console.WriteLine("A ninth line");
+        Console.WriteLine("A tenth line");
+    }
+
+    private void Bar() {
+        Console.WriteLine("Hello World");
+        Console.WriteLine("Another line");
+        Console.WriteLine("A third line");
+        Console.WriteLine("A fourth line");
+        Console.WriteLine("A fifth line");
+        Console.WriteLine("A sixth line");
+        Console.WriteLine("A seventh line");
+        Console.WriteLine("An eighth line");
+        Console.WriteLine("A ninth line");
+        Console.WriteLine("A tenth line");
     }
 }
