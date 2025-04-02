@@ -105,6 +105,7 @@ async function generateClientAssertion(
 export async function getAuthConfig() {
   const nhsLoginConfig = await getNhsLoginConfig();
   return NextAuth({
+    debug: true,
     providers: [nhsLoginConfig],
     session: {
       strategy: "jwt",
@@ -141,6 +142,7 @@ export async function getAuthConfig() {
                 },
               }
             );
+            console.log(response);
             profile = await response.json();
           } catch (error) {
             logger.error("Error fetching userinfo:", error);

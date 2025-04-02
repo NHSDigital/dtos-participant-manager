@@ -1,0 +1,6 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummyPayload.dummySignature",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "read:user user:email"
+}

@@ -1,0 +1,18 @@
+{
+  "login": "janedoe",
+  "id": 12345678,
+  "node_id": "MDQ6VXNlcjEyMzQ1Njc4",
+  "avatar_url": "https://avatars.githubusercontent.com/u/12345678?v=4",
+  "name": "Jane Doe",
+  "email": "janedoe@example.com",
+  "bio": "Open source enthusiast",
+  "location": "London, UK",
+  "blog": "https://janedoe.dev",
+  "company": "Independent",
+  "twitter_username": "janedoedev",
+  "public_repos": 42,
+  "followers": 100,
+  "following": 50,
+  "created_at": "2018-01-01T00:00:00Z",
+  "updated_at": "2025-01-01T12:00:00Z"
+}
