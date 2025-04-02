@@ -116,13 +116,13 @@ export interface components {
             participantId: string;
             /** Format: uuid */
             pathwayTypeId: string;
-            /** Format: date-time */
+            /** Format: date */
             enrolmentDate?: string;
-            /** Format: date-time */
+            /** Format: date */
             lapsedDate?: string | null;
             /** @default Active */
             status: string;
-            /** Format: date-time */
+            /** Format: date */
             nextActionDate?: string | null;
             participant: components["schemas"]["Participant"];
             episodes?: components["schemas"]["Episode"][];
@@ -136,16 +136,6 @@ export interface components {
             enrolmentId: string;
             pathwayVersion: string;
             status: string;
-            encounters?: components["schemas"]["Encounter"][];
-        };
-        Encounter: {
-            /** Format: uuid */
-            encounterId?: string;
-            /** Format: uuid */
-            episodeId: string;
-            /** Format: date-time */
-            date: string;
-            outcome: string;
         };
     };
     responses: never;

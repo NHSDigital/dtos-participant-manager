@@ -71,10 +71,10 @@ export interface components {
         EnrolledPathwayDetailsDto: {
             /** Format: uuid */
             enrolmentId?: string;
-            /** Format: date-time */
+            /** Format: date */
             enrolmentDate?: string;
             status?: string;
-            /** Format: date-time */
+            /** Format: date */
             nextActionDate?: string | null;
             screeningName?: string;
             pathwayTypeName?: string;
