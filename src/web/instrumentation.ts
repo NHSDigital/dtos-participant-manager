@@ -1,54 +1,81 @@
 import { logger } from "@/app/lib/logger";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
-    const { NodeSDK } = await import("@opentelemetry/sdk-node");
-    const { PinoInstrumentation } = await import(
-      "@opentelemetry/instrumentation-pino"
-    );
-    const { HttpInstrumentation } = await import(
-      "@opentelemetry/instrumentation-http"
-    );
-    const { FetchInstrumentation } = await import(
-      "@opentelemetry/instrumentation-fetch"
-    );
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
-    const sdk = new NodeSDK({
-      instrumentations: [
-        new HttpInstrumentation(),
-        new FetchInstrumentation(),
-        new PinoInstrumentation({
-          logKeys: {
-            traceId: "traceId",
-            spanId: "spanId",
-            traceFlags: "traceFlags",
-          },
-        }),
-      ],
-    });
+  // If in a test environment, skip telemetry setup and only enable MSW
+  if (process.env.APP_ENV === "test") {
+    const unmocked = [
+      "nextjs.org",
+      "googleapis.com",
+      "gstatic.com",
+      "github.com/mona.png",
+    ];
 
-    process.on("SIGTERM", () => {
-      sdk
-        .shutdown()
-        .then(() => console.log("SDK shut down successfully"))
-        .catch((error) => console.log("Error shutting down SDK", error))
-        .finally(() => process.exit(0));
-    });
+    const { server } = await import("./Setup/Mocks/node");
 
-    const options = {
-      azureMonitorExporterOptions: {
-        connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    server.listen({
+      onUnhandledRequest(request: any, print: any) {
+        const url = new URL(request.url);
+        if (unmocked.some((host) => url.hostname.includes(host))) {
+          return;
+        }
+
+        print.warning();
       },
-    };
+    });
 
-    if (!options.azureMonitorExporterOptions.connectionString) {
-      logger.warn(
-        "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
-      );
-      return;
-    }
-
-    useAzureMonitor(options);
+    console.log("[Monitoring] Skipped Azure Monitor setup in test environment.");
+    return;
   }
+
+  // Only run monitoring setup outside test env
+  const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
+  const { NodeSDK } = await import("@opentelemetry/sdk-node");
+  const { PinoInstrumentation } = await import(
+    "@opentelemetry/instrumentation-pino"
+  );
+  const { HttpInstrumentation } = await import(
+    "@opentelemetry/instrumentation-http"
+  );
+  const { FetchInstrumentation } = await import(
+    "@opentelemetry/instrumentation-fetch"
+  );
+
+  const sdk = new NodeSDK({
+    instrumentations: [
+      new HttpInstrumentation(),
+      new FetchInstrumentation(),
+      new PinoInstrumentation({
+        logKeys: {
+          traceId: "traceId",
+          spanId: "spanId",
+          traceFlags: "traceFlags",
+        },
+      }),
+    ],
+  });
+
+  process.on("SIGTERM", () => {
+    sdk
+      .shutdown()
+      .then(() => console.log("SDK shut down successfully"))
+      .catch((error) => console.log("Error shutting down SDK", error))
+      .finally(() => process.exit(0));
+  });
+
+  const options = {
+    azureMonitorExporterOptions: {
+      connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    },
+  };
+
+  if (!options.azureMonitorExporterOptions.connectionString) {
+    logger.warn(
+      "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
+    );
+    return;
+  }
+
+  useAzureMonitor(options);
 }
