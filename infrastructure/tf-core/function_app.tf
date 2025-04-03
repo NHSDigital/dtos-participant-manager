@@ -83,10 +83,7 @@ locals {
             },
             {
               for k, v in config.local_urls : k => format(v, module.regions_config[region].names["function-app"]) # Function App and Web App have the same naming prefix
-            },
-            length(config.db_connection_string) > 0 ? {
-              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.parman.db_name_suffix}"
-            } : {}
+            }
           )
 
           # azuread_group_ids = flatten([
@@ -108,12 +105,6 @@ locals {
                   scope                = module.storage["${account}-${region}"].storage_account_id
                 }
               ]
-            ],
-            [
-              for role in local.rbac_roles_database : {
-                role_definition_name = role
-                scope                = module.azure_sql_server[region].sql_server_id
-              }
             ]
           ])
         }

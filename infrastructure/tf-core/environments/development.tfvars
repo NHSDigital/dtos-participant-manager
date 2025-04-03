@@ -287,34 +287,6 @@ postgresql = {
   # fw_rules = {}
 }
 
-sqlserver = {
-  sql_uai_name                         = "dtos-participant-manager-sql-adm"
-  sql_admin_group_name                 = "sqlsvr_parman_dev_uks_admin"
-  ad_auth_only                         = true
-  auditing_policy_retention_in_days    = 30
-  security_alert_policy_retention_days = 30
-
-  server = {
-    sqlversion                    = "12.0"
-    tlsversion                    = 1.2
-    azure_services_access_enabled = true
-  }
-
-  # parman database
-  dbs = {
-    parman = {
-      db_name_suffix = "participant_database"
-      collation      = "SQL_Latin1_General_CP1_CI_AS"
-      licence_type   = "LicenseIncluded"
-      max_gb         = 5
-      read_scale     = false
-      sku            = "S0"
-    }
-  }
-
-  fw_rules = {}
-}
-
 storage_accounts = {
   fnapp = {
     name_suffix                   = "fnappstor"

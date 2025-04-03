@@ -441,41 +441,6 @@ variable "routes" {
   default = {}
 }
 
-variable "sqlserver" {
-  description = "Configuration for the Azure MSSQL server instance and a default database "
-  type = object({
-
-    sql_uai_name                         = optional(string)
-    sql_admin_group_name                 = optional(string)
-    ad_auth_only                         = optional(bool)
-    auditing_policy_retention_in_days    = optional(number)
-    security_alert_policy_retention_days = optional(number)
-
-    # Server Instance
-    server = optional(object({
-      sqlversion                    = optional(string, "12.0")
-      tlsversion                    = optional(number, 1.2)
-      azure_services_access_enabled = optional(bool, true)
-    }), {})
-
-    # Database
-    dbs = optional(map(object({
-      db_name_suffix = optional(string, "participant_database")
-      collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
-      licence_type   = optional(string, "LicenseIncluded")
-      max_gb         = optional(number, 5)
-      read_scale     = optional(bool, false)
-      sku            = optional(string, "S0")
-    })), {})
-
-    # FW Rules
-    fw_rules = optional(map(object({
-      fw_rule_name = string
-      start_ip     = string
-      end_ip       = string
-    })), {})
-  })
-}
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"

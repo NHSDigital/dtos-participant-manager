@@ -38,17 +38,3 @@ law = {
   export_table_names = ["Alert"]
 }
 
-storage_accounts = {
-  sqllogs = {
-    name_suffix                   = "sqllogs"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
-    containers = {
-      vulnerability-assessment = {
-        container_name        = "vulnerability-assessment"
-        container_access_type = "private"
-      }
-    }
-  }
-}
