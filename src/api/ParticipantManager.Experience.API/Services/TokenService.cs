@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ParticipantManager.Shared;
@@ -18,6 +19,25 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
     private readonly string _audience = EnvironmentVariables.GetRequired("AUTH_NHSLOGIN_CLIENT_ID");
 
     private readonly string _issuer = EnvironmentVariables.GetRequired("AUTH_NHSLOGIN_ISSUER_URL");
+
+    public static RsaSecurityKey ConvertPemToRsaSecurityKey(string pem)
+    {
+        // Remove the "-----BEGIN PUBLIC KEY-----" and "-----END PUBLIC KEY-----" parts
+        var pemContents = pem.Replace("-----BEGIN PUBLIC KEY-----", string.Empty)
+                             .Replace("-----END PUBLIC KEY-----", string.Empty)
+                             .Replace("\n", string.Empty)
+                             .Replace("\r", string.Empty);
+
+        // Convert the base64 string into bytes
+        byte[] keyBytes = Convert.FromBase64String(pemContents);
+
+        // Create an RSA object and import the key
+        var rsa = RSA.Create();  // Use RSA.Create() instead of RSACryptoServiceProvider
+        rsa.ImportSubjectPublicKeyInfo(keyBytes, out _); // Import the public key
+
+        // Return the RsaSecurityKey
+        return new RsaSecurityKey(rsa);
+    }
 
     public async Task<AccessTokenResult> ValidateToken(HttpRequestData request)
     {
@@ -41,6 +61,12 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
                     ValidateLifetime = true,
                     IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
                 };
+
+                if (EnvironmentVariables.GetRequired("APP_ENV") == "test")
+                {
+                    tokenParams.IssuerSigningKey = ConvertPemToRsaSecurityKey(EnvironmentVariables.GetRequired("TEST_JWT_PUBLIC_KEY"));
+                }
+
                 // Validate the token
                 var handler = new JwtSecurityTokenHandler();
                 logger.LogInformation("About to validate access token");
