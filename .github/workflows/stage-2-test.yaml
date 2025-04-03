@@ -59,12 +59,23 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: Grant execute permission for lint.sh
-        run: chmod +x scripts/tests/lint.sh
       - name: "Run linting"
         run: |
           make test-lint
       - name: "Save the linting result"
+        run: |
+          echo "Nothing to save"
+  test-ui:
+    name: "UI tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run UI test suite"
+        run: |
+          make test-ui
+      - name: "Save the result of fast test suite"
         run: |
           echo "Nothing to save"
   test-coverage:

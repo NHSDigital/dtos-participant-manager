@@ -68,6 +68,7 @@ _test:
 	set -e
 	script="./scripts/tests/${name}.sh"
 	if [ -e "$${script}" ]; then
+		chmod +x $${script}
 		exec $${script}
 	else
 		echo "make test-${name} not implemented: $${script} not found" >&2
