@@ -40,11 +40,15 @@ export const handlers = [
       console.log("🔍 Request body:", body);
 
       return HttpResponse.json({
-        "sub": "999999999999",
-        "name": "Smith Jane Ms",
-        "given_name": "Jane",
-        "family_name": "Smith"
-       });
+        sub: '49f470a1-cc52-49b7-beba-0f9cec937c46',
+        iss: 'https://auth.sandpit.signin.nhs.uk',
+        aud: 'screening participant manager',
+        nhs_number: '9686368973',
+        birthdate: '1968-02-12',
+        family_name: 'MILLAR',
+        identity_proofing_level: 'P9',
+        given_name: 'Mona'
+      });
     }
   ),
 
