@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ParticipantManager.API.Data;
 
 #nullable disable
@@ -12,61 +12,38 @@ using ParticipantManager.API.Data;
 namespace ParticipantManager.API.Migrations
 {
     [DbContext(typeof(ParticipantManagerDbContext))]
-    [Migration("20250318143947_nhs-number-casing")]
-    partial class nhsnumbercasing
+    [Migration("20250401125748_InitialPostgreSQLMigration")]
+    partial class InitialPostgreSQLMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.Property<Guid>("EncounterId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EpisodeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Outcome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EncounterId");
-
-                    b.HasIndex("EpisodeId");
-
-                    b.ToTable("Encounters");
-                });
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
                     b.Property<Guid>("EpisodeId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EnrolmentId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("PathwayTypeEnrolmentEnrolmentId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("PathwayVersion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("EpisodeId");
 
@@ -79,19 +56,19 @@ namespace ParticipantManager.API.Migrations
                 {
                     b.Property<Guid>("ParticipantId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("DOB")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("DOB")
+                        .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NhsNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("ParticipantId");
 
@@ -102,49 +79,40 @@ namespace ParticipantManager.API.Migrations
                 {
                     b.Property<Guid>("EnrolmentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("EnrolmentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("EnrolmentDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("LapsedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly?>("LapsedDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("NextActionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly?>("NextActionDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ParticipantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("PathwayTypeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("PathwayTypeName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ScreeningName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("EnrolmentId");
 
                     b.HasIndex("ParticipantId");
 
                     b.ToTable("PathwayTypeEnrolments");
-                });
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.HasOne("ParticipantManager.API.Models.Episode", null)
-                        .WithMany("Encounters")
-                        .HasForeignKey("EpisodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
@@ -167,11 +135,6 @@ namespace ParticipantManager.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Participant");
-                });
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
-                {
-                    b.Navigation("Encounters");
                 });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Participant", b =>

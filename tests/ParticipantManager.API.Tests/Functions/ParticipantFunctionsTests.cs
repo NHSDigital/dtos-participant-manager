@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ public class ParticipantFunctionsTests
         {
             ParticipantId = Guid.NewGuid(),
             Name = "Test Ting",
-            DOB = DateTime.Parse("1980-01-01"),
+            DOB = DateOnly.Parse("1980-01-01", CultureInfo.InvariantCulture),
             NhsNumber = "1234567890"
         };
 
@@ -35,7 +36,7 @@ public class ParticipantFunctionsTests
         {
             ParticipantId = Guid.NewGuid(),
             Name = "Justin Test",
-            DOB = DateTime.Parse("1990-06-15"),
+            DOB = DateOnly.Parse("1990-06-15", CultureInfo.InvariantCulture),
             NhsNumber = "9876543210"
         };
 
@@ -156,7 +157,7 @@ public class ParticipantFunctionsTests
             invalidParticipant.Name = name;
 
         if (!string.IsNullOrEmpty(dobString))
-            invalidParticipant.DOB = DateTime.Parse(dobString);
+            invalidParticipant.DOB = DateOnly.Parse(dobString);
 
         if (!string.IsNullOrEmpty(nhsNumber))
             invalidParticipant.NhsNumber = nhsNumber;

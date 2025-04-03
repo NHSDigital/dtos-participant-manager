@@ -11,7 +11,7 @@ public class Participant
     public required string Name { get; set; }
 
     [Required(ErrorMessage = "Date of Birth is required.")]
-    public DateTime DOB { get; set; }
+    public DateOnly DOB { get; set; }
 
     [Required(ErrorMessage = "NHS Number is required.")]
     [RegularExpression(@"^\d{10}$", ErrorMessage = "NHS Number must be exactly 10 digits.")]

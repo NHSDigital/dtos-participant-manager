@@ -18,7 +18,8 @@ The project consists of a number of Azure functions and a user-interface built i
     - [Prerequisites](#prerequisites)
   - [Configuration](#configuration)
   - [Usage](#usage)
-    - [Testing](#testing)
+  - [Testing](#testing)
+  - [Open API types](#open-api-types)
   - [OpenAPI Specifications](#openapi-specifications)
   - [Contact](#contact)
   - [Licence](#licence)
@@ -90,11 +91,23 @@ Once you have the database running in Docker with `make db-migrations` you can t
 
 `make stop` will shut down all the processes.
 
-### Testing
+## Testing
 
 The full test suite can be ran with `make test`.
 
 Unit tests can be ran with `make test-unit` and linting can be ran with `make test-lint`
+
+## Open API types
+
+Some types are imported from the Open API docs for `ParticipantManager.API` and `ParticipantManager.Experience.API`. You can use the `openapi-typescript` npm package to generate the types with the following command:
+
+```shell
+npx openapi-typescript ./src/api/ParticipantManager.API/openapi/openapi.yaml -o ./src/web/app/types/ParticipantManager.API/schema.d.ts
+```
+
+```shell
+npx openapi-typescript ./src/api/ParticipantManager.Experience.API/openapi/openapi.yaml -o ./src/web/app/types/ParticipantManager.Experience.API/schema.d.ts
+```
 
 ## OpenAPI Specifications
 

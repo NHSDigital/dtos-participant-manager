@@ -226,9 +226,9 @@ public class PathwayTypeEnrolmentFunctionTests
             EnrolmentId = Guid.NewGuid(),
             ScreeningName = "Breast Screening",
             Status = "Active",
-            EnrolmentDate = DateTime.Now,
+            EnrolmentDate = DateOnly.FromDateTime(DateTime.Now),
             PathwayTypeName = "Breast Screening Regular",
-            NextActionDate = DateTime.Now,
+            NextActionDate = DateOnly.FromDateTime(DateTime.Now),
             Participant = new ParticipantDto
             {
                 Name = "John Doe",

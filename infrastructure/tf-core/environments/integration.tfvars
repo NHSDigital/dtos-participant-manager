@@ -266,6 +266,27 @@ linux_web_app = {
 
 linux_web_app_slots = []
 
+postgresql = {
+  postgres_sql_admin_group      = "postgresql_parman_dev_uks_admin"
+  backup_retention_days         = 30
+  geo_redundant_backup_enabled  = false
+  public_network_access_enabled = false
+  server_version                = 16
+  zone                          = 1
+
+  # parman database
+  dbs = {
+    commgt = {
+      storage_tier = "P10"
+      storage_mb   = 32768
+      # sku_name     = "B_Standard_B2s"
+      sku_name = "GP_Standard_D2s_v3"
+    }
+  }
+
+  # fw_rules = {}
+}
+
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_parman_int_uks_admin"
