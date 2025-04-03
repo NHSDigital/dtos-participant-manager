@@ -20,5 +20,6 @@ paths = [
   '''.terraform.lock.hcl''',
   '''poetry.lock''',
   '''yarn.lock''',
-  '''\.sln'''
+  '''\.sln''',
+  '''.env.tests'''
 ]

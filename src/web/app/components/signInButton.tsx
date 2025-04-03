@@ -14,6 +14,7 @@ export default function SignInButton() {
         className={`nhsuk-button app-button--login ${styles["app-button--login"]} nhsuk-u-margin-bottom-4`}
         data-module="nhsuk-button"
         type="submit"
+        data-qa="nhs-login-button"
       >
         Continue to NHS login
       </button>
