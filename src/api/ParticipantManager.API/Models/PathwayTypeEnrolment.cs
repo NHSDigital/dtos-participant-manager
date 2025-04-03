@@ -12,13 +12,13 @@ public class PathwayTypeEnrolment
     [Required]
     public Guid PathwayTypeId { get; set; }
 
-    public DateTime EnrolmentDate { get; set; } = DateTime.UtcNow;
+    public DateOnly EnrolmentDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
-    public DateTime? LapsedDate { get; set; }
+    public DateOnly? LapsedDate { get; set; }
 
     public string Status { get; set; } = "Active";
 
-    public DateTime? NextActionDate { get; set; }
+    public DateOnly? NextActionDate { get; set; }
 
     public Participant? Participant { get; set; }
 

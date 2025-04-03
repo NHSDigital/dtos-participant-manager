@@ -258,17 +258,17 @@ components:
           format: uuid
         enrolmentDate:
           type: string
-          format: date-time
+          format: date
         lapsedDate:
           type: string
-          format: date-time
+          format: date
           nullable: true
         status:
           type: string
           default: Active
         nextActionDate:
           type: string
-          format: date-time
+          format: date
           nullable: true
         participant:
           $ref: '#/components/schemas/Participant'
@@ -298,27 +298,3 @@ components:
           type: string
         status:
           type: string
-        encounters:
-          type: array
-          items:
-            $ref: '#/components/schemas/Encounter'
-
-    Encounter:
-      type: object
-      required:
-        - episodeId
-        - date
-        - outcome
-      properties:
-        encounterId:
-          type: string
-          format: uuid
-        episodeId:
-          type: string
-          format: uuid
-        date:
-          type: string
-          format: date-time
-        outcome:
-          type: string
-
