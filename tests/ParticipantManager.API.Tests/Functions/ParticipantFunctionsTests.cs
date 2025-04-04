@@ -151,7 +151,7 @@ public class ParticipantFunctionsTests
         string name, string dobString, string nhsNumber, Type expectedValidationResultType)
     {
         // Arrange
-        var invalidParticipant = new Participant() { Name = "", NhsNumber = "" };
+        var invalidParticipant = new Participant { Name = "", NhsNumber = "" };
 
         if (!string.IsNullOrEmpty(name))
             invalidParticipant.Name = name;
