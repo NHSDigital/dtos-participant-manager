@@ -45,7 +45,7 @@ var host = new HostBuilder()
             if (string.IsNullOrEmpty(databaseConnectionString))
                 throw new InvalidOperationException("The connection string has not been initialized.");
 
-            options.UseNpgsql(databaseConnectionString);
+            options.UseSqlServer(databaseConnectionString);
         });
         services.AddHttpContextAccessor();
     })

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 using ParticipantManager.API.Models;
 using ParticipantManager.Shared.DTOs;
 
@@ -36,7 +37,7 @@ public class CrudApiClientTests
     public async Task GetPathwayTypeEnrolmentsAsync_ShouldReturnEnrolments_WhenResponseIsSuccessful()
     {
         // Arrange
-        var expectedEnrolments = new List<PathwayTypeEnrolment>()
+        var expectedEnrolments = new List<PathwayTypeEnrolment>
         {
             new PathwayTypeEnrolment
             {
