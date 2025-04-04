@@ -37,14 +37,14 @@ public class CrudApiClientTests
     public async Task GetPathwayTypeEnrolmentsAsync_ShouldReturnEnrolments_WhenResponseIsSuccessful()
     {
         // Arrange
-        var expectedEnrolments = new List<PathwayTypeEnrolment>()
+        var expectedEnrolments = new List<PathwayTypeEnrolment>
         {
             new PathwayTypeEnrolment
             {
-                EnrolmentDate = DateTime.Now,
-                LapsedDate = DateTime.Now,
+                EnrolmentDate = DateOnly.FromDateTime(DateTime.Today),
+                LapsedDate = DateOnly.FromDateTime(DateTime.Today),
                 Status = "test status",
-                NextActionDate = DateTime.Now,
+                NextActionDate = DateOnly.FromDateTime(DateTime.Today),
                 PathwayTypeId = Guid.NewGuid(),
                 ScreeningName = "test screening name",
                 PathwayTypeName = "test pathway name",
