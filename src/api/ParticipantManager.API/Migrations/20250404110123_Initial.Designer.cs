@@ -12,7 +12,7 @@ using ParticipantManager.API.Data;
 namespace ParticipantManager.API.Migrations
 {
     [DbContext(typeof(ParticipantManagerDbContext))]
-    [Migration("20250404103455_Initial")]
+    [Migration("20250404110123_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
