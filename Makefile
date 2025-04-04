@@ -18,11 +18,11 @@ API2_DIR=src/api/ParticipantManager.Experience.API
 EVENT_HANDLER_DIR=src/api/ParticipantManager.EventHandler
 
 # Define the database container
-POSTGRES_CONTAINER_NAME=participant_postgres
-POSTGRES_IMAGE=postgres:16
-POSTGRES_PORT=5432
-POSTGRES_ENV_VARS=-e "POSTGRES_USER=$(DATABASE_USER)" -e "POSTGRES_PASSWORD=$(DATABASE_PASSWORD)" -e "POSTGRES_DB=$(DATABASE_NAME)"
-DOCKER_RUN_ARGS = --rm --name $(POSTGRES_CONTAINER_NAME) -p $(POSTGRES_PORT):5432 $(POSTGRES_ENV_VARS) $(POSTGRES_IMAGE)
+SQL_CONTAINER_NAME=participant_database_local
+SQL_IMAGE=mcr.microsoft.com/mssql/server:latest
+SQL_PORT=1433
+SQL_ENV_VARS=-e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$(DATABASE_PASSWORD)"
+DOCKER_RUN_ARGS = --rm --name $(SQL_CONTAINER_NAME) -p $(SQL_PORT):1433 $(SQL_ENV_VARS) $(SQL_IMAGE)
 
 # 🔹 Store background process PIDs
 PIDS=
@@ -32,7 +32,7 @@ define cleanup
 	@echo "Stopping all services..."
 	@pkill -P $$ || true
 	@kill -TERM $(PIDS) 2>/dev/null || true
-	@$(DOCKER) stop $(POSTGRES_CONTAINER_NAME) 2>/dev/null || true
+	@$(DOCKER) stop $(SQL_CONTAINER_NAME) 2>/dev/null || true
 	@echo "Cleanup completed."
 endef
 
@@ -84,9 +84,9 @@ else
 endif
 
 
-# Start PostgreSQL in Podman/Docker
+# Start SQL Server in Podman/Docker
 db:
-	@echo "Starting PostgreSQL using $(DOCKER)..."
+	@echo "Starting SQL Server using $(DOCKER)..."
 ifeq ($(OS), Windows_NT)
 	@cmd /c start /B $(DOCKER) run $(DOCKER_RUN_ARGS)
 else
@@ -94,34 +94,33 @@ else
 endif
 
 db-migrations: db
-	echo "⏳ Waiting for PostgreSQL to be ready..."
+	echo "⏳ Waiting for SQL Server to be ready..."
 ifeq ($(OS), Windows_NT)
 	@timeout /t 10 /nobreak
-	powershell -Command "while (-not (Test-NetConnection -ComputerName localhost -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded) { Write-Host '⏳ Waiting for database to be reachable...'; Start-Sleep -Seconds 3 }"
+	powershell -Command "while (-not (Test-NetConnection -ComputerName localhost -Port 1433 -WarningAction SilentlyContinue).TcpTestSucceeded) { Write-Host '⏳ Waiting for database to be reachable...'; Start-Sleep -Seconds 3 }"
 	echo "✅ Database is ready!"
 	echo "⚙️  Running database migrations..."
-	cmd /c "cd $(API1_DIR) && dotnet ef database update --connection $(ParticipantManagerDatabaseConnectionString)"
-	echo "🌱 Seeding initial test data..."
-	cmd /c "$(DOCKER) exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(DATABASE_USER) -d $(DATABASE_NAME) < $(INITIAL_SEED_SCRIPT)"
+	cmd /c "cd $(API1_DIR) && set ParticipantManagerDatabaseConnectionString=$(ParticipantManagerDatabaseConnectionString) && dotnet ef database update"
 else
 	sleep 10
-	until nc -z localhost 5432; do \
+	until nc -z localhost 1433; do \
 		echo "⏳ Waiting for database to be reachable..."; sleep 3; \
 	done
 	echo "✅ Database is ready!"
 	echo "⚙️  Running database migrations..."
-	cd $(API1_DIR) && dotnet ef database update --connection "$(ParticipantManagerDatabaseConnectionString)"
-	echo "🌱 Seeding initial test data..."
-	$(DOCKER) exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(DATABASE_USER) -d $(DATABASE_NAME) < $(INITIAL_SEED_SCRIPT)
+	cd $(API1_DIR) && ParticipantManagerDatabaseConnectionString="$(ParticipantManagerDatabaseConnectionString)" dotnet ef database update
 endif
+	echo "🌱 Seeding initial test data..."
+	@sqlcmd -S $(DATABASE_HOST) -d $(DATABASE_NAME) -i $(INITIAL_SEED_SCRIPT) -U $(DATABASE_USER) -P $(DATABASE_PASSWORD)
+	echo "✅ Migrations applied!"
 
-# Stop PostgreSQL
+# Stop SQL Server
 stop-db:
-	@echo "Stopping PostgreSQL..."
+	@echo "Stopping SQL Server..."
 ifeq ($(OS), Windows_NT)
-	-@ cmd /c $(DOCKER) stop $(POSTGRES_CONTAINER_NAME)
+	-@ cmd /c $(DOCKER) stop $(SQL_CONTAINER_NAME)
 else
-	@$(DOCKER) stop $(POSTGRES_CONTAINER_NAME)
+	@$(DOCKER) stop $(SQL_CONTAINER_NAME)
 endif
 
 # Stop all running services
@@ -159,7 +158,7 @@ else
 	done
 endif
 
-# Stop the PostgreSQL container
+# Stop the SQL Server container
 	@echo "Cleanup completed."
 
 .PHONY: all web api1 api2 event-handler db stop-db stop

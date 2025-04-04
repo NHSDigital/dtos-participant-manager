@@ -42,7 +42,7 @@ public class PathwayTypeEnrolmentFunctionsTests
         {
             ParticipantId = Guid.NewGuid(),
             Name = "Participant One",
-            DOB = new DateOnly(1970, 1, 1),
+            DOB = new DateTime(1970, 1, 1),
             NhsNumber = "9990000001"
         };
         _dbContext.Participants.Add(_participant1);
@@ -51,7 +51,7 @@ public class PathwayTypeEnrolmentFunctionsTests
         {
             ParticipantId = Guid.NewGuid(),
             Name = "Participant Two",
-            DOB = new DateOnly(1970, 1, 1),
+            DOB = new DateTime(1970, 1, 1),
             NhsNumber = "9990000002"
         };
         _dbContext.Participants.Add(_participant2);

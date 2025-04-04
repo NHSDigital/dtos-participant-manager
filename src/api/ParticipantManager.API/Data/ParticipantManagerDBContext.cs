@@ -13,6 +13,7 @@ public class ParticipantManagerDbContext : DbContext
     public DbSet<Participant> Participants { get; set; }
     public DbSet<PathwayTypeEnrolment> PathwayTypeEnrolments { get; set; }
     public DbSet<Episode> Episodes { get; set; }
+    public DbSet<Encounter> Encounters { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,5 +21,6 @@ public class ParticipantManagerDbContext : DbContext
         modelBuilder.Entity<Participant>().HasKey(p => p.ParticipantId);
         modelBuilder.Entity<PathwayTypeEnrolment>().HasKey(pa => pa.EnrolmentId);
         modelBuilder.Entity<Episode>().HasKey(e => e.EpisodeId);
+        modelBuilder.Entity<Encounter>().HasKey(en => en.EncounterId);
     }
 }
