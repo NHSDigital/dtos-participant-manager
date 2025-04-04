@@ -17,33 +17,10 @@ namespace ParticipantManager.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
+                .HasAnnotation("ProductVersion", "9.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.Property<Guid>("EncounterId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("EpisodeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Outcome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EncounterId");
-
-                    b.HasIndex("EpisodeId");
-
-                    b.ToTable("Encounters");
-                });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
@@ -79,7 +56,7 @@ namespace ParticipantManager.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DOB")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -102,13 +79,13 @@ namespace ParticipantManager.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("EnrolmentDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("LapsedDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("NextActionDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<Guid>("ParticipantId")
                         .HasColumnType("uniqueidentifier");
@@ -135,15 +112,6 @@ namespace ParticipantManager.API.Migrations
                     b.ToTable("PathwayTypeEnrolments");
                 });
 
-            modelBuilder.Entity("ParticipantManager.API.Models.Encounter", b =>
-                {
-                    b.HasOne("ParticipantManager.API.Models.Episode", null)
-                        .WithMany("Encounters")
-                        .HasForeignKey("EpisodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
                 {
                     b.HasOne("ParticipantManager.API.Models.PathwayTypeEnrolment", "PathwayTypeEnrolment")
@@ -164,11 +132,6 @@ namespace ParticipantManager.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Participant");
-                });
-
-            modelBuilder.Entity("ParticipantManager.API.Models.Episode", b =>
-                {
-                    b.Navigation("Encounters");
                 });
 
             modelBuilder.Entity("ParticipantManager.API.Models.Participant", b =>
