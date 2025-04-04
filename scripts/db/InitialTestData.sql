@@ -1,4 +1,4 @@
-INSERT INTO "Participants" ("ParticipantId", "Name", "DOB", "NhsNumber")
+INSERT INTO Participants (ParticipantId, Name, DOB, NHSNumber)
 VALUES
     ('11111111-1111-1111-1111-111111111111', 'Mona MILLAR', '1968-02-12', '9686368973'),
     ('22222222-2222-2222-2222-222222222222', 'Iain HUGHES', '1942-02-01', '9686368906'),
@@ -7,8 +7,9 @@ VALUES
     ('55555555-5555-5555-5555-555555555555', 'Arnold OLLEY', '2016-07-21', '9658218903'),
     ('65555555-5555-5555-5555-555555555555', 'Mina LEECH', '1918-09-19', '9658218989');
 
-INSERT INTO "PathwayTypeEnrolments" ("EnrolmentId", "ParticipantId", "PathwayTypeId", "EnrolmentDate", "LapsedDate", "Status", "NextActionDate", "ScreeningName", "PathwayTypeName")
+INSERT INTO PathwayTypeEnrolments (EnrolmentId, ParticipantId, PathwayTypeId, EnrolmentDate, LapsedDate, Status, NextActionDate, ScreeningName, PathwayTypeName)
 VALUES
-    ('11111111-1111-1111-1111-111111111112', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111113', '2023-01-01', NULL, 'Active', '2025-05-17', 'Breast Screening', 'Breast Screening Routine'),
-    ('11111111-1111-1111-1111-111111111113', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111114', '2023-01-01', NULL, 'Active', '2026-03-22', 'Cervical Screening', 'Cervical Screening Routine'),
-    ('11111111-1111-1111-1111-111111111114', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111115', '2023-01-01', NULL, 'Active', '2025-09-21', 'Bowel Screening', 'Bowel Screening Routine');
+    ('11111111-1111-1111-1111-111111111112', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111113', '', '', 'Active', '2025-05-17', 'Breast Screening', 'Breast Screening Routine'),
+    ('11111111-1111-1111-1111-111111111113', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111114', '', '', 'Active', '2026-03-22', 'Cervical Screening', 'Cervical Screening Routine'),
+    ('11111111-1111-1111-1111-111111111114', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111115', '', '', 'Active', '2025-09-21', 'Bowel Screening', 'Bowel Screening Routine');
+

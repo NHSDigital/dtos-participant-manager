@@ -3,13 +3,8 @@ using ParticipantManager.API.Models;
 
 namespace ParticipantManager.API.Data;
 
-public class ParticipantManagerDbContext : DbContext
+public class ParticipantManagerDbContext(DbContextOptions<ParticipantManagerDbContext> options) : DbContext(options)
 {
-    public ParticipantManagerDbContext(DbContextOptions<ParticipantManagerDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Participant> Participants { get; set; }
     public DbSet<PathwayTypeEnrolment> PathwayTypeEnrolments { get; set; }
     public DbSet<Episode> Episodes { get; set; }
