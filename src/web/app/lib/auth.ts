@@ -212,6 +212,8 @@ export async function getAuthConfig() {
         }
       },
       async session({ session, token }) {
+
+        console.log("SAM TEST ON TOKEN INFO:", token)
         if (session.user) {
           const {
             firstName,
@@ -234,6 +236,8 @@ export async function getAuthConfig() {
             expiresAt,
             participantId,
           });
+
+          console.log("SAM TEST ON session.user INFO:", session.user )
         }
         session.error = token.error as "RefreshTokenError" | undefined;
         return session;
