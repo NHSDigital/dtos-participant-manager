@@ -100,7 +100,7 @@ ifeq ($(OS), Windows_NT)
 	powershell -Command "while (-not (Test-NetConnection -ComputerName localhost -Port 1433 -WarningAction SilentlyContinue).TcpTestSucceeded) { Write-Host '⏳ Waiting for database to be reachable...'; Start-Sleep -Seconds 3 }"
 	echo "✅ Database is ready!"
 	echo "⚙️  Running database migrations..."
-  cmd /c "cd $(API1_DIR) && set ParticipantManagerDatabaseConnectionString=$(ParticipantManagerDatabaseConnectionString) && dotnet ef database update"
+	cmd /c "cd $(API1_DIR) && set ParticipantManagerDatabaseConnectionString=$(ParticipantManagerDatabaseConnectionString) && dotnet ef database update"
 else
 	sleep 10
 	until nc -z localhost 1433; do \
