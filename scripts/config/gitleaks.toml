@@ -21,5 +21,4 @@ paths = [
   '''poetry.lock''',
   '''yarn.lock''',
   '''\.sln''',
-  '''.env.tests'''
 ]
