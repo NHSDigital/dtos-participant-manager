@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
-import user from "../Data/user.json";
-import accessToken from "../Data/access_token.json";
-import authConfig from "../Data/auth_config.json";
+import user from "../data/user.json";
+import accessToken from "../data/access_token.json";
+import authConfig from "../data/auth_config.json";
 
 export const handlers = [
   http.get(
