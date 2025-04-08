@@ -1,18 +1,19 @@
 import { logger } from "@/app/lib/logger";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME !== "nodejs") return;
-
   // If in a test environment, skip telemetry setup and only enable MSW
-  if (process.env.APP_ENV === "test") {
-
+  if (process.env.NODE_ENV === "test") {
     const { server } = await import("./Setup/Mocks/node");
 
     server.listen();
 
-    console.log("[Monitoring] Skipped Azure Monitor setup in test environment.");
+    console.log(
+      "[Monitoring] Skipped Azure Monitor setup in test environment."
+    );
     return;
   }
+
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
   // Only run monitoring setup outside test env
   const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
