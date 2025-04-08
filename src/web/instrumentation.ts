@@ -1,26 +1,15 @@
 import { logger } from "@/app/lib/logger";
 
 export async function register() {
-  // Run the mock OIDC auth in test environments
-  if (process.env.NODE_ENV === "test") {
-    const { server } = await import("./oidc-mock/mocks/node");
-    server.listen();
-  }
-
-  // Run the Azure Monitor instrumentation
-  // in the Node.js runtime only
-  // and when the APPLICATIONINSIGHTS_CONNECTION_STRING is set
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
-  const options = {
-    azureMonitorExporterOptions: {
-      connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-    },
-  };
+  if (process.env.APP_ENV === "test") {
+    console.log("Getting test app env");
+    const { server } = await import("./oidc-mock/mocks/node");
+    server.listen();
 
-  if (!options.azureMonitorExporterOptions.connectionString) {
-    logger.warn(
-      "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
+    console.log(
+      "[Monitoring] Skipped Azure Monitor setup in test environment."
     );
     return;
   }
@@ -58,6 +47,19 @@ export async function register() {
       .catch((error) => console.log("Error shutting down SDK", error))
       .finally(() => process.exit(0));
   });
+
+  const options = {
+    azureMonitorExporterOptions: {
+      connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+    },
+  };
+
+  if (!options.azureMonitorExporterOptions.connectionString) {
+    logger.warn(
+      "APPLICATIONINSIGHTS_CONNECTION_STRING environment variable is not set. Skipping Azure Monitor initialization."
+    );
+    return;
+  }
 
   useAzureMonitor(options);
 }
