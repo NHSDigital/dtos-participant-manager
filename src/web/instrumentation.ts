@@ -3,17 +3,6 @@ import { logger } from "@/app/lib/logger";
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
-  if (process.env.APP_ENV === "test") {
-    console.log("Getting test app env");
-    const { server } = await import("./oidc-mock/mocks/node");
-    server.listen();
-
-    console.log(
-      "[Monitoring] Skipped Azure Monitor setup in test environment."
-    );
-    return;
-  }
-
   const { useAzureMonitor } = await import("@azure/monitor-opentelemetry");
   const { NodeSDK } = await import("@opentelemetry/sdk-node");
   const { PinoInstrumentation } = await import(

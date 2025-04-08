@@ -62,7 +62,7 @@ public class TokenService(IJwksProvider jwksProvider, ILogger<TokenService> logg
                     IssuerSigningKeys = await jwksProvider.GetSigningKeysAsync()
                 };
 
-                if (EnvironmentVariables.GetRequired("APP_ENV") == "test")
+                if (EnvironmentVariables.GetRequired("NEXT_PUBLIC_API_MOCKING") == "enabled")
                 {
                     tokenParams.IssuerSigningKey = ConvertPemToRsaSecurityKey(EnvironmentVariables.GetRequired("TEST_JWT_PUBLIC_KEY"));
                 }
