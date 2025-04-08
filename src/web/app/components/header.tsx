@@ -11,6 +11,7 @@ export default async function Header({
 }: Readonly<HeaderProps>) {
   const { auth } = await getAuthConfig();
   const session = await auth();
+  console.log("SAMS SESSION TEST: ", session);
 
   return (
     <header className={styles["nhsuk-header"]} role="banner">
