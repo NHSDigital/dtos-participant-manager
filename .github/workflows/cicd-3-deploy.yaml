@@ -1,13 +1,11 @@
 name: "CI/CD deploy"
-
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "This is the tag that is oging to be deployed"
+        description: "This is the tag that is going to be deployed"
         required: true
         default: "latest"
-
 jobs:
   metadata:
     name: "Set CI/CD metadata"
@@ -49,10 +47,40 @@ jobs:
           export VERSION="${{ steps.variables.outputs.version }}"
           export TAG="${{ steps.variables.outputs.tag }}"
           make list-variables
+
+  apply-migrations:
+    name: "Apply EF Core Migrations"
+    runs-on: ubuntu-latest
+    needs: [metadata]
+    timeout-minutes: 5
+   # environment: production # WP - not valid
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: "Install EF Core tools"
+        run: dotnet tool install --global dotnet-ef
+
+      - name: "Generate migration SQL"
+        run: dotnet ef migrations script --idempotent --output migrations.sql --project ParticipantManager.API.csproj
+
+      - name: "Apply migrations with sqlcmd"
+        run: |
+          docker run --rm \
+            -v ${PWD}:/scripts \
+            mcr.microsoft.com/mssql-tools \
+            /opt/mssql-tools/bin/sqlcmd -S ${{ secrets.DB_SERVER }} -d ${{ secrets.DB_NAME }} \
+            -U ${{ secrets.DB_USERNAME }} -P ${{ secrets.DB_PASSWORD }} -i /scripts/migrations.sql
+
   deploy:
     name: "Deploy to an environment"
     runs-on: ubuntu-latest
-    needs: [metadata]
+    needs: [metadata, apply-migrations]
     timeout-minutes: 10
     steps:
       - name: "Checkout code"
