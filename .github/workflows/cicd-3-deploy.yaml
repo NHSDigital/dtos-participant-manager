@@ -74,8 +74,9 @@ jobs:
           docker run --rm \
             -v ${PWD}:/scripts \
             mcr.microsoft.com/mssql-tools \
-            /opt/mssql-tools/bin/sqlcmd -S ${{ secrets.DB_SERVER }} -d ${{ secrets.DB_NAME }} \
-            -U ${{ secrets.DB_USERNAME }} -P ${{ secrets.DB_PASSWORD }} -i /scripts/migrations.sql
+            /opt/mssql-tools/bin/sqlcmd \
+            -S "Server=sqlsvr-parman-dev-uks.database.windows.net; Authentication=Active Directory Managed Identity; Database=participant_database" \
+            -i /scripts/migrations.sql
 
   deploy:
     name: "Deploy to an environment"
