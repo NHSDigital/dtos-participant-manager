@@ -128,6 +128,8 @@ export async function getAuthConfig() {
           aud === AUTH_CLIENT_ID &&
           identity_proofing_level === "P9";
 
+        console.log("SAMS ISVALID:" + isValidToken);
+
         return isValidToken;
       },
       async jwt({ token, account, profile }) {

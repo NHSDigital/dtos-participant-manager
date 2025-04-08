@@ -24,7 +24,7 @@ export const handlers = [
         "expires_in": 300,
         "token_type": "bearer",
         "refresh_token": "f336a4a7-d7ef-493f-ba7c-6fb6833f13a3",
-        "expires_at": 1743675323,
+        "expires_at": 32503680000,
         "provider": "nhs-login",
         "type": "oidc",
         "providerAccountId": "49f470a1-cc52-49b7-beba-0f9cec937c46"

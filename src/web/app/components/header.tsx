@@ -73,7 +73,6 @@ export default async function Header({
                     const { signOut } = await getAuthConfig();
                     await signOut({ redirectTo: "/" });
                   }}
-                  method="post"
                 >
                   <button className={styles["nhsuk-header__account-button"]}>
                     Log out

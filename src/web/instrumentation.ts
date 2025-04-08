@@ -5,25 +5,10 @@ export async function register() {
 
   // If in a test environment, skip telemetry setup and only enable MSW
   if (process.env.APP_ENV === "test") {
-    const unmocked = [
-      "nextjs.org",
-      "googleapis.com",
-      "gstatic.com",
-      "github.com/mona.png",
-    ];
 
     const { server } = await import("./Setup/Mocks/node");
 
-    server.listen({
-      onUnhandledRequest(request: any, print: any) {
-        const url = new URL(request.url);
-        if (unmocked.some((host) => url.hostname.includes(host))) {
-          return;
-        }
-
-        print.warning();
-      },
-    });
+    server.listen();
 
     console.log("[Monitoring] Skipped Azure Monitor setup in test environment.");
     return;
