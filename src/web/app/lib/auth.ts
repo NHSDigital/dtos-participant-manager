@@ -112,6 +112,7 @@ export async function getAuthConfig() {
     },
     callbacks: {
       async signIn({ account }) {
+        console.log("signIn callback", account);
         if (!account || typeof account.id_token !== "string") {
           return false;
         }

@@ -88,6 +88,19 @@ services:
             "CheckSessionCookieSameSiteMode": "Lax"
           }
         }
+      API_SCOPES_INLINE: |
+        [
+          {
+            "Name": "profile_extended"
+          }
+        ]
+      API_RESOURCES_INLINE: |
+        [
+          {
+            "Name": "some-app",
+            "Scopes": ["profile_extended"]
+          }
+        ]
       USERS_CONFIGURATION_PATH: /tmp/config/users.json
       CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json
 

@@ -1,5 +1,12 @@
 [
   {
+    "SubjectId": "49f470a1-cc52-49b7-beba-0f9cec937c46",
+    "Username": "aa",
+    "Password": "1234abc",
+    "vot": "P9.Cp.Cd",
+    "nhs_number": "9686368973"
+  },
+  {
     "SubjectId": "cc.agent@nhs.net",
     "Username": "CC",
     "Password": "1234abc",
@@ -7,6 +14,11 @@
       {
         "Type": "email",
         "Value": "cc.agent@nhs.net"
+      },
+      {
+        "Type": "profile_extended",
+        "ValueType": "json",
+        "Value": "{\"vot\":\"P9.Cp.Cd\",\"nhs_number\":\"9686368973\",\"version\":0,\"reason_for_request\":\"patientaccess\",\"token_use\":\"access\",\"requesting_patient\":\"9686368973\"}"
       }
     ]
   },
