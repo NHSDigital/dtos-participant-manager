@@ -6,6 +6,14 @@ const nextConfig = {
     quietDeps: true,
     includePaths: ["./node_modules/nhsuk-frontend"],
   },
+  webpack: (config) => {
+    config.externals = [
+      ...(config.externals || []),
+      "require-in-the-middle",
+      "@azure/functions-core",
+    ];
+    return config;
+  },
 };
 
 export default nextConfig;

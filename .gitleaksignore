@@ -1,3 +1,5 @@
 # SEE: https://github.com/gitleaks/gitleaks/blob/master/README.md#gitleaksignore
 
 cd9c0efec38c5d63053dd865e5d4e207c0760d91:docs/guides/Perform_static_analysis.md:generic-api-key:37
+abfaa364a72e1b8146218cceccf01c52b5ee14d7:src/web/.env.tests:generic-api-key:5
+f13456cce9d4bdd81b7fbed2003ec465dc50333a:src/web/.env.tests:generic-api-key:5

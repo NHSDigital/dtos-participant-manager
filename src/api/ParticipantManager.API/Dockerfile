@@ -16,6 +16,8 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     ASPNETCORE_ENVIRONMENT=Production
 
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN mkdir -p /home/LogFiles && chown -R appuser:appgroup /home/LogFiles
+
 USER appuser
 
 COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]

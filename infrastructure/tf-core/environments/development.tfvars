@@ -197,6 +197,12 @@ function_apps = {
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
       }
+      env_vars_from_key_vault = [
+        {
+          env_var_name          = "FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"
+          key_vault_secret_name = "flagsmith-server-side-environment-key"
+        },
+      ]
     }
   }
 }
