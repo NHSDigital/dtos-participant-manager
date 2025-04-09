@@ -1,0 +1,16 @@
+[
+  {
+    "ClientId": "manage your screening",
+    "Description": "Mock oidc for running NBS locally",
+    "AllowedGrantTypes": ["authorization_code"],
+    "AllowAccessTokensViaBrowser": true,
+    "RedirectUris": [
+    "http://localhost:3001/api/auth/nhs-login"
+    ],
+    "AllowedScopes": ["openid", "profile", "email"],
+    "RequireClientSecret": false,
+    "IdentityTokenLifetime": 3600,
+    "AccessTokenLifetime": 3600
+  }
+]
+
