@@ -81,6 +81,12 @@ The following software packages, or their equivalents, are expected to be instal
 
 ## Configuration
 
+Installation and configuration of the toolchain dependencies
+
+```shell
+make config
+```
+
 Rename the `.env.example` file to `.env` and populate the missing environment variables which are listed at the top of the file.
 
 ## Usage
