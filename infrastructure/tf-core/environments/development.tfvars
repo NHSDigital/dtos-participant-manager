@@ -250,11 +250,11 @@ linux_web_app = {
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_TRUST_HOST          = true
+        NEXTAUTH_URL             = "https://www-dev.non-live.nationalscreening.nhs.uk/api/auth"
         SERVICE_NAME             = "Manage your screening"
       }
       local_urls = {
         EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
-        NEXTAUTH_URL       = "https://%s-nextjs-frontend.azurewebsites.net/api/auth"
       }
       env_vars_from_key_vault = [
         {
