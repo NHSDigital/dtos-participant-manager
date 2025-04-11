@@ -112,7 +112,6 @@ export async function getAuthConfig() {
     },
     callbacks: {
       async signIn({ account }) {
-        console.log("signIn callback", account);
         if (!account || typeof account.id_token !== "string") {
           return false;
         }
@@ -122,10 +121,6 @@ export async function getAuthConfig() {
         const AUTH_CLIENT_ID = process.env.AUTH_NHSLOGIN_CLIENT_ID;
 
         const { iss, aud, identity_proofing_level } = decodedToken;
-
-        console.log("Issuer", iss);
-        console.log("Audience", aud);
-        console.log("Proof", identity_proofing_level);
 
         const isValidToken =
           iss === AUTH_ISSUER_URL &&
