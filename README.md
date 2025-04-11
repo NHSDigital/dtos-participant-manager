@@ -106,7 +106,7 @@ Unit tests can be ran with `make test-unit` and linting can be ran with `make te
 
 ### End to end testing
 
-In order to perform the end to end testing with playwright, there needs to be a stubbed out version of the OIDC provider. This is achieved using a Keycloak docker container.
+In order to perform the end to end testing with playwright, there needs to be a stubbed out version of the OIDC provider. This is achieved using a keycloak docker container.
 
 To run this locally though, local certificates need to be generated and installed in the /keycloak-config folder, these also need to be trusted by dotnet
 
@@ -137,7 +137,7 @@ It should now be possible to run the following and for a keycloak instance to st
 docker-compose up --build keycloak
 ```
 
-This should result in Keycloak being available at <https://localhost:8443/realms/master>
+This should result in keycloak being available at <https://localhost:8443/realms/master>
 
 One final change is to make the local .env file to have the following values
 
