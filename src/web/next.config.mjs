@@ -9,8 +9,7 @@ const nextConfig = {
     includePaths: ["./node_modules/nhsuk-frontend"],
   },
   experimental: {
-    serverActions: true,
-    allowedServerActionsHosts: allowedHosts,
+    allowedOrigins: allowedHosts,
   },
   webpack: (config) => {
     config.externals = [
