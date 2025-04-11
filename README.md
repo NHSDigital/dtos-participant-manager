@@ -116,13 +116,13 @@ First of all create some certs using the dotnet command
  dotnet dev-certs https --trust
 ```
 
-Now export the certificate and turn it into something keycloak can use
+Now export the certificate and private key into a pfx keycloak can use
 
 ```shell
 dotnet dev-certs https -ep ./keycloak-cert.pfx -p <<your_password>>
 ```
 
-With that pfx generate the public and private key
+With that pfx generate the public and private key pem files
 
 ```shell
   openssl pkcs12 -in keycloak-cert.pfx -clcerts -nokeys -out keycloak-cert.pem
@@ -139,10 +139,11 @@ docker-compose up --build keycloak
 
 This should result in Keycloak being available at <https://localhost:8443/realms/master>
 
-One final change is to make the local .env file to have the following value
+One final change is to make the local .env file to have the following values
 
 ```shell
 AUTH_NHSLOGIN_ISSUER_URL=https://localhost:8443/realms/master
+NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 
 ## Open API types
