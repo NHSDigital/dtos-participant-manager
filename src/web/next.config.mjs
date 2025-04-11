@@ -1,10 +1,16 @@
 /** @type {import('next').NextConfig} */
+const allowedHosts = process.env.ALLOWED_SERVER_ACTIONS_HOSTS?.split(',').map(h => h.trim()) || [];
+
 const nextConfig = {
   output: "standalone",
   serverExternalPackages: ["pino", "pino-pretty"],
   sassOptions: {
     quietDeps: true,
     includePaths: ["./node_modules/nhsuk-frontend"],
+  },
+  experimental: {
+    serverActions: true,
+    allowedServerActionsHosts: allowedHosts,
   },
   webpack: (config) => {
     config.externals = [
