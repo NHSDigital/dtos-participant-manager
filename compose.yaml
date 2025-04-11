@@ -68,6 +68,21 @@ services:
     networks:
       - backend
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--https-certificate-file=/etc/x509/https/keycloak.crt.pem"
+      - "--https-certificate-key-file=/etc/x509/https/keycloak.key.pem"
+      - "--https-port=8443"
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./keycloak-config/master-realm.json:/opt/keycloak/data/import/master-realm.json
+      - ./keycloak-config/keycloak-cert.pem:/etc/x509/https/keycloak.crt.pem
+      - ./keycloak-config/keycloak-key.pem:/etc/x509/https/keycloak.key.pem
+
 networks:
   backend:
     driver: bridge
