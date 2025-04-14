@@ -148,7 +148,7 @@ export async function getAuthConfig() {
         }
         if (account && profile && account.access_token) {
           const participantId = await fetchParticipantId(account.access_token);
-
+          //Test change
           return {
             ...token,
             accessToken: account.access_token,
