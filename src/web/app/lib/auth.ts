@@ -133,7 +133,7 @@ export async function getAuthConfig() {
         if (account?.access_token) {
           try {
             const response = await fetch(
-              `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              `https://localhost:8443/realms/master/protocol/openid-connect/userinfo`,
               {
                 method: "GET",
                 headers: {
@@ -148,7 +148,7 @@ export async function getAuthConfig() {
         }
         if (account && profile && account.access_token) {
           const participantId = await fetchParticipantId(account.access_token);
-
+          //SAMS TEST CHANGE
           return {
             ...token,
             accessToken: account.access_token,
