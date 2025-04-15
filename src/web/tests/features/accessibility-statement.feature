@@ -1,4 +1,4 @@
-Feature: Can I see the Accessibility statement page
+Feature: I can see the Accessibility statement page
 
     Scenario: Check for page heading
         Given I am on the page "/accessibility-statement"

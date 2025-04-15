@@ -1,4 +1,4 @@
-Feature: Can I see the homepage
+Feature: I can see the Homepage
 
     Scenario: Check for page heading
         Given I am on the page "/"

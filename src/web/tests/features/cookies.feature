@@ -1,4 +1,4 @@
-Feature: Can I see the cookies policy page
+Feature: I can see the cookies policy page
 
     Scenario: Check for page heading
         Given I am on the page "/cookies-policy"
