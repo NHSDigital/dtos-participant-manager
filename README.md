@@ -19,6 +19,7 @@ The project consists of a number of Azure functions and a user-interface built i
   - [Configuration](#configuration)
   - [Usage](#usage)
   - [Testing](#testing)
+    - [End to end testing](#end-to-end-testing)
   - [Open API types](#open-api-types)
   - [OpenAPI Specifications](#openapi-specifications)
   - [Contact](#contact)
@@ -102,6 +103,49 @@ Once you have the database running in Docker with `make db-migrations` you can t
 The full test suite can be ran with `make test`.
 
 Unit tests can be ran with `make test-unit` and linting can be ran with `make test-lint`
+
+### End to end testing
+
+In order to perform the end to end testing with playwright, there needs to be a stubbed out version of the OIDC provider. This is achieved using a keycloak docker container.
+
+To run this locally though, local certificates need to be generated and installed in the /keycloak-config folder, these also need to be trusted by dotnet
+
+First of all create some certs using the dotnet command
+
+```shell
+ dotnet dev-certs https --trust
+```
+
+Now export the certificate and private key into a pfx keycloak can use
+
+```shell
+dotnet dev-certs https -ep ./keycloak-cert.pfx -p <<your_password>>
+```
+
+With that pfx generate the public and private key pem files
+
+```shell
+  openssl pkcs12 -in keycloak-cert.pfx -clcerts -nokeys -out keycloak-cert.pem
+  openssl pkcs12 -in keycloak-cert.pfx -nocerts -nodes -out keycloak-key.pem
+```
+
+Finally copy the pem files into the keycloak-config folder
+
+It should now be possible to run the following and for a keycloak instance to start running locally
+
+```shell
+docker-compose up --build keycloak
+```
+
+This should result in keycloak being available at <https://localhost:8443/realms/master>
+
+One final change is to make the local .env file to have the following values
+
+```shell
+AUTH_NHSLOGIN_ISSUER_URL=https://localhost:8443/realms/master
+NODE_TLS_REJECT_UNAUTHORIZED=0
+NODE_ENV=test
+```
 
 ## Open API types
 

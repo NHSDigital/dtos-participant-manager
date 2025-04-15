@@ -25,4 +25,8 @@ Eventgrid
 eventhandlers
 ADR
 adr-tools
+keycloak
+pfx
+dotnet
+pem
 
