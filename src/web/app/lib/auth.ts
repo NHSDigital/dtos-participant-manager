@@ -133,7 +133,7 @@ export async function getAuthConfig() {
         if (account?.access_token) {
           try {
             const response = await fetch(
-              process.env.APP_ENV === "test" ? `https://localhost:8443/realms/master/protocol/openid-connect/userinfo` : `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              process.env.NODE_ENV === "test" ? `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/protocol/openid-connect/userinfo` : `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
               {
                 method: "GET",
                 headers: {
@@ -142,7 +142,6 @@ export async function getAuthConfig() {
               }
             );
             profile = await response.json();
-            console.log("SAMS TEST ON PROFILE: ", profile);
           } catch (error) {
             logger.error("Error fetching userinfo:", error);
           }

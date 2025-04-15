@@ -144,6 +144,7 @@ One final change is to make the local .env file to have the following values
 ```shell
 AUTH_NHSLOGIN_ISSUER_URL=https://localhost:8443/realms/master
 NODE_TLS_REJECT_UNAUTHORIZED=0
+NODE_ENV=test
 ```
 
 ## Open API types
