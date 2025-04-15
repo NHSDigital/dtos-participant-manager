@@ -12,3 +12,9 @@ When("I arrive on on the Homepage {string}", async ({ page }, url) => {
 Then("I see the heading {string}", async ({ page }, heading) => {
   await expect(page.locator("h1")).toHaveText(heading);
 });
+
+Then("I see the button {string}", async ({ page }, label) => {
+  await expect(page.locator('[data-qa="nhs-login-button"]')).toContainText(
+    label
+  );
+});
