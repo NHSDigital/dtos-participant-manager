@@ -132,6 +132,7 @@ variable "app_service_plan" {
           dec_scale_cooldown  = optional(string)
         })
       }))
+      wildcard_ssl_cert_key    = optional(string, null)
     }))
   })
 }
@@ -270,27 +271,28 @@ variable "linux_web_app" {
       slot_enabled = optional(bool, false)
     })))
     linux_web_app_config = map(object({
-      name_suffix                  = string
-      app_service_plan_key         = string
+      name_suffix          = string
+      app_service_plan_key = string
+      app_urls = optional(list(object({
+        env_var_name     = string
+        function_app_key = string
+        endpoint_name    = optional(string, "")
+      })), [])
+      custom_domains       = optional(list(string), [])
+      db_connection_string = optional(string, "")
+      env_vars_from_key_vault = optional(list(object({
+        env_var_name          = string
+        key_vault_secret_name = string
+      })), [])
+      env_vars_static              = optional(map(string), {})
+      key_vault_url                = optional(string, "")
+      local_urls                   = optional(map(string), {})
       storage_account_env_var_name = optional(string, "")
       storage_containers = optional(list(object
         ({
           env_var_name   = string
           container_name = string
       })), [])
-      db_connection_string = optional(string, "")
-      key_vault_url        = optional(string, "")
-      app_urls = optional(list(object({
-        env_var_name     = string
-        function_app_key = string
-        endpoint_name    = optional(string, "")
-      })), [])
-      env_vars_from_key_vault = optional(list(object({
-        env_var_name          = string
-        key_vault_secret_name = string
-      })), [])
-      env_vars_static = optional(map(string), {})
-      local_urls      = optional(map(string), {})
     }))
   })
 }
@@ -341,6 +343,12 @@ variable "network_security_group_rules" {
       destination_fqdns = ["example.com"]
     },
 */
+
+variable "public_dns_zone_rg_name" {
+  type        = string
+  description = "Name of the Resource Group containing the public DNS zones in the Hub subscription."
+  default     = null
+}
 
 variable "regions" {
   type = map(object({
@@ -467,4 +475,16 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
+}
+
+variable "wildcard_ssl_cert_key_vault_secret_id" {
+  type        = string
+  description = "Wildcard SSL certificate Key Vault secret id, for App Services Custom Domain binding."
+  default     = null
+}
+
+variable "wildcard_ssl_cert_key_vault_id" {
+  type        = string
+  description = "Wildcard SSL certificate Key Vault id, needed if the Key Vault is in a different subscription."
+  default     = null
 }

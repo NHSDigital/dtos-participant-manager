@@ -136,7 +136,9 @@ app_service_plan = {
 
   instances = {
     Default = {}
-    WebApp  = {}
+    WebApp = {
+#      wildcard_ssl_cert_key = "nationalscreening_wildcard"
+    }
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
     # DemographicsService          = {}
@@ -190,9 +192,6 @@ function_apps = {
       name_suffix            = "experience-api"
       function_endpoint_name = "ParticipantManagerExperience"
       app_service_plan_key   = "Default"
-      local_urls = {
-        CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
-      }
       env_vars_static = {
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
@@ -203,6 +202,9 @@ function_apps = {
           key_vault_secret_name = "flagsmith-server-side-environment-key"
         },
       ]
+      local_urls = {
+        CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
+      }
     }
   }
 }
@@ -246,15 +248,13 @@ linux_web_app = {
     FrontEndUi = {
       name_suffix          = "nextjs-frontend"
       app_service_plan_key = "WebApp"
+      custom_domains       = ["www-dev.non-live.nationalscreening.nhs.uk"]
       env_vars_static = {
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_TRUST_HOST          = true
         NEXTAUTH_URL             = "https://www-dev.non-live.nationalscreening.nhs.uk/api/auth"
         SERVICE_NAME             = "Manage your screening"
-      }
-      local_urls = {
-        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
       }
       env_vars_from_key_vault = [
         {
@@ -266,11 +266,16 @@ linux_web_app = {
           key_vault_secret_name = "nextauth-secret"
         }
       ]
+      local_urls = {
+        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
+      }
     }
   }
 }
 
 linux_web_app_slots = []
+
+public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
