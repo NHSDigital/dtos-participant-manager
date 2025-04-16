@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { Given, When, Then } from "./fixtures";
+import AxeBuilder from "@axe-core/playwright";
 
 Given("I am on the page {string}", async ({ page }, url) => {
   await page.goto(url);
@@ -18,3 +19,21 @@ Then("I see the button {string}", async ({ page }, label) => {
     label
   );
 });
+
+Then(
+  "I should expect {string} accessibility issues",
+  async ({ page }, accessibilityIssues: string) => {
+    const accessibilityScanResults = await new AxeBuilder({
+      page,
+    }).analyze();
+
+    const expectedViolations =
+      Number(accessibilityIssues) === 0
+        ? []
+        : accessibilityScanResults.violations.slice(
+            0,
+            Number(accessibilityIssues)
+          );
+    expect(accessibilityScanResults.violations).toEqual(expectedViolations);
+  }
+);
