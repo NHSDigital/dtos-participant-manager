@@ -72,7 +72,7 @@ public class FeatureFlagClientTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+                Times.Once);
     }
 }
 
