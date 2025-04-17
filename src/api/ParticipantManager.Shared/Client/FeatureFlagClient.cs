@@ -5,10 +5,9 @@ namespace ParticipantManager.Shared.Client;
 
 public class FeatureFlagClient(IFlagsmithClient flagsmithClient, ILogger<FeatureFlagClient> logger) : IFeatureFlagClient
 {
+    private const bool DefaultValue = false;
     public async Task<bool> IsFeatureEnabledForParticipant(string featureName, Guid participantId)
     {
-        var defaultValue = true;
-
         try
         {
             var identifier = participantId.ToString();
@@ -20,8 +19,8 @@ public class FeatureFlagClient(IFlagsmithClient flagsmithClient, ILogger<Feature
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to fetch feature flag {FeatureName} for participant {ParticipantId}. Using default value {DefaultValue}.", featureName, participantId, defaultValue);
-            return defaultValue;
+            logger.LogError(ex, "Failed to fetch feature flag {FeatureName} for participant {ParticipantId}. Using default value {DefaultValue}.", featureName, participantId, DefaultValue);
+            return DefaultValue;
         }
     }
 }
