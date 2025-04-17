@@ -1,4 +1,5 @@
 using Flagsmith;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace ParticipantManager.Shared.Client;
@@ -9,6 +10,7 @@ public class FeatureFlagClientTests
     private readonly Guid _participantId = Guid.NewGuid();
     private readonly Mock<IFlags> _mockFlags = new();
     private readonly Mock<IFlagsmithClient> _mockFlagsmithClient = new();
+    private readonly Mock<ILogger<FeatureFlagClient>> _loggerMock = new();
 
     [Fact]
     public async Task IsFeatureEnabledForParticipant_ReturnsTrue_WhenFeatureIsEnabled()
@@ -20,7 +22,7 @@ public class FeatureFlagClientTests
             .Setup(c => c.GetIdentityFlags(It.IsAny<string>(), It.IsAny<List<ITrait>>(), false))
             .ReturnsAsync(_mockFlags.Object);
 
-        var featureFlagClient = new FeatureFlagClient(_mockFlagsmithClient.Object);
+        var featureFlagClient = new FeatureFlagClient(_mockFlagsmithClient.Object, _loggerMock.Object);
 
         // Act
         var result = await featureFlagClient.IsFeatureEnabledForParticipant(_featureName, _participantId);
@@ -39,7 +41,7 @@ public class FeatureFlagClientTests
             .Setup(c => c.GetIdentityFlags(It.IsAny<string>(), It.IsAny<List<ITrait>>(), false))
             .ReturnsAsync(_mockFlags.Object);
 
-        var featureFlagClient = new FeatureFlagClient(_mockFlagsmithClient.Object);
+        var featureFlagClient = new FeatureFlagClient(_mockFlagsmithClient.Object, _loggerMock.Object);
 
         // Act
         var result = await featureFlagClient.IsFeatureEnabledForParticipant(_featureName, _participantId);
