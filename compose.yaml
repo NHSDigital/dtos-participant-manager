@@ -9,6 +9,8 @@ services:
     restart: always
     environment:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
+      AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
+      AzureWebJobsSecretStorageType: "files"
       ParticipantManagerDatabaseConnectionString: "Server=db;Database=participant_database;User Id=sa;Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
       APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
     ports:
@@ -26,6 +28,8 @@ services:
     restart: always
     environment:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
+      AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
+      AzureWebJobsSecretStorageType: "files"
       CRUD_API_URL: "http://localhost:${API_PORT}"
       AUTH_NHSLOGIN_ISSUER_URL: "${AUTH_NHSLOGIN_ISSUER_URL}"
       AUTH_NHSLOGIN_CLIENT_ID: "${AUTH_NHSLOGIN_CLIENT_ID}"
@@ -46,7 +50,8 @@ services:
     restart: always
     environment:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
-      AzureWebJobsSecretStorageType: "Files"
+      AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
+      AzureWebJobsSecretStorageType: "files"
       CRUD_API_URL: "http://localhost:${API_PORT}"
       APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
       EVENT_GRID_TOPIC_URL: "${EVENT_GRID_TOPIC_URL}"
