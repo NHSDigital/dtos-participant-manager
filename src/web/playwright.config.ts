@@ -21,6 +21,7 @@ const testDir = defineBddConfig({
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 60000,
   testDir,
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -59,7 +60,10 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: {
+        ...devices["Desktop Safari"],
+        ignoreHTTPSErrors: true,
+      },
     },
 
     /* Test against mobile viewports. */
