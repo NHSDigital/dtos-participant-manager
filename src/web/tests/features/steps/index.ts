@@ -67,8 +67,6 @@ Then(
   }
 );
 
-
-
 Then("I should be redirected to the page {string}", async ({ page }, expectedUrl) => {
   const urlRegex = new RegExp(expectedUrl);
   await page.waitForURL(urlRegex, { timeout: 60000 });
