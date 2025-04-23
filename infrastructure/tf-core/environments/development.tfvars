@@ -137,7 +137,7 @@ app_service_plan = {
   instances = {
     Default = {}
     WebApp = {
-#      wildcard_ssl_cert_key = "nationalscreening_wildcard"
+      #      wildcard_ssl_cert_key = "nationalscreening_wildcard"
     }
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}

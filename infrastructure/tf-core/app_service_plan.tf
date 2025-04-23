@@ -37,8 +37,8 @@ module "app-service-plan" {
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
 
   wildcard_ssl_cert_key_vault_id        = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault["${each.value.region}"].key_vault_id : null
-  wildcard_ssl_cert_key_vault_secret_id = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].versionless_secret_id : null
-  wildcard_ssl_cert_name                = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].name : null
+  wildcard_ssl_cert_key_vault_secret_id = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].versionless_secret_id : null
+  wildcard_ssl_cert_name                = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].name : null
 
   tags = var.tags
 

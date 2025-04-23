@@ -132,7 +132,7 @@ variable "app_service_plan" {
           dec_scale_cooldown  = optional(string)
         })
       }))
-      wildcard_ssl_cert_key    = optional(string, null)
+      wildcard_ssl_cert_key = optional(string, null)
     }))
   })
 }
