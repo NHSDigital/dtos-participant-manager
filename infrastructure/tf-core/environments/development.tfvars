@@ -262,10 +262,6 @@ linux_web_app = {
           key_vault_secret_name = "auth-nhslogin-client-secret"
         },
         {
-          env_var_name          = "FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"
-          key_vault_secret_name = "flagsmith-server-side-environment-key"
-        },
-        {
           env_var_name          = "NEXTAUTH_SECRET"
           key_vault_secret_name = "nextauth-secret"
         }
