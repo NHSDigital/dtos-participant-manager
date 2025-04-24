@@ -14,7 +14,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: feat/DTOSS-8363-publish-parman-www
+      ref: 44dca8d8a511e60e6f105ba44d0e643f62860d73
       endpoint: NHSDigital
 
 variables:
