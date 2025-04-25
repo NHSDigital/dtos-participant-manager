@@ -20,7 +20,8 @@ The project consists of a number of Azure functions and a user-interface built i
   - [Usage](#usage)
   - [Testing](#testing)
     - [End to end testing](#end-to-end-testing)
-  - [Open API types](#open-api-types)
+  - [Feature Flags (Flagsmith)](#feature-flags-flagsmith)
+  - [OpenAPI types](#openapi-types)
   - [OpenAPI Specifications](#openapi-specifications)
   - [Contact](#contact)
   - [Licence](#licence)
@@ -147,9 +148,15 @@ NODE_TLS_REJECT_UNAUTHORIZED=0
 NODE_ENV=test
 ```
 
-## Open API types
+## Feature Flags (Flagsmith)
 
-Some types are imported from the Open API docs for `ParticipantManager.API` and `ParticipantManager.Experience.API`. You can use the `openapi-typescript` npm package to generate the types with the following command:
+Participant Manager uses feature flags controlled in the [Flagsmith](https://www.flagsmith.com) product to toggle functionality on and off. The flags are in the Flagsmith "Digital Screening" project within the "NHS England" organization.
+
+Specifically, the Participant Manager Experience API currently inspects the `mays_mvp` feature flag to determine whether or not to return a 403 forbidden response.  Individual participant IDs can be added as traits within a segment override for this feature flag, to allow the feature to be visible for a subset of test users, whilst remaining toggled off for most users.
+
+## OpenAPI types
+
+Some types are imported from the OpenAPI docs for `ParticipantManager.API` and `ParticipantManager.Experience.API`. You can use the `openapi-typescript` npm package to generate the types with the following command:
 
 ```shell
 npx openapi-typescript ./src/api/ParticipantManager.API/openapi/openapi.yaml -o ./src/web/app/types/ParticipantManager.API/schema.d.ts
