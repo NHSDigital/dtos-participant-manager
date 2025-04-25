@@ -97,9 +97,6 @@ routes = {
   }
 }
 
-app_insights_name    = "appi-dev-uks-parman"
-app_insights_rg_name = "rg-parman-dev-uks-audit"
-
 app_service_plan = {
   os_type                  = "Linux"
   sku_name                 = "P2v3"

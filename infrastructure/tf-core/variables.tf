@@ -65,16 +65,6 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
-variable "app_insights_name" {
-  description = "Application Insights instance name"
-  type        = string
-}
-
-variable "app_insights_rg_name" {
-  description = "Application Insights resource group name"
-  type        = string
-}
-
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
