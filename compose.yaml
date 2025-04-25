@@ -11,7 +11,8 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
-      ParticipantManagerDatabaseConnectionString: "Server=${DATABASE_HOST};Database=${DATABASE_NAME};User Id=${DATABASE_USER};Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
+      ParticipantManagerDatabaseConnectionString: "Server=db;Database=participant_database;User Id=sa;Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
     ports:
       - "${API_PORT}:80"
     networks:
@@ -29,12 +30,17 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
+      CRUD_API_URL: "http://localhost:${API_PORT}"
+      AUTH_NHSLOGIN_ISSUER_URL: "${AUTH_NHSLOGIN_ISSUER_URL}"
+      AUTH_NHSLOGIN_CLIENT_ID: "${AUTH_NHSLOGIN_CLIENT_ID}"
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
+      FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY: ${FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY}
     ports:
       - "${EXPERIENCE_PORT}:80"
     networks:
       - backend
 
-    ### ✅ Event Handler (Azure Functions in .NET 9) ###
+  ### ✅ Event Handler (Azure Functions in .NET 9) ###
   event-handler:
     container_name: "event-handler"
     build:
@@ -46,6 +52,10 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
+      CRUD_API_URL: "http://localhost:${API_PORT}"
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
+      EVENT_GRID_TOPIC_URL: "${EVENT_GRID_TOPIC_URL}"
+      EVENT_GRID_TOPIC_KEY: "${EVENT_GRID_TOPIC_KEY}"
     ports:
       - "${EVENT_HANDLER_PORT}:80"
     networks:
@@ -82,6 +92,44 @@ services:
       - ./keycloak-config/master-realm.json:/opt/keycloak/data/import/master-realm.json
       - ./keycloak-config/keycloak-cert.pem:/etc/x509/https/keycloak.crt.pem
       - ./keycloak-config/keycloak-key.pem:/etc/x509/https/keycloak.key.pem
+
+  ### ✅ SQL Server ###
+  db:
+    container_name: db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "grep -q 'SQL Server is now ready for client connections' /var/opt/mssql/log/errorlog || exit 1",
+        ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${DATABASE_PASSWORD}"
+    networks:
+      - backend
+
+  ### ✅ Run EF migrations and seed db ###
+  db-migrations:
+    container_name: db-migrations
+    build:
+      context: .
+      dockerfile: src/api/ParticipantManager.API/Dockerfile.migrations
+      args:
+        ParticipantManagerDatabaseConnectionString: "Server=db;Database=participant_database;User Id=sa;Password=${DATABASE_PASSWORD};TrustServerCertificate=True"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_PASSWORD: "${DATABASE_PASSWORD}"
+    networks:
+      - backend
 
 networks:
   backend:

@@ -1,18 +1,52 @@
-# Use .NET 9 SDK for building and running migrations
+# Stage 1: Create the EF migration script
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
-
 WORKDIR /src/dotnet-function-app
 
-COPY ParticipantManager.API.csproj ./
-COPY ParticipantManager.Shared/ ParticipantManager.Shared/
+# Define build arguments
+ARG ParticipantManagerDatabaseConnectionString
 
-RUN dotnet tool install --global dotnet-ef && \
-    export PATH="$PATH:/root/.dotnet/tools" && \
-    dotnet restore ParticipantManager.API.csproj && \
-    dotnet build ParticipantManager.API.csproj && \
-    addgroup --system appgroup && \
+# Set environment variable during the build process
+ENV ParticipantManagerDatabaseConnectionString=$ParticipantManagerDatabaseConnectionString
+
+# Copy csproj files first (for layer caching)
+COPY ./src/api/ParticipantManager.Shared/ParticipantManager.Shared.csproj ../ParticipantManager.Shared/
+COPY ./src/api/ParticipantManager.API/ParticipantManager.API.csproj ./
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy source files
+COPY ./src/api/ParticipantManager.Shared/ ../ParticipantManager.Shared/
+COPY ./src/api/ParticipantManager.API/ ./
+
+# Install dotnet-ef to a local tools directory so non-root user can access it
+RUN dotnet tool install dotnet-ef --tool-path /tools
+
+# Configure environment variables
+ENV PATH="/tools:$PATH" \
+    DOTNET_CLI_HOME=/tmp \
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true \
+    DOTNET_NOLOGO=true
+
+# Build the project
+RUN dotnet build
+
+# Generate the SQL migration script
+RUN dotnet ef migrations script -o /migrations/migration.sql
+
+# Stage 2: Run migrations and seed data
+FROM mcr.microsoft.com/mssql-tools:latest AS migration-env
+
+# Copy the generated migration SQL script from the build stage
+COPY --from=build-env /migrations/migration.sql /scripts/migration.sql
+COPY ./scripts/db/ /scripts/db/
+
+# Create non-root user
+RUN addgroup --system appgroup && \
     adduser --system --ingroup appgroup appuser
 
+# Run as non-root user
 USER appuser
 
-ENTRYPOINT [ "dotnet", "ef", "database", "update" ]
+# Run EF migrations and seed data
+ENTRYPOINT ["/scripts/db/migrate-and-seed.sh"]
