@@ -44,9 +44,8 @@ module "linux_web_app" {
   # storage_name               = var.linux_web_app.storage_name
   # storage_type               = var.linux_web_app.storage_type
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-webapps"].id
-  # wildcard_ssl_cert_id       = each.value.custom_domains != null ? module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].wildcard_ssl_cert_id : null
-  wildcard_ssl_cert_id = each.value.custom_domains != null ? data.azurerm_app_service_certificate.wildcard.id : null
-  worker_32bit         = var.linux_web_app.worker_32bit
+  wildcard_ssl_cert_id       = each.value.custom_domains != null ? module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].wildcard_ssl_cert_id : null
+  worker_32bit               = var.linux_web_app.worker_32bit
 
   tags = merge(
     var.tags,
@@ -57,12 +56,6 @@ module "linux_web_app" {
       "hidden-link: /app-insights-conn-string"         = data.azurerm_application_insights.ai.connection_string
     }
   )
-}
-
-# Temporary workaround
-data "azurerm_app_service_certificate" "wildcard" {
-  name                = "wildcard-nonlive-nationalscreening"
-  resource_group_name = "rg-parman-dev-uks"
 }
 
 locals {
