@@ -67,10 +67,19 @@ services:
     build:
       context: ./src/web
       dockerfile: Dockerfile
-      args:
-        AUTH_NHSLOGIN_PRIVATE_KEY: "${AUTH_NHSLOGIN_PRIVATE_KEY}"
-    restart: always
     platform: linux/amd64
+    restart: always
+    environment:
+      SERVICE_NAME: Manage your screening
+      NEXTAUTH_URL: https://localhost:${WEB_PORT}/api/auth
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_TRUST_HOST: true
+      EXPERIENCE_API_URL: http://experience-api
+      AUTH_NHSLOGIN_ISSUER_URL: https://auth.sandpit.signin.nhs.uk
+      AUTH_NHS_LOGIN_SETTINGS_URL: https://settings.sandpit.signin.nhs.uk
+      AUTH_NHSLOGIN_CLIENT_ID: ${AUTH_NHSLOGIN_CLIENT_ID}
+      AUTH_NHSLOGIN_CLIENT_SECRET: ${AUTH_NHSLOGIN_CLIENT_SECRET}
+      APPLICATIONINSIGHTS_CONNECTION_STRING: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
     depends_on:
       - experience-api
     ports:
