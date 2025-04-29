@@ -30,7 +30,7 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
-      CRUD_API_URL: "http://localhost:${API_PORT}"
+      CRUD_API_URL: "http://backend-api"
       AUTH_NHSLOGIN_ISSUER_URL: "${AUTH_NHSLOGIN_ISSUER_URL}"
       AUTH_NHSLOGIN_CLIENT_ID: "${AUTH_NHSLOGIN_CLIENT_ID}"
       APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
@@ -52,7 +52,7 @@ services:
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
       AzureWebJobsStorage: "${AZURE_WEB_JOBS_STORAGE}"
       AzureWebJobsSecretStorageType: "files"
-      CRUD_API_URL: "http://localhost:${API_PORT}"
+      CRUD_API_URL: "http://backend-api"
       APPLICATIONINSIGHTS_CONNECTION_STRING: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
       EVENT_GRID_TOPIC_URL: "${EVENT_GRID_TOPIC_URL}"
       EVENT_GRID_TOPIC_KEY: "${EVENT_GRID_TOPIC_KEY}"
@@ -106,8 +106,8 @@ services:
           "grep -q 'SQL Server is now ready for client connections' /var/opt/mssql/log/errorlog || exit 1",
         ]
       interval: 15s
-      timeout: 15s
-      retries: 5
+      timeout: 10s
+      retries: 6
       start_period: 30s
     environment:
       ACCEPT_EULA: "Y"
