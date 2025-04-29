@@ -134,7 +134,7 @@ app_service_plan = {
   instances = {
     Default = {}
     WebApp = {
-      wildcard_ssl_cert_key = "nationalscreening_wildcard"
+      wildcard_ssl_cert_key = "screening_wildcard" # from keys in lets_encrypt_certificates map in Hub tfvars
     }
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
@@ -245,12 +245,12 @@ linux_web_app = {
     FrontEndUi = {
       name_suffix          = "nextjs-frontend"
       app_service_plan_key = "WebApp"
-      custom_domains       = ["www-int.non-live.nationalscreening.nhs.uk"]
+      custom_domains       = ["www-int.non-live.screening.nhs.uk"]
       env_vars_static = {
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_TRUST_HOST          = true
-        NEXTAUTH_URL             = "https://www-int.non-live.nationalscreening.nhs.uk/api/auth"
+        NEXTAUTH_URL             = "https://www-int.non-live.screening.nhs.uk/api/auth"
         SERVICE_NAME             = "Manage your screening"
       }
       env_vars_from_key_vault = [
