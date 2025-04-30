@@ -71,7 +71,7 @@ services:
     restart: always
     environment:
       SERVICE_NAME: Manage your screening
-      NEXTAUTH_URL: https://localhost:${WEB_PORT}/api/auth
+      NEXTAUTH_URL: https://localhost/api/auth
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       AUTH_TRUST_HOST: true
       EXPERIENCE_API_URL: http://experience-api
@@ -87,6 +87,24 @@ services:
     networks:
       - backend
 
+  ### ✅ Nginx ###
+  nginx:
+    container_name: "nginx"
+    image: "nginx:latest"
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./src/web/certificates:/etc/ssl/certs
+      - ./src/web/certificates:/etc/ssl/private
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - nextjs-frontend
+    networks:
+      - backend
+
+  ### ✅ Keycloak ###
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     command:
