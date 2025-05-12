@@ -73,7 +73,7 @@ variable "app_service_plan" {
     vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
-      memory_percentage = object({
+      scaling_rule = object({
         metric              = optional(string)
         capacity_min        = optional(string)
         capacity_max        = optional(string)
@@ -99,7 +99,7 @@ variable "app_service_plan" {
 
     instances = map(object({
       autoscale_override = optional(object({
-        memory_percentage = object({
+        scaling_rule = object({
           metric              = optional(string)
           capacity_min        = optional(string)
           capacity_max        = optional(string)
@@ -336,7 +336,7 @@ variable "network_security_group_rules" {
 
 variable "public_dns_zone_rg_name" {
   type        = string
-  description = "Name of the Resource Group containing the public DNS zones in the Hub subscription."
+  description = "Name of the Resource Group containing the public DNS zones in the Hub subscription, for App Service Custom Domains DNS challenges."
   default     = null
 }
 

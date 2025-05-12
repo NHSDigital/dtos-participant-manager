@@ -103,7 +103,7 @@ app_service_plan = {
   vnet_integration_enabled = true
 
   autoscale = {
-    memory_percentage = {
+    scaling_rule = {
       metric = "MemoryPercentage"
 
       capacity_min = "1"
