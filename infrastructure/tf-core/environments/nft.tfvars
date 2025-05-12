@@ -220,9 +220,6 @@ linux_web_app = {
   acr_name    = "acrukshubdevparman"
   acr_rg_name = "rg-hub-dev-uks-parman"
 
-  app_insights_name    = "appi-nft-uks-parman"
-  app_insights_rg_name = "rg-parman-nft-uks-audit"
-
   always_on = true
 
   cont_registry_use_mi = true
@@ -271,8 +268,6 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
-
-public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
