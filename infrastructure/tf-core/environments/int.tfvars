@@ -189,18 +189,19 @@ function_apps = {
       name_suffix            = "experience-api"
       function_endpoint_name = "ParticipantManagerExperience"
       app_service_plan_key   = "Default"
-      env_vars_static = {
-        AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
-        AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
-      }
-      env_vars_from_key_vault = [
-        {
-          env_var_name          = "FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"
-          key_vault_secret_name = "flagsmith-server-side-environment-key"
+      env_vars = {
+        static = {
+          AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
+          AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
         }
-      ]
-      local_urls = {
-        CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
+        from_key_vault = {
+          # env_var_name                        = "key_vault_secret_name"
+          FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY = "flagsmith-server-side-environment-key"
+        }
+        local_urls = {
+          # %s becomes the environment and region prefix (e.g. dev-uks)
+          CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
+        }
       }
     }
   }
@@ -219,9 +220,6 @@ linux_web_app = {
   acr_mi_name = "dtos-participant-manager-acr-push"
   acr_name    = "acrukshubdevparman"
   acr_rg_name = "rg-hub-dev-uks-parman"
-
-  app_insights_name    = "appi-int-uks-parman"
-  app_insights_rg_name = "rg-parman-int-uks-audit"
 
   always_on = true
 
@@ -246,33 +244,29 @@ linux_web_app = {
       name_suffix          = "nextjs-frontend"
       app_service_plan_key = "WebApp"
       custom_domains       = ["www-int.non-live.screening.nhs.uk"]
-      env_vars_static = {
-        AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
-        AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
-        AUTH_TRUST_HOST          = true
-        NEXTAUTH_URL             = "https://www-int.non-live.screening.nhs.uk/api/auth"
-        SERVICE_NAME             = "Manage your screening"
-      }
-      env_vars_from_key_vault = [
-        {
-          env_var_name          = "AUTH_NHSLOGIN_CLIENT_SECRET"
-          key_vault_secret_name = "auth-nhslogin-client-secret"
-        },
-        {
-          env_var_name          = "NEXTAUTH_SECRET"
-          key_vault_secret_name = "nextauth-secret"
+      env_vars = {
+        static = {
+          AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
+          AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
+          AUTH_TRUST_HOST          = "true"
+          NEXTAUTH_URL             = "https://www-int.non-live.screening.nhs.uk/api/auth"
+          SERVICE_NAME             = "Manage your screening"
         }
-      ]
-      local_urls = {
-        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
+        from_key_vault = {
+          # env_var_name              = "key_vault_secret_name"
+          AUTH_NHSLOGIN_CLIENT_SECRET = "auth-nhslogin-client-secret"
+          NEXTAUTH_SECRET             = "nextauth-secret"
+        }
+        local_urls = {
+          # %s becomes the environment and region prefix (e.g. dev-uks)
+          EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
+        }
       }
     }
   }
 }
 
 linux_web_app_slots = []
-
-public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
