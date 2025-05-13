@@ -97,16 +97,13 @@ routes = {
   }
 }
 
-app_insights_name    = "appi-dev-uks-parman"
-app_insights_rg_name = "rg-parman-dev-uks-audit"
-
 app_service_plan = {
   os_type                  = "Linux"
   sku_name                 = "P2v3"
   vnet_integration_enabled = true
 
   autoscale = {
-    memory_percentage = {
+    scaling_rule = {
       metric = "MemoryPercentage"
 
       capacity_min = "1"
@@ -136,7 +133,9 @@ app_service_plan = {
 
   instances = {
     Default = {}
-    WebApp  = {}
+    WebApp = {
+      wildcard_ssl_cert_key = "screening_wildcard" # from keys in lets_encrypt_certificates map in Hub tfvars
+    }
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
     # DemographicsService          = {}
@@ -190,9 +189,6 @@ function_apps = {
       name_suffix            = "experience-api"
       function_endpoint_name = "ParticipantManagerExperience"
       app_service_plan_key   = "Default"
-      local_urls = {
-        CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
-      }
       env_vars_static = {
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
@@ -201,8 +197,11 @@ function_apps = {
         {
           env_var_name          = "FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"
           key_vault_secret_name = "flagsmith-server-side-environment-key"
-        },
+        }
       ]
+      local_urls = {
+        CRUD_API_URL = "https://%s-backend-api.azurewebsites.net"
+      }
     }
   }
 }
@@ -246,15 +245,13 @@ linux_web_app = {
     FrontEndUi = {
       name_suffix          = "nextjs-frontend"
       app_service_plan_key = "WebApp"
+      custom_domains       = ["www-dev.non-live.screening.nhs.uk"]
       env_vars_static = {
         AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
         AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
         AUTH_TRUST_HOST          = true
-        NEXTAUTH_URL             = "https://www-dev.non-live.nationalscreening.nhs.uk/api/auth"
+        NEXTAUTH_URL             = "https://www-dev.non-live.screening.nhs.uk/api/auth"
         SERVICE_NAME             = "Manage your screening"
-      }
-      local_urls = {
-        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
       }
       env_vars_from_key_vault = [
         {
@@ -266,11 +263,16 @@ linux_web_app = {
           key_vault_secret_name = "nextauth-secret"
         }
       ]
+      local_urls = {
+        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
+      }
     }
   }
 }
 
 linux_web_app_slots = []
+
+public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
