@@ -5,7 +5,7 @@ module "linux_web_app" {
 
   providers = {
     azurerm     = azurerm
-    azurerm.hub = azurerm.hub # For Custom Domains DNS challenge records
+    azurerm.dns = azurerm.hub # For Custom Domains DNS challenge records
   }
 
   linux_web_app_name  = "${module.regions_config[each.value.region].names.linux-web-app}-${lower(each.value.name_suffix)}"
