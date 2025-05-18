@@ -134,7 +134,7 @@ app_service_plan = {
   instances = {
     Default = {}
     WebApp = {
-      wildcard_ssl_cert_key = "screening_wildcard" # from keys in lets_encrypt_certificates map in Hub tfvars
+      wildcard_ssl_cert_key = "screening_wildcard" # from keys in acme_certificates map in Hub tfvars
     }
     # BIAnalyticsDataService       = {}
     # BIAnalyticsService           = {}
