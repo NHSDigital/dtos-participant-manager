@@ -49,3 +49,9 @@ next-env.d.ts
 
 # SSL
 certificates
+
+# Playwright tests
+test-results
+playwright-report
+cucumber-report
+**/.features-gen/**/*.spec.js
