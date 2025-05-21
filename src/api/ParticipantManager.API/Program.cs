@@ -15,8 +15,10 @@ var appInsightsConnectionString = EnvironmentVariables.GetRequired("APPLICATIONI
 var databaseConnectionString = EnvironmentVariables.GetRequired("ParticipantManagerDatabaseConnectionString");
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureServices((context, services) =>
+  .ConfigureFunctionsWebApplication(worker =>
+    {
+        worker.UseMiddleware<SecurityHeadersMiddleware>();
+    }).ConfigureServices((context, services) =>
     {
         services.AddOpenTelemetry()
             .ConfigureResource(builder => builder
