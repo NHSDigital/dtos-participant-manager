@@ -58,7 +58,7 @@ var host = new HostBuilder()
 
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IFlagsmithClient>(sp =>
-            new FlagsmithClient(EnvironmentVariables.GetRequired("FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY")));
+            new FlagsmithClient(environmentKey: EnvironmentVariables.GetRequired("FLAGSMITH_SERVER_SIDE_ENVIRONMENT_KEY"), enableAnalytics: true));
         services.AddSingleton<IFeatureFlagClient, FeatureFlagClient>();
         services.AddAuthorization();
     })
