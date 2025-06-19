@@ -110,7 +110,6 @@ variable "tags" {
   type        = map(string)
 }
 
-
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for SQL Server audit logs"
   type = map(object({
@@ -122,5 +121,6 @@ variable "storage_accounts" {
       container_name        = string
       container_access_type = optional(string, "private")
     })), {})
+    queues = optional(list(string))
   }))
 }

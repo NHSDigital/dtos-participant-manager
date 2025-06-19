@@ -268,6 +268,31 @@ linux_web_app = {
 
 linux_web_app_slots = []
 
+frontdoor_endpoint = {
+  www = {
+    origin_group = {
+      session_affinity_enabled = false
+    }
+    origin = {
+      # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled (needs manual approval)
+      webapp_key                     = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
+      certificate_name_check_enabled = true # Required for Private Link
+    }
+    custom_domains = {
+      pamo16test = {
+        host_name     = "pamo16test.non-live.screening.nhs.uk"
+        dns_zone_name = "non-live.screening.nhs.uk"
+      }
+    }
+    security_policies = {
+      AllowedIPs = {
+        cdn_frontdoor_firewall_policy_name = "wafhubnonliveinternalwhitelist"
+        associated_domain_keys             = ["pamo16test"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+      }
+    }
+  }
+}
+
 sqlserver = {
   sql_uai_name                         = "dtos-participant-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_parman_dev_uks_admin"
