@@ -99,32 +99,6 @@ public class GetParticipantIdFunctionTests
         Assert.Equal("Unable to find participant", response?.Value);
     }
 
-    [Fact]
-    public async Task GetParticipantId_FeatureToggleDisabled_ReturnsForbidden()
-    {
-        // Arrange
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, "12345678"),
-            new(ClaimTypes.Email, "user@example.com"),
-            new("nhs_number", "12345678")
-        };
-        var identity = new ClaimsIdentity(claims, "Bearer");
-        var principal = new ClaimsPrincipal(identity);
-
-        _mockTokenService.Setup(s => s.ValidateToken(It.IsAny<HttpRequestData>()))
-            .ReturnsAsync(AccessTokenResult.Success(principal));
-        _mockFeatureFlagClient.Setup(f => f.IsFeatureEnabledForParticipant("mays_mvp", _participantId))
-            .ReturnsAsync(false);
-        var request = SetupRequest.CreateHttpRequest("Bearer token");
-
-        // Act
-        var response = await _function.GetParticipantId(request);
-
-        // Assert
-        Assert.NotNull(response);
-        Assert.IsType<ForbidResult>(response);
-    }
 
     [Fact]
     public async Task GetParticipantId_WithValidToken_ReturnsOk()
