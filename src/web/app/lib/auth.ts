@@ -133,7 +133,7 @@ export async function getAuthConfig() {
         if (account?.access_token) {
           try {
             const response = await fetch(
-              process.env.NODE_ENV === "test" ? `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/protocol/openid-connect/userinfo` : `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
+              process.env.APP_ENV === "test" ? `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/protocol/openid-connect/userinfo` : `${process.env.AUTH_NHSLOGIN_ISSUER_URL}/userinfo`,
               {
                 method: "GET",
                 headers: {
