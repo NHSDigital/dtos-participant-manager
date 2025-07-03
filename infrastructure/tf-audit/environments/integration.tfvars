@@ -1,6 +1,6 @@
 application           = "parman"
 application_full_name = "participant-manager"
-environment           = "DEV"
+environment           = "INT"
 
 features = {
   private_endpoints_enabled              = true
